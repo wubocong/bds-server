@@ -5,20 +5,29 @@ export const baseUrl = '/tag'
 
 export default [
   {
-    method: 'POST',
-    route: '/',
-    handlers: [
-      // ensureUser,
-      tag.duplicateTag,
-      tag.createTag
-    ]
-  },
-  {
     method: 'GET',
     route: '/',
     handlers: [
       // ensureUser,
       tag.getTags
+    ]
+  },
+  {
+    method: 'POST',
+    route: '/',
+    handlers: [
+      // ensureUser,
+      tag.getTags,
+      tag.duplicateTags,
+      tag.createTags
+    ]
+  },
+  {
+    method: 'PUT',
+    route: '/',
+    handlers: [
+      // ensureUser,
+      tag.updateTags,
     ]
   },
   {
@@ -29,20 +38,20 @@ export default [
       tag.getTag
     ]
   },
-  {
+   {
     method: 'PUT',
     route: '/:id',
     handlers: [
       // ensureUser,
       tag.getTag,
-      tag.updateTag
+      tag.updateTag,
     ]
   },
   {
     method: 'DELETE',
     route: '/:id',
     handlers: [
-      ensureUser,
+      // ensureUser,
       tag.getTag,
       tag.deleteTag
     ]

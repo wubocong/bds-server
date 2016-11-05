@@ -1,5 +1,22 @@
 import Tag from '../../models/tags'
 
+export async function createTags(ctx) {
+  const tagIds = [];
+  ctx.body.tags.forEach((tag) => {
+    const newTag = new Tag(tag);
+    try {
+      await newTag.save()
+    } catch (err) {
+      ctx.throw(422, err.message)
+    }
+    tagIds.push(newTag._id);
+  });
+
+  ctx.body = {
+    tagIds
+  }
+}
+
 export async function createTag(ctx) {
   const tag = new Tag(ctx.request.fields.tag)
   try {
@@ -13,21 +30,20 @@ export async function createTag(ctx) {
 }
 
 export async function getTags(ctx) {
-  const tags = await Tag.find({})
+  const tags = await Tag.find()
   ctx.body = {
     tags
   }
+  if (next) {
+    return next()
+  }
 }
 
-export async function getTag(ctx, next) {
+export async function getTag(id) {
   try {
-    const tag = await Tag.findById(ctx.params.id)
+    const tag = await Tag.findById(id)
     if (!tag) {
       ctx.throw(404)
-    }
-
-    ctx.body = {
-      tag
     }
   } catch (err) {
     if (err === 404 || err.name === 'CastError') {
@@ -36,19 +52,35 @@ export async function getTag(ctx, next) {
 
     ctx.throw(500)
   }
+  return tag
+}
 
-  if (next) {
-    return next()
+
+export async function updateTag(tag, newTag) {
+  Object.assign(tag, newTag)
+  
+  return await tag.save()
+}
+
+export async function updateTags(ctx) {
+  const tags = ctx.body.tags
+  const tagsState = {};
+
+  ctx.request.fields.tags.forEach((tag) => {
+    tagsState[tag._id] = await updateTag(await getTag(tag._id), tag)
+  });
+
+  ctx.body = {
+    tags
   }
 }
 
-export async function updateTag(ctx) {
+export async function deleteTags(ctx) {
   const tag = ctx.body.tag
 
-  Object.assign(tag, ctx.request.fields.tag)
+  await tag.remove()
 
-  await tag.save()
-
+  ctx.status = 200
   ctx.body = {
     tag: { _id: tag._id }
   }
@@ -65,20 +97,11 @@ export async function deleteTag(ctx) {
   }
 }
 
-export async function duplicateTag(ctx, next) {
-  try {
-    const tag = await Tag.findOne({
-      name: ctx.request.fields.tag.name,
-      author: ctx.request.fields.tag.author
-    })
-    if (tag) {
-      ctx.status = 304
-      ctx.body = {}
-    }
-  } catch (err) {
-    if (err === 500) {
-      ctx.throw(500)
-    }
+export async function duplicateTags(ctx, next) {
+  const tags = ctx.body.tags
+  const newTags = ctx.request.fields.tags.filter((newTag) => tags.every(tag => tag.name !== newTag.name))
+  ctx.body = {
+    tags: newTags
   }
   if (next) {
     return next()
