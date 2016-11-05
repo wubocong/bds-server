@@ -27,33 +27,17 @@ export default [
     route: '/',
     handlers: [
       // ensureUser,
+      tag.getTags,
       tag.updateTags,
     ]
   },
   {
-    method: 'GET',
-    route: '/:id',
-    handlers: [
-      // ensureUser,
-      tag.getTag
-    ]
-  },
-   {
-    method: 'PUT',
-    route: '/:id',
-    handlers: [
-      // ensureUser,
-      tag.getTag,
-      tag.updateTag,
-    ]
-  },
-  {
     method: 'DELETE',
-    route: '/:id',
+    route: '/',
     handlers: [
       // ensureUser,
-      tag.getTag,
-      tag.deleteTag
+      tag.getTags,
+      tag.deleteTags,
     ]
   }
 ]
