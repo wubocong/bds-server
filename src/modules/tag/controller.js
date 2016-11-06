@@ -1,35 +1,31 @@
 import Tag from '../../models/tags'
 
-function createTag(tag) {
-  return new Promise((resolve, reject) => {
+export async function createTags (ctx) {
+  const tagIds = []
+
+  await Promise.all(ctx.body.tags.map(async (tag) => {
     try {
-      const newTag = new Tag(tag);
-      newTag.save()
-      resolve(newTag)
+      const newTag = new Tag({...tag, author: ctx.request.fields.author})
+      console.log(newTag)
+      await newTag.save()
+      tagIds.push(newTag._id)
     } catch (err) {
-      reject(err)
       ctx.throw(422, err.message)
     }
-  })
-}
-
-export async function createTags(ctx) {
-  const tagIds = [];
-  ctx.body.tags.forEach((tag) => {
-    tagIds.push((await createTag(tag))._id)
-  })
+  }))
 
   ctx.body = {
     tagIds
   }
 }
 
-async function getTag(id) {
+async function getTag (ctx, id) {
   try {
     const tag = await Tag.findById(id)
     if (!tag) {
       ctx.throw(404)
     }
+    return tag
   } catch (err) {
     if (err === 404 || err.name === 'CastError') {
       ctx.throw(404)
@@ -37,68 +33,49 @@ async function getTag(id) {
 
     ctx.throw(500)
   }
-  return tag
 }
 
-export async function getTags(ctx) {
+export async function getTags (ctx, next) {
   const tags = await Tag.find()
   ctx.body = {
-    tags
+    tags,
   }
   if (next) {
     return next()
   }
 }
 
-async function updateTag(tag, newTag) {
-  Object.assign(tag, newTag)
-  try {
-    return await tag.save()
-  } catch (err) {
-    ctx.throw(422, err.message)
-  }
-}
-
-export async function updateTags(ctx) {
-  const tags = ctx.body.tags
-  const tagsState = {};
-
-  ctx.request.fields.tags.forEach((tag) => {
-    tagsState[tag._id] = !!await updateTag(await getTag(tag._id), tag)
-  });
+export async function updateTags (ctx) {
+  await Promise.all(ctx.request.fields.tags.map(async (tag) => {
+    try {
+      await { ...getTag(ctx, tag._id), ...tag }.save()
+    } catch (err) {
+      ctx.throw(422, err.message)
+    }
+  }))
 
   ctx.body = {
-    tagsState
+    update: true,
   }
 }
 
+export async function deleteTags (ctx) {
+  await Promise.all(ctx.request.fields.tags.map(async (tag) => {
+    try {
+      await getTag(ctx, tag._id).remove()
+    } catch (err) {
+      ctx.throw(422, err.message)
+    }
+  }))
 
-async function deleteTag(tag) {
-  try {
-    return await tag.remove()
-  }
-  catch{
-    ctx.throw(422, err.message)
-  }
-}
-
-export async function deleteTags(ctx) {
-  const tags = ctx.body.tags
-  const tagsState = {};
-
-  ctx.request.fields.tags.forEach((tag) => {
-    tagsState[tag._id] = !!await deleteTag(await getTag(tag._id))
-  });
-
-  ctx.status = 200
   ctx.body = {
-    tagsState
+    delete: true,
   }
 }
 
-export async function duplicateTags(ctx, next) {
-  const tags = ctx.body.tags
-  const newTags = ctx.request.fields.tags.filter((newTag) => tags.every(tag => tag.name !== newTag.name))
+export async function duplicateTags (ctx, next) {
+  ctx.body.tags = ctx.request.fields.tags.filter((newTag) => ctx.body.tags.every(tag => tag.name !== newTag.name))
+
   if (next) {
     return next()
   }
