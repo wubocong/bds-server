@@ -60,9 +60,9 @@ export async function updateTags (ctx) {
 }
 
 export async function deleteTags (ctx) {
-  await Promise.all(ctx.request.fields.tags.map(async (tag) => {
+  await Promise.all(ctx.request.fields.tagIds.map(async (id) => {
     try {
-      await getTag(ctx, tag._id).remove()
+      await getTag(ctx, id).remove()
     } catch (err) {
       ctx.throw(422, err.message)
     }
