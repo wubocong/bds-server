@@ -2,37 +2,22 @@ import Tag from '../../models/tags'
 
 export async function createTags (ctx) {
   const tagIds = []
-
-  await Promise.all(ctx.body.tags.map(async (tag) => {
-    try {
+  try {
+    await Promise.all(ctx.body.tags.map(async (tag) => {
       const newTag = new Tag({...tag, author: ctx.request.fields.author})
-      console.log(newTag)
       await newTag.save()
       tagIds.push(newTag._id)
-    } catch (err) {
-      ctx.throw(422, err.message)
+    }))
+    ctx.body = {
+      tagIds,
     }
-  }))
-
-  ctx.body = {
-    tagIds
+  } catch (err) {
+    ctx.throw(422, err.message)
   }
 }
 
-async function getTag (ctx, id) {
-  try {
-    const tag = await Tag.findById(id)
-    if (!tag) {
-      ctx.throw(404)
-    }
-    return tag
-  } catch (err) {
-    if (err === 404 || err.name === 'CastError') {
-      ctx.throw(404)
-    }
-
-    ctx.throw(500)
-  }
+async function getTag (id) {
+  return await Tag.findById(id)
 }
 
 export async function getTags (ctx, next) {
@@ -46,30 +31,28 @@ export async function getTags (ctx, next) {
 }
 
 export async function updateTags (ctx) {
-  await Promise.all(ctx.request.fields.tags.map(async (tag) => {
-    try {
-      await { ...getTag(ctx, tag._id), ...tag }.save()
-    } catch (err) {
-      ctx.throw(422, err.message)
+  try {
+    await Promise.all(ctx.request.fields.tags.map(async (tag) => {
+      await Object.assign((await getTag(tag._id)), tag).save()
+    }))
+    ctx.body = {
+      update: true,
     }
-  }))
-
-  ctx.body = {
-    update: true,
+  } catch (err) {
+    ctx.throw(422, err.message)
   }
 }
 
 export async function deleteTags (ctx) {
-  await Promise.all(ctx.request.fields.tagIds.map(async (id) => {
-    try {
-      await getTag(ctx, id).remove()
-    } catch (err) {
-      ctx.throw(422, err.message)
+  try {
+    await Promise.all(ctx.request.fields.tagIds.map(async (id) => {
+      await (await getTag(id)).remove()
+    }))
+    ctx.body = {
+      delete: true,
     }
-  }))
-
-  ctx.body = {
-    delete: true,
+  } catch (err) {
+    ctx.throw(422, err.message)
   }
 }
 
