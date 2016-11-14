@@ -5,14 +5,6 @@ export const baseUrl = '/file'
 
 export default [
   {
-    method: 'POST',
-    route: '/',
-    handlers: [
-      ensureUser,
-      file.createFiles
-    ]
-  },
-  {
     method: 'GET',
     route: '/',
     handlers: [
@@ -22,27 +14,19 @@ export default [
   },
   {
     method: 'POST',
-    route: '/tag/',
+    route: '/',
     handlers: [
       ensureUser,
-      file.getQueryFiles
-    ]
-  },
-  {
-    method: 'GET',
-    route: '/:id',
-    handlers: [
-      ensureUser,
-      file.getFile
+      file.createFiles
     ]
   },
   {
     method: 'DELETE',
-    route: '/:id',
+    route: '/',
     handlers: [
       ensureUser,
-      file.getFile,
-      file.deleteFile
+      file.getFiles,
+      file.deleteFiles,
     ]
   }
 ]

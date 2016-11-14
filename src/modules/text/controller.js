@@ -1,77 +1,58 @@
 import Text from '../../models/texts'
 
-export async function createText(ctx) {
-  const text = new Text(ctx.request.fields.text)
+export async function createTexts (ctx) {
+  const textIds = []
   try {
-    await text.save()
+    await Promise.all(ctx.body.texts.map(async (text) => {
+      const newText = new Text({...text, author: ctx.state.user._id, tag: ctx.request.fields.tag})
+      await newText.save()
+      textIds.push(newText._id)
+    }))
+    ctx.body = {
+      textIds,
+    }
   } catch (err) {
     ctx.throw(422, err.message)
   }
+}
+
+async function getText (id) {
+  return await Text.findById(id)
+}
+
+export async function getTexts (ctx, next) {
+  // ctx.state中储存了koa-passport解析的用户会话信息
+  const texts = await Text.find({author: ctx.state.user._id})
   ctx.body = {
-    text: { _id: text._id }
+    texts,
+  }
+  if (next) {
+    return next()
   }
 }
 
-export async function getTexts(ctx) {
-  const texts = await Text.find({})
-  ctx.body = { texts }
-}
-
-export async function getQueryTexts(ctx) {
-  const texts = await Text.find({ ...ctx.request.fields.info })
-  ctx.body = { texts }
-}
-
-export async function getText(ctx, next) {
+export async function updateTexts (ctx) {
   try {
-    const text = await Text.findById(ctx.params.id)
-    if (!text) {
-      ctx.status = 404
-      ctx.body = { text: {} }
-    }
-
+    await Promise.all(ctx.request.fields.texts.map(async (text) => {
+      await Object.assign((await getText(text._id)), text).save()
+    }))
     ctx.body = {
-      text
+      update: true,
     }
   } catch (err) {
-    if (err === 404 || err.name === 'CastError') {
-      ctx.status = 404
-      ctx.body = { text: {} }
-    }
-
-    ctx.status = 500
-    ctx.body = { text: {} }
-  }
-
-  if (next) { return next() }
-}
-
-export async function updateText(ctx) {
-  const text = ctx.body.text
-
-  Object.assign(text, ctx.request.fields.text)
-
-  await text.save()
-
-  ctx.body = {
-    text: { _id: text._id }
+    ctx.throw(422, err.message)
   }
 }
 
-export async function deleteText(ctx) {
-  const text = ctx.body.text
-  const reqText = ctx.request.fields.text
-
-  // to be fixed
-  if (ctx.params.id === reqText['_id'] && text.author === reqText.author && text.tag === reqText.tag) {
-    await text.remove()
+export async function deleteTexts (ctx) {
+  try {
+    await Promise.all(ctx.request.fields.textIds.map(async (id) => {
+      await (await getText(id)).remove()
+    }))
     ctx.body = {
-      text: { _id: text['_id'] }
+      delete: true,
     }
-  } else {
-    ctx.status = 400
-    ctx.body = {
-      text: {}
-    }
+  } catch (err) {
+    ctx.throw(422, err.message)
   }
 }

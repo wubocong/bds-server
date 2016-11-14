@@ -4,7 +4,7 @@ export async function createTags (ctx) {
   const tagIds = []
   try {
     await Promise.all(ctx.body.tags.map(async (tag) => {
-      const newTag = new Tag({...tag, author: ctx.request.fields.author})
+      const newTag = new Tag({...tag, author: ctx.state.user._id})
       await newTag.save()
       tagIds.push(newTag._id)
     }))
@@ -16,12 +16,13 @@ export async function createTags (ctx) {
   }
 }
 
-async function getTag (id) {
+async function getTag (id, author) {
   return await Tag.findById(id)
 }
 
 export async function getTags (ctx, next) {
-  const tags = await Tag.find()
+  // ctx.state中储存了koa-passport解析的用户会话信息
+  const tags = await Tag.find({author: ctx.state.user._id})
   ctx.body = {
     tags,
   }

@@ -5,14 +5,6 @@ export const baseUrl = '/text'
 
 export default [
   {
-    method: 'POST',
-    route: '/',
-    handlers: [
-      ensureUser,
-      text.createText
-    ]
-  },
-  {
     method: 'GET',
     route: '/',
     handlers: [
@@ -22,36 +14,28 @@ export default [
   },
   {
     method: 'POST',
-    route: '/tag/',
+    route: '/',
     handlers: [
       ensureUser,
-      text.getQueryTexts
-    ]
-  },
-  {
-    method: 'GET',
-    route: '/:id',
-    handlers: [
-      // ensureUser,
-      text.getText
+      text.createTexts
     ]
   },
   {
     method: 'PUT',
-    route: '/:id',
+    route: '/',
     handlers: [
       ensureUser,
-      text.getText,
-      text.updateText
+      text.getTexts,
+      text.updateTexts,
     ]
   },
   {
     method: 'DELETE',
-    route: '/:id',
+    route: '/',
     handlers: [
-      // ensureUser,
-      text.getText,
-      text.deleteText
+      ensureUser,
+      text.getTexts,
+      text.deleteTexts,
     ]
   }
 ]

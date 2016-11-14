@@ -8,7 +8,7 @@ export default [
     method: 'GET',
     route: '/',
     handlers: [
-      // ensureUser,
+      ensureUser,
       tag.getTags
     ]
   },
@@ -16,7 +16,7 @@ export default [
     method: 'POST',
     route: '/',
     handlers: [
-      // ensureUser,
+      ensureUser,
       tag.getTags,
       tag.duplicateTags,
       tag.createTags
@@ -26,7 +26,7 @@ export default [
     method: 'PUT',
     route: '/',
     handlers: [
-      // ensureUser,
+      ensureUser,
       tag.getTags,
       tag.updateTags,
     ]
@@ -35,7 +35,7 @@ export default [
     method: 'DELETE',
     route: '/',
     handlers: [
-      // ensureUser,
+      ensureUser,
       tag.getTags,
       tag.deleteTags,
     ]
