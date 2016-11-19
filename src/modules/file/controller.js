@@ -3,7 +3,7 @@ import File from '../../models/files'
 export async function createFiles (ctx) {
   const fileIds = []
   try {
-    await Promise.all(ctx.body.files.map(async (file) => {
+    await Promise.all(ctx.request.files.map(async (file) => {
       const newFile = new File({...file, author: ctx.state.user._id, tag: ctx.request.fields.tag, lastModifiedDate: new Date(file.lastModifiedDate).getTime()})
       await newFile.save()
       fileIds.push(newFile._id)
