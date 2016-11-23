@@ -1,4 +1,3 @@
-import { ensureUser } from '../../middleware/validators'
 import * as tag from './controller'
 
 export const baseUrl = '/tag'
@@ -8,25 +7,22 @@ export default [
     method: 'GET',
     route: '/',
     handlers: [
-      ensureUser,
-      tag.getTags
+      tag.getTags,
     ]
   },
   {
     method: 'POST',
     route: '/',
     handlers: [
-      ensureUser,
       tag.getTags,
       tag.duplicateTags,
-      tag.createTags
+      tag.createTags,
     ]
   },
   {
     method: 'PUT',
     route: '/',
     handlers: [
-      ensureUser,
       tag.getTags,
       tag.updateTags,
     ]
@@ -35,7 +31,6 @@ export default [
     method: 'DELETE',
     route: '/',
     handlers: [
-      ensureUser,
       tag.getTags,
       tag.deleteTags,
     ]

@@ -8,7 +8,7 @@ export default [
     method: 'POST',
     route: '/',
     handlers: [
-      teacher.createTeacher
+      teacher.createTeacher,
     ]
   },
   {
@@ -16,7 +16,7 @@ export default [
     route: '/',
     handlers: [
       ensureTeacher,
-      teacher.getTeachers
+      teacher.getTeachers,
     ]
   },
   {
@@ -24,7 +24,7 @@ export default [
     route: '/:id',
     handlers: [
       ensureTeacher,
-      teacher.getTeacher
+      teacher.getTeacher,
     ]
   },
   {
@@ -33,7 +33,7 @@ export default [
     handlers: [
       ensureTeacher,
       teacher.getTeacher,
-      teacher.updateTeacher
+      teacher.updateTeacher,
     ]
   },
   {
@@ -42,7 +42,7 @@ export default [
     handlers: [
       ensureTeacher,
       teacher.getTeacher,
-      teacher.deleteTeacher
+      teacher.deleteTeacher,
     ]
   }
 ]

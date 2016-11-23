@@ -1,4 +1,4 @@
-import { ensureUser } from '../../middleware/validators'
+import { ensureStudent } from '../../middleware/validators'
 import * as file from './controller'
 
 export const baseUrl = '/file'
@@ -8,24 +8,24 @@ export default [
     method: 'GET',
     route: '/',
     handlers: [
-      ensureUser,
-      file.getFiles
+      ensureStudent,
+      file.getPapers
     ]
   },
   {
     method: 'POST',
     route: '/',
     handlers: [
-      ensureUser,
-      file.createFiles
+      ensureStudent,
+      file.createPapers
     ]
   },
   {
     method: 'DELETE',
     route: '/',
     handlers: [
-      ensureUser,
-      file.deleteFiles,
+      ensureStudent,
+      file.deletePapers,
     ]
   }
 ]

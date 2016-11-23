@@ -1,12 +1,12 @@
-import File from '../../models/files'
+import Paper from '../../models/files'
 
-export async function createFiles (ctx) {
+export async function createPapers (ctx) {
   const fileIds = []
   try {
     await Promise.all(ctx.request.files.map(async (file) => {
-      const newFile = new File({...file, author: ctx.state.user._id, tag: ctx.request.fields.tag, lastModifiedDate: new Date(file.lastModifiedDate).getTime()})
-      await newFile.save()
-      fileIds.push(newFile._id)
+      const newPaper = new Paper({...file, author: ctx.state.user._id, lastModifiedDate: new Date(file.lastModifiedDate).getTime()})
+      await newPaper.save()
+      fileIds.push(newPaper._id)
     }))
     ctx.body = {
       fileIds,
@@ -16,13 +16,13 @@ export async function createFiles (ctx) {
   }
 }
 
-async function getFile (id, author) {
-  return await File.findById(id)
+async function getPaper (id, author) {
+  return await Paper.findById(id)
 }
 
-export async function getFiles (ctx, next) {
+export async function getPapers (ctx, next) {
   // ctx.state中储存了koa-passport解析的用户会话信息
-  const files = await File.find({author: ctx.state.user._id})
+  const files = await Paper.find({author: ctx.state.user._id})
   ctx.body = {
     files,
   }
@@ -31,10 +31,10 @@ export async function getFiles (ctx, next) {
   }
 }
 
-export async function deleteFiles (ctx) {
+export async function deletePapers (ctx) {
   try {
     await Promise.all(ctx.request.fields.fileIds.map(async (id) => {
-      await (await getFile(id)).remove()
+      await (await getPaper(id)).remove()
     }))
     ctx.body = {
       delete: true,

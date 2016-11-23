@@ -5,9 +5,23 @@ export const baseUrl = '/auth'
 export default [
   {
     method: 'POST',
-    route: '/',
+    route: '/teacher',
     handlers: [
-      auth.authUser
+      auth.authTeacher,
     ]
-  }
+  },
+  {
+    method: 'POST',
+    route: '/admin',
+    handlers: [
+      auth.authAdmin,
+    ]
+  },
+  {
+    method: 'POST',
+    route: '/student',
+    handlers: [
+      auth.authStudent,
+    ]
+  },
 ]
