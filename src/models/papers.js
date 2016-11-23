@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const File = new mongoose.Schema({
+const Paper = new mongoose.Schema({
   type: { type: String, default: 'application/octet-stream' },
   name: { type: String, required: true },
   author: { type: String, required: true },
@@ -11,9 +11,4 @@ const File = new mongoose.Schema({
   lastModifiedDate: { type: Number, default: new Date().getTime() },
 })
 
-File.pre('save', function (next) {
-  // const file = this
-  next(null)
-})
-
-export default mongoose.model('file', File)
+export default mongoose.model('paper', Paper)

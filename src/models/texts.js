@@ -8,12 +8,4 @@ const Text = new mongoose.Schema({
   tag: { type: String, required: true },
 })
 
-Text.pre('save', function (next) {
-  const text = this
-  if (!text.content) {
-    throw new Error('Invalid Input')
-  }
-  next(null)
-})
-
 export default mongoose.model('text', Text)
