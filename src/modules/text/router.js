@@ -25,7 +25,6 @@ export default [
     route: '/',
     handlers: [
       ensureUser,
-      text.getTexts,
       text.updateTexts,
     ]
   },
@@ -34,7 +33,6 @@ export default [
     route: '/',
     handlers: [
       ensureUser,
-      text.getTexts,
       text.deleteTexts,
     ]
   }

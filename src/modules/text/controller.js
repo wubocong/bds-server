@@ -3,7 +3,7 @@ import Text from '../../models/texts'
 export async function createTexts (ctx) {
   const textIds = []
   try {
-    await Promise.all(ctx.body.texts.map(async (text) => {
+    await Promise.all(ctx.request.fields.texts.map(async (text) => {
       const newText = new Text({...text, author: ctx.state.user._id, tag: ctx.request.fields.tag})
       await newText.save()
       textIds.push(newText._id)

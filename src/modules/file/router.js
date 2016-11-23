@@ -25,7 +25,6 @@ export default [
     route: '/',
     handlers: [
       ensureUser,
-      file.getFiles,
       file.deleteFiles,
     ]
   }

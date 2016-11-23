@@ -10,7 +10,7 @@ Strategy.prototype.authenticate = function (req, options) {
   const password = lookup(req.fields, this._passwordField)
 
   if (!username || !password) {
-    return this.fail({ message: options.badRequestMessage || 'Missing credentials' }, 400);
+    return this.fail({ message: options.badRequestMessage || 'Missing credentials' }, 400)
   }
 
   const verified = (err, user, info) => {
