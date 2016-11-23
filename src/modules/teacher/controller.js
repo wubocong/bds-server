@@ -8,24 +8,24 @@ import Teacher from '../../models/teachers'
  * @apiGroup Teachers
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X POST -d '{ "teacher": { "teachername": "johndoe", "password": "secretpasas" } }' localhost:5000/teachers
+ * curl -H "Content-Type: application/json" -X POST -d '{ "teacher": { "number": "20090909", "password": "secretpasas" } }' localhost:5000/teachers
  *
  * @apiParam {Object} teacher          Teacher object (required)
- * @apiParam {String} teacher.teachername Teachername.
+ * @apiParam {String} teacher.number Teacher number.
  * @apiParam {String} teacher.password Password.
  *
  * @apiSuccess {Object}   teachers           Teacher object
  * @apiSuccess {ObjectId} teachers._id       Teacher id
  * @apiSuccess {String}   teachers.name      Teacher name
- * @apiSuccess {String}   teachers.teachername  Teacher teachername
+ * @apiSuccess {String}   teachers.number  Teacher number
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
  *       "teacher": {
  *          "_id": "56bd1da600a526986cf65c80"
- *          "name": "John Doe"
- *          "teachername": "johndoe"
+ *          "name": "Warrior!"
+ *          "number": "20090909"
  *       }
  *     }
  *
@@ -70,15 +70,15 @@ export async function createTeacher (ctx) {
  * @apiSuccess {Object[]} teachers           Array of teacher objects
  * @apiSuccess {ObjectId} teachers._id       Teacher id
  * @apiSuccess {String}   teachers.name      Teacher name
- * @apiSuccess {String}   teachers.teachername  Teacher teachername
+ * @apiSuccess {String}   teachers.number  Teacher number
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
  *       "teachers": [{
  *          "_id": "56bd1da600a526986cf65c80"
- *          "name": "John Doe"
- *          "teachername": "johndoe"
+ *          "name": "Warrior!"
+ *          "number": "20090909"
  *       }]
  *     }
  *
@@ -102,15 +102,15 @@ export async function getTeachers (ctx) {
  * @apiSuccess {Object}   teachers           Teacher object
  * @apiSuccess {ObjectId} teachers._id       Teacher id
  * @apiSuccess {String}   teachers.name      Teacher name
- * @apiSuccess {String}   teachers.teachername  Teacher teachername
+ * @apiSuccess {String}   teachers.number  Teacher number
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
  *       "teacher": {
  *          "_id": "56bd1da600a526986cf65c80"
- *          "name": "John Doe"
- *          "teachername": "johndoe"
+ *          "name": "Warrior!"
+ *          "number": "20090909"
  *       }
  *     }
  *
@@ -149,12 +149,12 @@ export async function getTeacher (ctx, next) {
  *
  * @apiParam {Object} teacher          Teacher object (required)
  * @apiParam {String} teacher.name     Name.
- * @apiParam {String} teacher.teachername Teachername.
+ * @apiParam {String} teacher.number Teacher number.
  *
  * @apiSuccess {Object}   teachers           Teacher object
  * @apiSuccess {ObjectId} teachers._id       Teacher id
  * @apiSuccess {String}   teachers.name      Updated name
- * @apiSuccess {String}   teachers.teachername  Updated teachername
+ * @apiSuccess {String}   teachers.number  Updated number
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -162,7 +162,7 @@ export async function getTeacher (ctx, next) {
  *       "teacher": {
  *          "_id": "56bd1da600a526986cf65c80"
  *          "name": "Cool new name"
- *          "teachername": "johndoe"
+ *          "number": "20090909"
  *       }
  *     }
  *

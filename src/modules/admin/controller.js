@@ -8,16 +8,16 @@ import Admin from '../../models/admins'
  * @apiGroup Admins
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X POST -d '{ "admin": { "adminname": "johndoe", "password": "secretpasas" } }' localhost:5000/admins
+ * curl -H "Content-Type: application/json" -X POST -d '{ "admin": { "number": "20080202", "password": "secretpasas" } }' localhost:5000/admins
  *
  * @apiParam {Object} admin          Admin object (required)
- * @apiParam {String} admin.adminname Adminname.
+ * @apiParam {String} admin.number Admin number.
  * @apiParam {String} admin.password Password.
  *
  * @apiSuccess {Object}   admins           Admin object
  * @apiSuccess {ObjectId} admins._id       Admin id
  * @apiSuccess {String}   admins.name      Admin name
- * @apiSuccess {String}   admins.adminname  Admin adminname
+ * @apiSuccess {String}   admins.number  Admin number
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -25,7 +25,7 @@ import Admin from '../../models/admins'
  *       "admin": {
  *          "_id": "56bd1da600a526986cf65c80"
  *          "name": "John Doe"
- *          "adminname": "johndoe"
+ *          "number": "20080202"
  *       }
  *     }
  *
@@ -70,7 +70,7 @@ export async function createAdmin (ctx) {
  * @apiSuccess {Object[]} admins           Array of admin objects
  * @apiSuccess {ObjectId} admins._id       Admin id
  * @apiSuccess {String}   admins.name      Admin name
- * @apiSuccess {String}   admins.adminname  Admin adminname
+ * @apiSuccess {String}   admins.number  Admin number
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -78,7 +78,7 @@ export async function createAdmin (ctx) {
  *       "admins": [{
  *          "_id": "56bd1da600a526986cf65c80"
  *          "name": "John Doe"
- *          "adminname": "johndoe"
+ *          "number": "20080202"
  *       }]
  *     }
  *
@@ -102,7 +102,7 @@ export async function getAdmins (ctx) {
  * @apiSuccess {Object}   admins           Admin object
  * @apiSuccess {ObjectId} admins._id       Admin id
  * @apiSuccess {String}   admins.name      Admin name
- * @apiSuccess {String}   admins.adminname  Admin adminname
+ * @apiSuccess {String}   admins.number  Admin number
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -110,7 +110,7 @@ export async function getAdmins (ctx) {
  *       "admin": {
  *          "_id": "56bd1da600a526986cf65c80"
  *          "name": "John Doe"
- *          "adminname": "johndoe"
+ *          "number": "20080202"
  *       }
  *     }
  *
@@ -149,12 +149,12 @@ export async function getAdmin (ctx, next) {
  *
  * @apiParam {Object} admin          Admin object (required)
  * @apiParam {String} admin.name     Name.
- * @apiParam {String} admin.adminname Adminname.
+ * @apiParam {String} admin.number Adminname.
  *
  * @apiSuccess {Object}   admins           Admin object
  * @apiSuccess {ObjectId} admins._id       Admin id
  * @apiSuccess {String}   admins.name      Updated name
- * @apiSuccess {String}   admins.adminname  Updated adminname
+ * @apiSuccess {String}   admins.number  Updated number
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -162,7 +162,7 @@ export async function getAdmin (ctx, next) {
  *       "admin": {
  *          "_id": "56bd1da600a526986cf65c80"
  *          "name": "Cool new name"
- *          "adminname": "johndoe"
+ *          "number": "20080202"
  *       }
  *     }
  *

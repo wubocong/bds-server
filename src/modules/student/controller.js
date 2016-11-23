@@ -8,24 +8,24 @@ import Student from '../../models/students'
  * @apiGroup Students
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X POST -d '{ "student": { "studentname": "johndoe", "password": "secretpasas" } }' localhost:5000/students
+ * curl -H "Content-Type: application/json" -X POST -d '{ "student": { "number": "201330330221", "password": "secretpasas" } }' localhost:5000/students
  *
  * @apiParam {Object} student          Student object (required)
- * @apiParam {String} student.studentname Studentname.
+ * @apiParam {String} student.number Student number.
  * @apiParam {String} student.password Password.
  *
  * @apiSuccess {Object}   students           Student object
  * @apiSuccess {ObjectId} students._id       Student id
  * @apiSuccess {String}   students.name      Student name
- * @apiSuccess {String}   students.studentname  Student studentname
+ * @apiSuccess {String}   students.number  Student number
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
  *       "student": {
  *          "_id": "56bd1da600a526986cf65c80"
- *          "name": "John Doe"
- *          "studentname": "johndoe"
+ *          "name": "What The Fuck"
+ *          "number": "201330330221"
  *       }
  *     }
  *
@@ -70,15 +70,15 @@ export async function createStudent (ctx) {
  * @apiSuccess {Object[]} students           Array of student objects
  * @apiSuccess {ObjectId} students._id       Student id
  * @apiSuccess {String}   students.name      Student name
- * @apiSuccess {String}   students.studentname  Student studentname
+ * @apiSuccess {String}   students.number  Student number
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
  *       "students": [{
  *          "_id": "56bd1da600a526986cf65c80"
- *          "name": "John Doe"
- *          "studentname": "johndoe"
+ *          "name": "What The Fuck"
+ *          "number": "201330330221"
  *       }]
  *     }
  *
@@ -102,15 +102,15 @@ export async function getStudents (ctx) {
  * @apiSuccess {Object}   students           Student object
  * @apiSuccess {ObjectId} students._id       Student id
  * @apiSuccess {String}   students.name      Student name
- * @apiSuccess {String}   students.studentname  Student studentname
+ * @apiSuccess {String}   students.number  Student number
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
  *       "student": {
  *          "_id": "56bd1da600a526986cf65c80"
- *          "name": "John Doe"
- *          "studentname": "johndoe"
+ *          "name": "What The Fuck"
+ *          "number": "201330330221"
  *       }
  *     }
  *
@@ -149,12 +149,12 @@ export async function getStudent (ctx, next) {
  *
  * @apiParam {Object} student          Student object (required)
  * @apiParam {String} student.name     Name.
- * @apiParam {String} student.studentname Studentname.
+ * @apiParam {String} student.number Student number.
  *
  * @apiSuccess {Object}   students           Student object
  * @apiSuccess {ObjectId} students._id       Student id
  * @apiSuccess {String}   students.name      Updated name
- * @apiSuccess {String}   students.studentname  Updated studentname
+ * @apiSuccess {String}   students.number  Updated number
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -162,7 +162,7 @@ export async function getStudent (ctx, next) {
  *       "student": {
  *          "_id": "56bd1da600a526986cf65c80"
  *          "name": "Cool new name"
- *          "studentname": "johndoe"
+ *          "number": "201330330221"
  *       }
  *     }
  *
