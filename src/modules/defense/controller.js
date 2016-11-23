@@ -1,7 +1,7 @@
 import Defense from '../../models/defenses'
 
 /**
- * @api {post} /defenses Create a new defense
+ * @api {post} /defenses Create defenses
  * @apiPermission
  * @apiVersion 1.0.0
  * @apiName CreateDefense
@@ -17,7 +17,6 @@ import Defense from '../../models/defenses'
  * @apiParam {Number[]} defenses.scores.items Each item of teacher's scores.
  * @apiParam {String} defenses.scores.teacherId Teacher's id.
  * @apiParam {Number} defenses.scores.sum Sum of each teacher's scores.
- * @apiParam {Number} defenses.scores.sum Each item of teachers' scores.
  * @apiParam {String} defenses.remark Defense's remark.
  * @apiParam {Number} defenses.time Defense's time (default to current time).
  *
@@ -59,7 +58,7 @@ async function getDefense (id) {
 }
 
 /**
- * @api {get} /defenses/ Get defense
+ * @api {get} /defenses/ Get defenses
  * @apiPermission defense
  * @apiVersion 1.0.0
  * @apiName GetDefense
@@ -75,7 +74,6 @@ async function getDefense (id) {
  * @apiSuccess {Number[]} defenses.scores.items Each item of teacher's scores.
  * @apiSuccess {String} defenses.scores.teacherId Teacher's id.
  * @apiSuccess {Number} defenses.scores.sum Sum of each teacher's scores.
- * @apiSuccess {Number} defenses.scores.sum Each item of teachers' scores.
  * @apiSuccess {String} defenses.remark Defense's remark.
  * @apiSuccess {Number} defenses.time Defense's time (default to current time).
  *
@@ -127,7 +125,6 @@ export async function getDefenses (ctx, next) {
  * @apiParam {Number[]} defenses.scores.items Each item of teacher's scores.
  * @apiParam {String} defenses.scores.teacherId Teacher's id.
  * @apiParam {Number} defenses.scores.sum Sum of each teacher's scores.
- * @apiParam {Number} defenses.scores.sum Each item of teachers' scores.
  * @apiParam {String} defenses.remark Defense's remark.
  * @apiParam {Number} defenses.time Defense's time (default to current time).
  *
