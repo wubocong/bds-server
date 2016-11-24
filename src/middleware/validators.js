@@ -26,6 +26,7 @@ export async function ensureTeacher (ctx, next) {
 
   return next()
 }
+
 export async function ensureStudent (ctx, next) {
   const token = getToken(ctx)
 
@@ -47,6 +48,7 @@ export async function ensureStudent (ctx, next) {
 
   return next()
 }
+
 export async function ensureAdmin (ctx, next) {
   const token = getToken(ctx)
 

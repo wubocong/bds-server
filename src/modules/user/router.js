@@ -1,7 +1,7 @@
 import { ensureAdmin } from '../../middleware/validators'
 import * as admin from './controller'
 
-export const baseUrl = '/admins'
+export const baseUrl = '/user'
 
 export default [
   {

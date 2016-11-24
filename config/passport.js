@@ -1,5 +1,7 @@
 import passport from 'koa-passport'
-import User from '../src/models/users'
+import Teacher from '../models/teachers'
+import Student from '../models/students'
+import Admin from '../models/admins'
 import { Strategy } from 'passport-local'
 
 // hack
@@ -43,21 +45,64 @@ passport.deserializeUser(async (id, done) => {
   }
 })
 
-passport.use('local', new Strategy({
-  usernameField: 'username',
+passport.use('teacher', new Strategy({
+  usernameField: 'number',
   passwordField: 'password'
-}, async (username, password, done) => {
+}, async (number, password, done) => {
   try {
-    console.log(username)
-    const user = await User.findOne({ username })
-    if (!user) { return done(null, false) }
+    const teacher = await Teacher.findOne({ number })
+    if (!teacher) { return done(null, false) }
 
     try {
-      const isMatch = await user.validatePassword(password)
+      const isMatch = await teacher.validatePassword(password)
 
       if (!isMatch) { return done(null, false) }
 
-      done(null, user)
+      done(null, teacher)
+    } catch (err) {
+      done(err)
+    }
+  } catch (err) {
+    return done(err)
+  }
+}))
+
+passport.use('admin', new Strategy({
+  usernameField: 'number',
+  passwordField: 'password'
+}, async (number, password, done) => {
+  try {
+    const admin = await Admin.findOne({ number })
+    if (!admin) { return done(null, false) }
+
+    try {
+      const isMatch = await admin.validatePassword(password)
+
+      if (!isMatch) { return done(null, false) }
+
+      done(null, admin)
+    } catch (err) {
+      done(err)
+    }
+  } catch (err) {
+    return done(err)
+  }
+}))
+
+passport.use('student', new Strategy({
+  usernameField: 'number',
+  passwordField: 'password'
+}, async (number, password, done) => {
+  try {
+    const student = await Student.findOne({ number })
+    if (!student) { return done(null, false) }
+
+    try {
+      const isMatch = await student.validatePassword(password)
+
+      if (!isMatch) { return done(null, false) }
+
+      done(null, student)
     } catch (err) {
       done(err)
     }
