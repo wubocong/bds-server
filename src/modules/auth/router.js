@@ -8,6 +8,6 @@ export default [
     route: '/',
     handlers: [
       auth.authUser,
-    ]
+    ],
   },
 ]

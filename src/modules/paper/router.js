@@ -9,16 +9,16 @@ export default [
     route: '/',
     handlers: [
       ensureUser,
-      paper.getPapers
-    ]
+      paper.getPapers,
+    ],
   },
   {
     method: 'POST',
     route: '/',
     handlers: [
       ensureUser,
-      paper.createPapers
-    ]
+      paper.createPapers,
+    ],
   },
   {
     method: 'DELETE',
@@ -26,6 +26,6 @@ export default [
     handlers: [
       ensureUser,
       paper.deletePapers,
-    ]
+    ],
   },
 ]

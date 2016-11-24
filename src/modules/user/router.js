@@ -9,7 +9,7 @@ export default [
     route: '/',
     handlers: [
       user.createUser,
-    ]
+    ],
   },
   {
     method: 'GET',
@@ -18,7 +18,7 @@ export default [
       ensureUser,
       ensureAdmin,
       user.getUsers,
-    ]
+    ],
   },
   {
     method: 'GET',
@@ -27,7 +27,7 @@ export default [
       ensureUser,
       ensureAdmin,
       user.getUser,
-    ]
+    ],
   },
   {
     method: 'PUT',
@@ -36,8 +36,8 @@ export default [
       ensureUser,
       ensureAdmin,
       user.getUser,
-      user.updateUser
-    ]
+      user.updateUser,
+    ],
   },
   {
     method: 'DELETE',
@@ -47,7 +47,7 @@ export default [
       ensureAdmin,
       user.getUser,
       user.deleteUser,
-    ]
+    ],
   },
   {
     method: 'PUT',
@@ -56,6 +56,6 @@ export default [
       ensureUser,
       ensureSelf,
       user.modifyPassword,
-    ]
+    ],
   },
 ]

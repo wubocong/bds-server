@@ -10,6 +10,7 @@
     "dev": "./node_modules/.bin/nodemon index.js",
     "test": "NODE_ENV=test ./node_modules/.bin/mocha --compilers js:babel-register --require babel-polyfill",
     "lint": "eslint src/**/*.js",
+    "fix": "eslint src/**/*.js --fix",
     "docs": "./node_modules/.bin/apidoc -i src/ -o docs",
     "mongo": "mongod --dbpath ./dbdata",
     "mongo:prod": "sudo cross-env nohup mongod -f /etc/mongod.conf &",
@@ -45,7 +46,7 @@
     "koa-passport": "^2.0.1",
     "koa-router": "^7.0.1",
     "koa-static": "^2.0.0",
-    "mongoose": "^4.6.8",
+    "mongoose": "^4.7.0",
     "passport-local": "1.0.0"
   },
   "devDependencies": {

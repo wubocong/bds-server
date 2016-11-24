@@ -16,7 +16,7 @@ exports = module.exports = function initModules (app) {
         const {
           method = '',
           route = '',
-          handlers = []
+          handlers = [],
         } = config
 
         const lastHandler = handlers.pop()

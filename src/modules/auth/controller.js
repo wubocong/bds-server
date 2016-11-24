@@ -67,7 +67,7 @@ export async function authUser (ctx, next) {
 
     ctx.body = {
       token,
-      user: response
+      user: response,
     }
   })(ctx, next)
 }
