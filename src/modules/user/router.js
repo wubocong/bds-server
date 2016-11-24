@@ -1,4 +1,4 @@
-import { ensureUser } from '../../middleware/validators'
+import { ensureUser, ensureAdmin, ensureSelf } from '../../middleware/validators'
 import * as user from './controller'
 
 export const baseUrl = '/users'
@@ -15,7 +15,8 @@ export default [
     method: 'GET',
     route: '/',
     handlers: [
-      // ensureUser,
+      ensureUser,
+      ensureAdmin,
       user.getUsers,
     ]
   },
@@ -23,7 +24,8 @@ export default [
     method: 'GET',
     route: '/:id',
     handlers: [
-      // ensureUser,
+      ensureUser,
+      ensureSelf,
       user.getUser,
     ]
   },
@@ -31,7 +33,8 @@ export default [
     method: 'PUT',
     route: '/:id',
     handlers: [
-      // ensureUser,
+      ensureUser,
+      ensureSelf,
       user.getUser,
       user.updateUser
     ]
@@ -40,7 +43,8 @@ export default [
     method: 'DELETE',
     route: '/:id',
     handlers: [
-      // ensureUser,
+      ensureUser,
+      ensureSelf,
       user.getUser,
       user.deleteUser,
     ]

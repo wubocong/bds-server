@@ -24,3 +24,17 @@ export async function ensureUser (ctx, next) {
   console.log(ctx.state.user)
   return next()
 }
+
+export async function ensureAdmin (ctx, next) {
+  if (ctx.state.user.role !== 'admin') {
+    ctx.throw(401)
+  }
+  return next()
+}
+
+export async function ensureSelf (ctx, next) {
+  if (ctx.state.user._id !== ctx.params.id) {
+    ctx.throw(401)
+  }
+  return next()
+}
