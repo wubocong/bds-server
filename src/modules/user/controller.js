@@ -6,7 +6,7 @@ import Admin from '../../models/admins'
 /**
  * @api {post} /users Create a new user
  * @apiPermission
- * @apiVersion 1.0.0
+ * @apiVersion 0.2.0
  * @apiName CreateUser
  * @apiGroup Users
  *
@@ -42,7 +42,7 @@ import Admin from '../../models/admins'
  *       "error": "Unprocessable Entity"
  *     }
  */
-export async function createUser (ctx) {
+export async function createUser(ctx) {
   const user = new User(ctx.request.fields.user)
   try {
     await user.save()
@@ -50,42 +50,47 @@ export async function createUser (ctx) {
     ctx.throw(422, err.message)
   }
   switch (user.role) {
-    case 'student': {
-      const student = new Student({
-        ...user,
-        studentId: user._id,
-      })
-      try {
-        await student.save()
-      } catch (err) {
-        ctx.throw(500, err.message)
+    case 'student':
+      {
+        const student = new Student({
+          ...user,
+          studentId: user._id,
+        })
+        try {
+          await student.save()
+        } catch (err) {
+          ctx.throw(500, err.message)
+        }
+        break
       }
-      break
-    }
-    case 'teacher': {
-      const teacher = new Teacher({
-        ...user,
-        teacherId: user._id,
-      })
-      try {
-        await teacher.save()
-      } catch (err) {
-        ctx.throw(500, err.message)
+    case 'teacher':
+      {
+        const teacher = new Teacher({
+          ...user,
+          teacherId: user._id,
+        })
+        try {
+          await teacher.save()
+        } catch (err) {
+          ctx.throw(500, err.message)
+        }
+        break
       }
-      break
-    }
-    case 'admin': {
-      const admin = new Admin({
-        ...user,
-        adminId: user._id,
-      })
-      try {
-        await admin.save()
-      } catch (err) {
-        ctx.throw(500, err.message)
+    case 'admin':
+      {
+        const admin = new Admin({
+          ...user,
+          adminId: user._id,
+        })
+        try {
+          await admin.save()
+        } catch (err) {
+          ctx.throw(500, err.message)
+        }
+        break
       }
+    default:
       break
-    }
   }
   const response = user.toJSON()
 
@@ -99,7 +104,7 @@ export async function createUser (ctx) {
 /**
  * @api {get} /users Get all user
  * @apiPermission user
- * @apiVersion 1.0.0
+ * @apiVersion 0.2.0
  * @apiName GetUsers
  * @apiGroup Users
  *
@@ -125,7 +130,7 @@ export async function createUser (ctx) {
  *
  * @apiUse TokenError
  */
-export async function getUsers (ctx) {
+export async function getUsers(ctx) {
   const users = await User.find({}, '-password')
   ctx.body = {
     users
@@ -135,7 +140,7 @@ export async function getUsers (ctx) {
 /**
  * @api {get} /users/:id Get user by id
  * @apiPermission user
- * @apiVersion 1.0.0
+ * @apiVersion 0.2.0
  * @apiName GetUser
  * @apiGroup Users
  *
@@ -161,9 +166,29 @@ export async function getUsers (ctx) {
  *
  * @apiUse TokenError
  */
-export async function getUser (ctx, next) {
+export async function getUser(ctx, next) {
+  const id = ctx.params.id
   try {
-    const user = await User.findById(ctx.params.id, '-password')
+    let user = await User.findById(id, '-password')
+    switch (user.role) {
+      case 'student':
+        {
+          user = {...user, ...(await Student.find({studentId: id}, '-studentId'))}
+          break
+        }
+      case 'teacher':
+        {
+          user = {...user, ...(await Teacher.find({teacherId: id}, '-teacherId'))}
+          break
+        }
+      case 'admin':
+        {
+          user = {...user, ...(await Admin.find({adminId: id}, '-adminId'))}
+          break
+        }
+      default:
+        break
+    }
     if (!user) {
       ctx.throw(404)
     }
@@ -187,7 +212,7 @@ export async function getUser (ctx, next) {
 /**
  * @api {put} /users/:id Update a user
  * @apiPermission
- * @apiVersion 1.0.0
+ * @apiVersion 0.2.0
  * @apiName UpdateUser
  * @apiGroup Users
  *
@@ -227,7 +252,7 @@ export async function getUser (ctx, next) {
  *
  * @apiUse TokenError
  */
-export async function updateUser (ctx) {
+export async function updateUser(ctx) {
   const user = ctx.body.user
 
   Object.assign(user, ctx.request.fields.user)
@@ -242,7 +267,7 @@ export async function updateUser (ctx) {
 /**
  * @api {delete} /users/:id Delete a user
  * @apiPermission
- * @apiVersion 1.0.0
+ * @apiVersion 0.2.0
  * @apiName DeleteUser
  * @apiGroup Users
  *
@@ -260,11 +285,60 @@ export async function updateUser (ctx) {
  * @apiUse TokenError
  */
 
-export async function deleteUser (ctx) {
+export async function deleteUser(ctx) {
   const user = ctx.body.user
 
   await user.remove()
 
+  ctx.status = 200
+  ctx.body = {
+    success: true
+  }
+}
+
+/**
+ * @api {put} /users/password/:id Modify a user's password
+ * @apiPermission
+ * @apiVersion 0.2.0
+ * @apiName UpdateUser
+ * @apiGroup Users
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -X PUT -d ' { "oldPassword": "fuck", "newPassword": "fuckyou", "role": "teacher" }' localhost:5000/users/56bd1da600a526986cf65c80
+ *
+ * @apiParam {String} oldPassword   User old password.
+ * @apiParam {String} newPassword   User new password.
+ * @apiParam {String} role          User role.
+ *
+ * @apiSuccess {StatusCode} 200
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "success": true
+ *     }
+ *
+ * @apiError Unauthorized Incorrect credentials
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ *       "status": 401,
+ *       "error": "Unauthorized"
+ *     }
+ *
+ * @apiUse TokenError
+ */
+export async function modifyPassword(ctx) {
+  try {
+    const user = await User.findById(ctx.params.id)
+    if (user.role === ctx.request.fields.role && (await user.validatePassword(ctx.request.fields.oldPassword))) {
+      user.password = ctx.request.fields.newPassword
+      await user.save()
+    }
+  } catch (err) {
+    ctx.throw(401, err.message)
+  }
   ctx.status = 200
   ctx.body = {
     success: true
