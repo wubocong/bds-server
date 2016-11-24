@@ -8,7 +8,7 @@ export default [
     method: 'POST',
     route: '/',
     handlers: [
-      user.createUser
+      user.createUser,
     ]
   },
   {
@@ -25,7 +25,7 @@ export default [
     route: '/:id',
     handlers: [
       ensureUser,
-      ensureSelf,
+      ensureAdmin,
       user.getUser,
     ]
   },
@@ -34,7 +34,7 @@ export default [
     route: '/:id',
     handlers: [
       ensureUser,
-      ensureSelf,
+      ensureAdmin,
       user.getUser,
       user.updateUser
     ]
@@ -44,9 +44,18 @@ export default [
     route: '/:id',
     handlers: [
       ensureUser,
-      ensureSelf,
+      ensureAdmin,
       user.getUser,
       user.deleteUser,
     ]
-  }
+  },
+  {
+    method: 'PUT',
+    route: '/password/:id',
+    handlers: [
+      ensureUser,
+      ensureSelf,
+      user.modifyPassword,
+    ]
+  },
 ]

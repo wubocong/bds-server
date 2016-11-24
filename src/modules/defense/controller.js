@@ -3,7 +3,7 @@ import Defense from '../../models/defenses'
 /**
  * @api {post} /defense Create defenses
  * @apiPermission
- * @apiVersion 1.0.0
+ * @apiVersion 0.2.0
  * @apiName CreateDefense
  * @apiGroup Defenses
  *
@@ -60,7 +60,7 @@ async function getDefense (id) {
 /**
  * @api {get} /defense Get defenses
  * @apiPermission defense
- * @apiVersion 1.0.0
+ * @apiVersion 0.2.0
  * @apiName GetDefense
  * @apiGroup Defenses
  *
@@ -111,7 +111,7 @@ export async function getDefenses (ctx, next) {
 /**
  * @api {put} /defense Update defenses
  * @apiPermission
- * @apiVersion 1.0.0
+ * @apiVersion 0.2.0
  * @apiName UpdateDefense
  * @apiGroup Defenses
  *
@@ -162,7 +162,7 @@ export async function updateDefenses (ctx) {
 /**
  * @api {delete} /defense Delete defenses
  * @apiPermission
- * @apiVersion 1.0.0
+ * @apiVersion 0.2.0
  * @apiName DeleteDefense
  * @apiGroup Defenses
  *

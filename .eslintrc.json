@@ -2,7 +2,7 @@
   "parser": "babel-eslint",
   "extends": "standard",
   "rules": {
-    "comma-dangle": 0,
+    "comma-dangle": ["warn", "always-multiline"],
     "space-before-function-paren": 0
   },
   "env": {

@@ -14,7 +14,7 @@ import passport from 'koa-passport'
 
 /**
  * @api {post} /auth Authenticate user
- * @apiVersion 1.0.0
+ * @apiVersion 0.2.0
  * @apiName AuthUser
  * @apiGroup Auth
  *

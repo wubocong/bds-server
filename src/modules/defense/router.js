@@ -9,16 +9,16 @@ export default [
     route: '/',
     handlers: [
       ensureUser,
-      defense.getDefenses
-    ]
+      defense.getDefenses,
+    ],
   },
   {
     method: 'POST',
     route: '/',
     handlers: [
       ensureUser,
-      defense.createDefenses
-    ]
+      defense.createDefenses,
+    ],
   },
   {
     method: 'PUT',
@@ -26,7 +26,7 @@ export default [
     handlers: [
       ensureUser,
       defense.updateDefenses,
-    ]
+    ],
   },
   {
     method: 'DELETE',
@@ -34,6 +34,6 @@ export default [
     handlers: [
       ensureUser,
       defense.deleteDefenses,
-    ]
-  }
+    ],
+  },
 ]

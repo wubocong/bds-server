@@ -5,7 +5,7 @@ import Admin from '../../models/admins'
 
 /**
  * @api {post} /users Create a new user
- * @apiPermission
+ * @apiPermission User
  * @apiVersion 0.2.0
  * @apiName CreateUser
  * @apiGroup Users
@@ -20,8 +20,9 @@ import Admin from '../../models/admins'
  * @apiSuccess {Object}   user           User object
  * @apiSuccess {ObjectId} user._id       User id
  * @apiSuccess {String}   user.name      User name
- * @apiSuccess {String}   user.account    User account
+ * @apiSuccess {String}   user.account   User account
  * @apiSuccess {String}   user.role      User role
+ * @apiSuccess {Boolean}  user.gender    User gender
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -30,6 +31,8 @@ import Admin from '../../models/admins'
  *          "_id": "56bd1da600a526986cf65c80"
  *          "name": "John Doe"
  *          "account": "20080202"
+ *          "role": "teacher"
+ *          "gender": "true"
  *       }
  *     }
  *
@@ -97,13 +100,13 @@ export async function createUser(ctx) {
   delete response.password
 
   ctx.body = {
-    user: response
+    user: response,
   }
 }
 
 /**
  * @api {get} /users Get all user
- * @apiPermission user
+ * @apiPermission Admin
  * @apiVersion 0.2.0
  * @apiName GetUsers
  * @apiGroup Users
@@ -114,8 +117,9 @@ export async function createUser(ctx) {
  * @apiSuccess {Object[]} users           Array of user objects
  * @apiSuccess {ObjectId} users._id       User id
  * @apiSuccess {String}   users.name      User name
- * @apiSuccess {String}   users.account    User account
+ * @apiSuccess {String}   users.account   User account
  * @apiSuccess {String}   users.role      User role
+ * @apiSuccess {Boolean}  user.gender    User gender
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -125,6 +129,7 @@ export async function createUser(ctx) {
  *          "name": "John Doe"
  *          "account": "20080202"
  *          "role": "teacher"
+ *          "gender": "true"
  *       }]
  *     }
  *
@@ -133,13 +138,13 @@ export async function createUser(ctx) {
 export async function getUsers(ctx) {
   const users = await User.find({}, '-password')
   ctx.body = {
-    users
+    users,
   }
 }
 
 /**
  * @api {get} /users/:id Get user by id
- * @apiPermission user
+ * @apiPermission Admin
  * @apiVersion 0.2.0
  * @apiName GetUser
  * @apiGroup Users
@@ -152,6 +157,7 @@ export async function getUsers(ctx) {
  * @apiSuccess {String}   user.name      User name
  * @apiSuccess {String}   user.account    User account
  * @apiSuccess {String}   user.role      User role
+ * @apiSuccess {Boolean}  user.gender    User gender
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -161,6 +167,7 @@ export async function getUsers(ctx) {
  *          "name": "John Doe"
  *          "account": "20080202"
  *          "role": "admin"
+ *          "gender": "true"
  *       }
  *     }
  *
@@ -194,7 +201,7 @@ export async function getUser(ctx, next) {
     }
 
     ctx.body = {
-      user
+      user,
     }
   } catch (err) {
     if (err === 404 || err.name === 'CastError') {
@@ -211,7 +218,7 @@ export async function getUser(ctx, next) {
 
 /**
  * @api {put} /users/:id Update a user
- * @apiPermission
+ * @apiPermission Admin
  * @apiVersion 0.2.0
  * @apiName UpdateUser
  * @apiGroup Users
@@ -219,16 +226,18 @@ export async function getUser(ctx, next) {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X PUT -d '{ "user": { "name": "Cool new Name", "role": "teacher" } }' localhost:5000/users/56bd1da600a526986cf65c80
  *
- * @apiParam {Object} user          User object (required)
- * @apiParam {String} user.name     Name.
- * @apiParam {String} user.account   User account.
- * @apiParam {String} user.role     User role.
+ * @apiParam {Object}   user           User object (required)
+ * @apiParam {String}   user.name      Name.
+ * @apiParam {String}   user.account   User account.
+ * @apiParam {String}   user.role      User role.
+ * @apiParam {Boolean}  user.gender    User gender.
  *
  * @apiSuccess {Object}   user           User object
  * @apiSuccess {ObjectId} user._id       User id
  * @apiSuccess {String}   user.name      Updated name
  * @apiSuccess {String}   user.account    Updated account
  * @apiSuccess {String}   user.role      Updated role
+ * @apiSuccess {Boolean}  user.gender    User gender
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -238,6 +247,7 @@ export async function getUser(ctx, next) {
  *          "name": "Cool new name"
  *          "account": "20080202"
  *          "role": "teacher"
+ *          "gender": "true"
  *       }
  *     }
  *
@@ -260,13 +270,13 @@ export async function updateUser(ctx) {
   await user.save()
 
   ctx.body = {
-    user
+    user,
   }
 }
 
 /**
  * @api {delete} /users/:id Delete a user
- * @apiPermission
+ * @apiPermission Admin
  * @apiVersion 0.2.0
  * @apiName DeleteUser
  * @apiGroup Users
@@ -292,13 +302,13 @@ export async function deleteUser(ctx) {
 
   ctx.status = 200
   ctx.body = {
-    success: true
+    success: true,
   }
 }
 
 /**
  * @api {put} /users/password/:id Modify a user's password
- * @apiPermission
+ * @apiPermission Admin
  * @apiVersion 0.2.0
  * @apiName UpdateUser
  * @apiGroup Users
@@ -331,7 +341,7 @@ export async function deleteUser(ctx) {
  */
 export async function modifyPassword(ctx) {
   try {
-    const user = await User.findById(ctx.params.id)
+    const user = ctx.state.user
     if (user.role === ctx.request.fields.role && (await user.validatePassword(ctx.request.fields.oldPassword))) {
       user.password = ctx.request.fields.newPassword
       await user.save()
@@ -341,6 +351,79 @@ export async function modifyPassword(ctx) {
   }
   ctx.status = 200
   ctx.body = {
-    success: true
+    success: true,
+  }
+}
+
+/**
+ * @api {get} /users/me Get personal user
+ * @apiPermission User personally
+ * @apiVersion 0.2.0
+ * @apiName GetMe
+ * @apiGroup Users
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -X GET localhost:5000/users/me
+ *
+ * @apiSuccess {Object}   user           User object
+ * @apiSuccess {ObjectId} user._id       User id
+ * @apiSuccess {String}   user.name      User name
+ * @apiSuccess {String}   user.account   User account
+ * @apiSuccess {String}   user.role      User role
+ * @apiSuccess {Boolean}  user.gender    User gender
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "user": {
+ *          "_id": "56bd1da600a526986cf65c80"
+ *          "name": "John Doe"
+ *          "account": "20080202"
+ *          "role": "admin"
+ *          "gender": "true"
+ *       }
+ *     }
+ *
+ * @apiUse TokenError
+ */
+export async function getMe(ctx, next) {
+  try {
+    let user = ctx.state.user
+    switch (user.role) {
+      case 'student':
+        {
+          user = {...user, ...(await Student.find({studentId: user._id}, '-studentId'))}
+          break
+        }
+      case 'teacher':
+        {
+          user = {...user, ...(await Teacher.find({teacherId: user._id}, '-teacherId'))}
+          break
+        }
+      case 'admin':
+        {
+          user = {...user, ...(await Admin.find({adminId: user._id}, '-adminId'))}
+          break
+        }
+      default:
+        break
+    }
+    if (!user) {
+      ctx.throw(404)
+    }
+
+    ctx.body = {
+      user,
+    }
+  } catch (err) {
+    if (err === 404 || err.name === 'CastError') {
+      ctx.throw(404)
+    }
+
+    ctx.throw(500)
+  }
+
+  if (next) {
+    return next()
   }
 }
