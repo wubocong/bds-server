@@ -11,7 +11,7 @@ const User = new mongoose.Schema({
   role: { type: String, required: true, default: 'student' }
 })
 
-User.pre('save', function preSave(next) {
+User.pre('save', function preSave (next) {
   const user = this
 
   if (!user.isModified('password')) {
@@ -36,7 +36,7 @@ User.pre('save', function preSave(next) {
     .catch(err => next(err))
 })
 
-User.methods.validatePassword = function validatePassword(password) {
+User.methods.validatePassword = function validatePassword (password) {
   const user = this
 
   return new Promise((resolve, reject) => {
@@ -48,7 +48,7 @@ User.methods.validatePassword = function validatePassword(password) {
   })
 }
 
-User.methods.generateToken = function generateToken() {
+User.methods.generateToken = function generateToken () {
   const user = this
 
   return jwt.sign({ id: user.id }, config.token)

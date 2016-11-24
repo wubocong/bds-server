@@ -1,31 +1,31 @@
-import { ensureStudent } from '../../middleware/validators'
-import * as file from './controller'
+import { ensureUser } from '../../middleware/validators'
+import * as paper from './controller'
 
-export const baseUrl = '/file'
+export const baseUrl = '/paper'
 
 export default [
   {
     method: 'GET',
     route: '/',
     handlers: [
-      ensureStudent,
-      file.getPapers
+      ensureUser,
+      paper.getPapers
     ]
   },
   {
     method: 'POST',
     route: '/',
     handlers: [
-      ensureStudent,
-      file.createPapers
+      ensureUser,
+      paper.createPapers
     ]
   },
   {
     method: 'DELETE',
     route: '/',
     handlers: [
-      ensureStudent,
-      file.deletePapers,
+      ensureUser,
+      paper.deletePapers,
     ]
-  }
+  },
 ]

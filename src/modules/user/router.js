@@ -1,5 +1,5 @@
-import { ensureAdmin } from '../../middleware/validators'
-import * as admin from './controller'
+import { ensureUser } from '../../middleware/validators'
+import * as user from './controller'
 
 export const baseUrl = '/user'
 
@@ -8,41 +8,41 @@ export default [
     method: 'POST',
     route: '/',
     handlers: [
-      admin.createAdmin
+      user.createUser
     ]
   },
   {
     method: 'GET',
     route: '/',
     handlers: [
-      ensureAdmin,
-      admin.getAdmins
+      ensureUser,
+      user.getUsers
     ]
   },
   {
     method: 'GET',
     route: '/:id',
     handlers: [
-      ensureAdmin,
-      admin.getAdmin
+      ensureUser,
+      user.getUser
     ]
   },
   {
     method: 'PUT',
     route: '/:id',
     handlers: [
-      ensureAdmin,
-      admin.getAdmin,
-      admin.updateAdmin
+      ensureUser,
+      user.getUser,
+      user.updateUser
     ]
   },
   {
     method: 'DELETE',
     route: '/:id',
     handlers: [
-      ensureAdmin,
-      admin.getAdmin,
-      admin.deleteAdmin
+      ensureUser,
+      user.getUser,
+      user.deleteUser
     ]
   }
 ]

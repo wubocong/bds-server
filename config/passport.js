@@ -1,7 +1,5 @@
 import passport from 'koa-passport'
-import Teacher from '../models/teachers'
-import Student from '../models/students'
-import Admin from '../models/admins'
+import User from '../src/models/users'
 import { Strategy } from 'passport-local'
 
 // hack
@@ -45,64 +43,20 @@ passport.deserializeUser(async (id, done) => {
   }
 })
 
-passport.use('teacher', new Strategy({
+passport.use('local', new Strategy({
   usernameField: 'number',
   passwordField: 'password'
 }, async (number, password, done) => {
   try {
-    const teacher = await Teacher.findOne({ number })
-    if (!teacher) { return done(null, false) }
+    const user = await User.findOne({ number })
+    if (!user) { return done(null, false) }
 
     try {
-      const isMatch = await teacher.validatePassword(password)
+      const isMatch = await user.validatePassword(password)
 
       if (!isMatch) { return done(null, false) }
 
-      done(null, teacher)
-    } catch (err) {
-      done(err)
-    }
-  } catch (err) {
-    return done(err)
-  }
-}))
-
-passport.use('admin', new Strategy({
-  usernameField: 'number',
-  passwordField: 'password'
-}, async (number, password, done) => {
-  try {
-    const admin = await Admin.findOne({ number })
-    if (!admin) { return done(null, false) }
-
-    try {
-      const isMatch = await admin.validatePassword(password)
-
-      if (!isMatch) { return done(null, false) }
-
-      done(null, admin)
-    } catch (err) {
-      done(err)
-    }
-  } catch (err) {
-    return done(err)
-  }
-}))
-
-passport.use('student', new Strategy({
-  usernameField: 'number',
-  passwordField: 'password'
-}, async (number, password, done) => {
-  try {
-    const student = await Student.findOne({ number })
-    if (!student) { return done(null, false) }
-
-    try {
-      const isMatch = await student.validatePassword(password)
-
-      if (!isMatch) { return done(null, false) }
-
-      done(null, student)
+      done(null, user)
     } catch (err) {
       done(err)
     }

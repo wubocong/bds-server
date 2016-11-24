@@ -1,4 +1,4 @@
-import Paper from '../../models/files'
+import Paper from '../../models/papers'
 
 export async function createPapers (ctx) {
   const fileIds = []

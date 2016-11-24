@@ -1,4 +1,4 @@
-import User from '../../models/user'
+import User from '../../models/users'
 
 /**
  * @api {post} /user Create a new user
@@ -11,13 +11,13 @@ import User from '../../models/user'
  * curl -H "Content-Type: application/json" -X POST -d '{ "user": { "number": "20080202", "password": "secretpasas", "role": "admin" } }' localhost:5000/user
  *
  * @apiParam {Object} user          User object (required)
- * @apiParam {String} user.number User number.
+ * @apiParam {String} user.number   User number.
  * @apiParam {String} user.password Password.
  *
  * @apiSuccess {Object}   user           User object
  * @apiSuccess {ObjectId} user._id       User id
  * @apiSuccess {String}   user.name      User name
- * @apiSuccess {String}   user.number  User number
+ * @apiSuccess {String}   user.number    User number
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -46,14 +46,12 @@ export async function createUser (ctx) {
     ctx.throw(422, err.message)
   }
 
-  const token = user.generateToken()
   const response = user.toJSON()
 
   delete response.password
 
   ctx.body = {
-    user: response,
-    token
+    user: response
   }
 }
 
@@ -67,26 +65,28 @@ export async function createUser (ctx) {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X GET localhost:5000/user
  *
- * @apiSuccess {Object[]} user           Array of user objects
- * @apiSuccess {ObjectId} user._id       User id
- * @apiSuccess {String}   user.name      User name
- * @apiSuccess {String}   user.number  User number
+ * @apiSuccess {Object[]} users           Array of user objects
+ * @apiSuccess {ObjectId} users._id       User id
+ * @apiSuccess {String}   users.name      User name
+ * @apiSuccess {String}   users.number    User number
+ * @apiSuccess {String}   users.role      User role
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "user": [{
+ *       "users": [{
  *          "_id": "56bd1da600a526986cf65c80"
  *          "name": "John Doe"
  *          "number": "20080202"
+ *          "role": "teacher"
  *       }]
  *     }
  *
  * @apiUse TokenError
  */
 export async function getUsers (ctx) {
-  const user = await User.find({}, '-password')
-  ctx.body = { user }
+  const users = await User.find({}, '-password')
+  ctx.body = { users }
 }
 
 /**
@@ -102,7 +102,7 @@ export async function getUsers (ctx) {
  * @apiSuccess {Object}   user           User object
  * @apiSuccess {ObjectId} user._id       User id
  * @apiSuccess {String}   user.name      User name
- * @apiSuccess {String}   user.number  User number
+ * @apiSuccess {String}   user.number    User number
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -111,6 +111,7 @@ export async function getUsers (ctx) {
  *          "_id": "56bd1da600a526986cf65c80"
  *          "name": "John Doe"
  *          "number": "20080202"
+ *          "role": "admin"
  *       }
  *     }
  *
@@ -145,7 +146,7 @@ export async function getUser (ctx, next) {
  * @apiGroup Users
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X PUT -d '{ "user": { "name": "Cool new Name" } }' localhost:5000/user/56bd1da600a526986cf65c80
+ * curl -H "Content-Type: application/json" -X PUT -d '{ "user": { "name": "Cool new Name", "role": "teacher" } }' localhost:5000/user/56bd1da600a526986cf65c80
  *
  * @apiParam {Object} user          User object (required)
  * @apiParam {String} user.name     Name.
@@ -156,7 +157,7 @@ export async function getUser (ctx, next) {
  * @apiSuccess {ObjectId} user._id       User id
  * @apiSuccess {String}   user.name      Updated name
  * @apiSuccess {String}   user.number    Updated number
- * @apiSuccess {String}   user.role      User role.
+ * @apiSuccess {String}   user.role      Updated role
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -165,7 +166,7 @@ export async function getUser (ctx, next) {
  *          "_id": "56bd1da600a526986cf65c80"
  *          "name": "Cool new name"
  *          "number": "20080202"
- *          "role": "admin"
+ *          "role": "teacher"
  *       }
  *     }
  *
