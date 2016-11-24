@@ -28,6 +28,7 @@ import passport from 'koa-passport'
  * @apiSuccess {ObjectId} user._id       User id
  * @apiSuccess {String}   user.name      User name
  * @apiSuccess {String}   user.number    User number
+ * @apiSuccess {String}   user.role      User role
  * @apiSuccess {String}   token          Encoded JWT
  *
  * @apiSuccessExample {json} Success-Response:
@@ -36,6 +37,7 @@ import passport from 'koa-passport'
  *       "user": {
  *          "_id": "56bd1da600a526986cf65c80"
  *          "number": "20090909"
+ *          "name": "John Doe"
  *          "role": "teacher"
  *        },
  *       "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"
