@@ -1,4 +1,7 @@
 import User from '../../models/users'
+import Student from '../../models/students'
+import Teacher from '../../models/teachers'
+import Admin from '../../models/admins'
 
 /**
  * @api {post} /users Create a new user
@@ -41,13 +44,49 @@ import User from '../../models/users'
  */
 export async function createUser (ctx) {
   const user = new User(ctx.request.fields.user)
-  console.warn(ctx.request.fields)
   try {
     await user.save()
   } catch (err) {
     ctx.throw(422, err.message)
   }
-
+  switch (user.role) {
+    case 'student': {
+      const student = new Student({
+        ...user,
+        studentId: user._id,
+      })
+      try {
+        await student.save()
+      } catch (err) {
+        ctx.throw(500, err.message)
+      }
+      break
+    }
+    case 'teacher': {
+      const teacher = new Teacher({
+        ...user,
+        teacherId: user._id,
+      })
+      try {
+        await teacher.save()
+      } catch (err) {
+        ctx.throw(500, err.message)
+      }
+      break
+    }
+    case 'admin': {
+      const admin = new Admin({
+        ...user,
+        adminId: user._id,
+      })
+      try {
+        await admin.save()
+      } catch (err) {
+        ctx.throw(500, err.message)
+      }
+      break
+    }
+  }
   const response = user.toJSON()
 
   delete response.password
@@ -88,7 +127,9 @@ export async function createUser (ctx) {
  */
 export async function getUsers (ctx) {
   const users = await User.find({}, '-password')
-  ctx.body = { users }
+  ctx.body = {
+    users
+  }
 }
 
 /**
@@ -138,7 +179,9 @@ export async function getUser (ctx, next) {
     ctx.throw(500)
   }
 
-  if (next) { return next() }
+  if (next) {
+    return next()
+  }
 }
 
 /**

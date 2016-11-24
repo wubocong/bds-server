@@ -8,7 +8,8 @@ const User = new mongoose.Schema({
   name: { type: String, required: true },
   account: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String, required: true, default: 'student' }
+  role: { type: String, required: true, default: 'student' },
+  gender: { type: Boolean, required: true, default: true },
 })
 
 User.pre('save', function preSave (next) {

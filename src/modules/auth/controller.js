@@ -18,16 +18,16 @@ import passport from 'koa-passport'
  * @apiName AuthUser
  * @apiGroup Auth
  *
- * @apiParam {String} account  User account.
+ * @apiParam {String} account   User account.
  * @apiParam {String} password  User password.
- * @apiParam {String} role  User role.
+ * @apiParam {String} role      User role.
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X POST -d '{ "account": "20090909", "password": "foo", "role": "teacher" }' localhost:5000/auth
  *
  * @apiSuccess {Object}   user           User object
  * @apiSuccess {ObjectId} user._id       User id
  * @apiSuccess {String}   user.name      User name
- * @apiSuccess {String}   user.account    User account
+ * @apiSuccess {String}   user.account   User account
  * @apiSuccess {String}   user.role      User role
  * @apiSuccess {String}   token          Encoded JWT
  *
@@ -55,7 +55,7 @@ import passport from 'koa-passport'
 
 export async function authUser (ctx, next) {
   return passport.authenticate('local', (user) => {
-    if (!user) {
+    if (!user || (ctx.request.fields.role || 'student') !== user.role) {
       ctx.throw(401)
     }
 
