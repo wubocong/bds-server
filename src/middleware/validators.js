@@ -32,7 +32,7 @@ export async function ensureAdmin (ctx, next) {
 }
 
 export async function ensureSelf (ctx, next) {
-  if (ctx.state.user._id !== ctx.params.id) {
+  if (ctx.state.user._id.toString() !== ctx.params.id) {
     ctx.throw(401)
   }
   return next()

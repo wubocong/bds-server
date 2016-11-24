@@ -32,7 +32,7 @@ import Admin from '../../models/admins'
  *          "name": "John Doe"
  *          "account": "20080202"
  *          "role": "teacher"
- *          "gender": "true"
+ *          "gender": true
  *       }
  *     }
  *
@@ -129,7 +129,7 @@ export async function createUser(ctx) {
  *          "name": "John Doe"
  *          "account": "20080202"
  *          "role": "teacher"
- *          "gender": "true"
+ *          "gender": true
  *       }]
  *     }
  *
@@ -167,7 +167,7 @@ export async function getUsers(ctx) {
  *          "name": "John Doe"
  *          "account": "20080202"
  *          "role": "admin"
- *          "gender": "true"
+ *          "gender": true
  *       }
  *     }
  *
@@ -247,7 +247,7 @@ export async function getUser(ctx, next) {
  *          "name": "Cool new name"
  *          "account": "20080202"
  *          "role": "teacher"
- *          "gender": "true"
+ *          "gender": true
  *       }
  *     }
  *
@@ -310,7 +310,7 @@ export async function deleteUser(ctx) {
  * @api {put} /users/password/:id Modify a user's password
  * @apiPermission Admin
  * @apiVersion 0.2.0
- * @apiName UpdateUser
+ * @apiName ModifyPassword
  * @apiGroup Users
  *
  * @apiExample Example usage:
@@ -331,23 +331,23 @@ export async function deleteUser(ctx) {
  * @apiError Unauthorized Incorrect credentials
  *
  * @apiErrorExample {json} Error-Response:
- *     HTTP/1.1 401 Unauthorized
+ *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "status": 401,
- *       "error": "Unauthorized"
+ *       "status": 422,
+ *       "error": "Unprocessable Entity"
  *     }
  *
  * @apiUse TokenError
  */
 export async function modifyPassword(ctx) {
   try {
-    const user = ctx.state.user
+    const user = User.findById(ctx.params.id)
     if (user.role === ctx.request.fields.role && (await user.validatePassword(ctx.request.fields.oldPassword))) {
       user.password = ctx.request.fields.newPassword
       await user.save()
     }
   } catch (err) {
-    ctx.throw(401, err.message)
+    ctx.throw(422, err.message)
   }
   ctx.status = 200
   ctx.body = {
@@ -380,7 +380,7 @@ export async function modifyPassword(ctx) {
  *          "name": "John Doe"
  *          "account": "20080202"
  *          "role": "admin"
- *          "gender": "true"
+ *          "gender": true
  *       }
  *     }
  *

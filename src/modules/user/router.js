@@ -58,4 +58,12 @@ export default [
       user.modifyPassword,
     ],
   },
+  {
+    method: 'GET',
+    route: '/me',
+    handlers: [
+      ensureUser,
+      user.getMe,
+    ],
+  },
 ]
