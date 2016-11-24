@@ -8,16 +8,16 @@ import User from '../../models/users'
  * @apiGroup Users
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X POST -d '{ "user": { "number": "20080202", "password": "secretpasas", "role": "admin" } }' localhost:5000/users
+ * curl -H "Content-Type: application/json" -X POST -d '{ "user": { "account": "20080202", "password": "secretpasas", "role": "admin" } }' localhost:5000/users
  *
  * @apiParam {Object} user          User object (required)
- * @apiParam {String} user.number   User number.
+ * @apiParam {String} user.account   User account.
  * @apiParam {String} user.password Password.
  *
  * @apiSuccess {Object}   user           User object
  * @apiSuccess {ObjectId} user._id       User id
  * @apiSuccess {String}   user.name      User name
- * @apiSuccess {String}   user.number    User number
+ * @apiSuccess {String}   user.account    User account
  * @apiSuccess {String}   user.role      User role
  *
  * @apiSuccessExample {json} Success-Response:
@@ -26,7 +26,7 @@ import User from '../../models/users'
  *       "user": {
  *          "_id": "56bd1da600a526986cf65c80"
  *          "name": "John Doe"
- *          "number": "20080202"
+ *          "account": "20080202"
  *       }
  *     }
  *
@@ -70,7 +70,7 @@ export async function createUser (ctx) {
  * @apiSuccess {Object[]} users           Array of user objects
  * @apiSuccess {ObjectId} users._id       User id
  * @apiSuccess {String}   users.name      User name
- * @apiSuccess {String}   users.number    User number
+ * @apiSuccess {String}   users.account    User account
  * @apiSuccess {String}   users.role      User role
  *
  * @apiSuccessExample {json} Success-Response:
@@ -79,7 +79,7 @@ export async function createUser (ctx) {
  *       "users": [{
  *          "_id": "56bd1da600a526986cf65c80"
  *          "name": "John Doe"
- *          "number": "20080202"
+ *          "account": "20080202"
  *          "role": "teacher"
  *       }]
  *     }
@@ -104,7 +104,7 @@ export async function getUsers (ctx) {
  * @apiSuccess {Object}   user           User object
  * @apiSuccess {ObjectId} user._id       User id
  * @apiSuccess {String}   user.name      User name
- * @apiSuccess {String}   user.number    User number
+ * @apiSuccess {String}   user.account    User account
  * @apiSuccess {String}   user.role      User role
  *
  * @apiSuccessExample {json} Success-Response:
@@ -113,7 +113,7 @@ export async function getUsers (ctx) {
  *       "user": {
  *          "_id": "56bd1da600a526986cf65c80"
  *          "name": "John Doe"
- *          "number": "20080202"
+ *          "account": "20080202"
  *          "role": "admin"
  *       }
  *     }
@@ -153,13 +153,13 @@ export async function getUser (ctx, next) {
  *
  * @apiParam {Object} user          User object (required)
  * @apiParam {String} user.name     Name.
- * @apiParam {String} user.number   User number.
+ * @apiParam {String} user.account   User account.
  * @apiParam {String} user.role     User role.
  *
  * @apiSuccess {Object}   user           User object
  * @apiSuccess {ObjectId} user._id       User id
  * @apiSuccess {String}   user.name      Updated name
- * @apiSuccess {String}   user.number    Updated number
+ * @apiSuccess {String}   user.account    Updated account
  * @apiSuccess {String}   user.role      Updated role
  *
  * @apiSuccessExample {json} Success-Response:
@@ -168,7 +168,7 @@ export async function getUser (ctx, next) {
  *       "user": {
  *          "_id": "56bd1da600a526986cf65c80"
  *          "name": "Cool new name"
- *          "number": "20080202"
+ *          "account": "20080202"
  *          "role": "teacher"
  *       }
  *     }

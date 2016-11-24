@@ -21,6 +21,6 @@ export async function ensureUser (ctx, next) {
   if (!ctx.state.user) {
     ctx.throw(401)
   }
-
+  console.log(ctx.state.user)
   return next()
 }
