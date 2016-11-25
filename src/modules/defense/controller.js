@@ -1,4 +1,4 @@
-import Defense from '../../models/defensess'
+import Defense from '../../models/defenses'
 
 /**
  * @api {post} /defenses Create defenses
@@ -8,10 +8,10 @@ import Defense from '../../models/defensess'
  * @apiGroup Defenses
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X POST -d '{ "defenses": [{ "student": "56bd1da600a526986cf65c80", "paper": "secretpasas", "scores": [{"teacherId": "56bd1da600a526986cf65c80", "sum": 100, "items": [50, 20, 30]}], "remark": "bad guy", "time": 1479891536874 }] }' localhost:5000/defenses
+ * curl -H "Content-Type: application/json" -X POST -d '{ "defenses": [{ "studentId": "56bd1da600a526986cf65c80", "paper": "secretpass", "scores": [{"teacherId": "56bd1da600a526986cf65c80", "sum": 100, "items": [50, 20, 30]}], "remark": "bad guy", "time": 1479891536874 }] }' localhost:5000/defenses
  *
  * @apiParam {Object[]} defenses          Defenses array (required)
- * @apiParam {String} defenses.student Defense student's id (required).
+ * @apiParam {String} defenses.studentId Defense student's id (required).
  * @apiParam {String} defenses.paper Paper's id (required).
  * @apiParam {Object[]} defenses.scores Defense scores array.
  * @apiParam {Number[]} defenses.scores.items Each item of teacher's scores.
@@ -41,7 +41,7 @@ export async function createDefenses (ctx) {
   const defenseIds = []
   try {
     await Promise.all(ctx.request.fields.defenses.map(async (defense) => {
-      const newDefense = new Defense({...defense, student: ctx.state.student._id, paper: ctx.request.fields.paper})
+      const newDefense = new Defense(defense)
       await newDefense.save()
       defenseIds.push(newDefense._id)
     }))
@@ -68,7 +68,7 @@ async function getDefense (id) {
  * curl -H "Content-Type: application/json" -X GET localhost:5000/defenses
  *
  * @apiSuccess {Object[]}   defenses           Defense objects
- * @apiSuccess {String} defenses.student Defense student's id (required).
+ * @apiSuccess {String} defenses.studentId Defense student's id (required).
  * @apiSuccess {String} defenses.paper Paper's id (required).
  * @apiSuccess {Object[]} defenses.scores Defense scores array.
  * @apiSuccess {Number[]} defenses.scores.items Each item of teacher's scores.
@@ -82,8 +82,8 @@ async function getDefense (id) {
  *     {
  *       "defenses": [{
  *          "_id": "56bd1da600a526986cf65c80"
- *          "student": "56bd1da600a526986cf65c80"
- *          "paper": "secretpasas"
+ *          "studentId": "56bd1da600a526986cf65c80"
+ *          "paper": "secretpass"
  *          "scores": [{
  *            "teacherId": "56bd1da600a526986cf65c80"
  *            "sum": 100
@@ -99,7 +99,7 @@ async function getDefense (id) {
 
 export async function getDefenses (ctx, next) {
   // ctx.state中储存了koa-passport解析的用户会话信息
-  const defenses = await Defense.find({student: ctx.state.student._id})
+  const defenses = await Defense.find()
   ctx.body = {
     defenses,
   }
@@ -116,10 +116,10 @@ export async function getDefenses (ctx, next) {
  * @apiGroup Defenses
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X PUT -d '{ "defense": [{ "student": "56bd1da600a526986cf65c80", "paper": "secretpasas", "scores": [{"teacherId": "56bd1da600a526986cf65c80", "sum": 100, "items": [50, 20, 30]}], "remark": "bad guy", "time": 1479891536874 }] }' localhost:5000/defenses
+ * curl -H "Content-Type: application/json" -X PUT -d '{ "defense": [{ "studentId": "56bd1da600a526986cf65c80", "paper": "secretpass", "scores": [{"teacherId": "56bd1da600a526986cf65c80", "sum": 100, "items": [50, 20, 30]}], "remark": "bad guy", "time": 1479891536874 }] }' localhost:5000/defenses
  *
  * @apiParam {Object} defenses          Defenses array (required)
- * @apiParam {String} defenses.student Defense student's id (required).
+ * @apiParam {String} defenses.studentId Defense studentId's id (required).
  * @apiParam {String} defenses.paper Paper's id (required).
  * @apiParam {Object[]} defenses.scores Defense scores array.
  * @apiParam {Number[]} defenses.scores.items Each item of teacher's scores.
@@ -203,11 +203,11 @@ export async function deleteDefenses (ctx) {
  * @apiGroup Defenses
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X GET localhost:5000/defenses
+ * curl -H "Content-Type: application/json" -X GET localhost:5000/defenses/56bd1da600a526986cf65c80
  *
- * @apiSuccess {Object[]}   defenses           Defense objects
- * @apiSuccess {String} defenses.student Defense student's id (required).
- * @apiSuccess {String} defenses.paper Paper's id (required).
+ * @apiSuccess {Object}   defense           Defense object
+ * @apiSuccess {String} defenses.studentId Defense student's id.
+ * @apiSuccess {String} defenses.paper Paper's id.
  * @apiSuccess {Object[]} defenses.scores Defense scores array.
  * @apiSuccess {Number[]} defenses.scores.items Each item of teacher's scores.
  * @apiSuccess {String} defenses.scores.teacherId Teacher's id.
@@ -218,10 +218,10 @@ export async function deleteDefenses (ctx) {
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "defenses": [{
+ *       "defense": {
  *          "_id": "56bd1da600a526986cf65c80"
- *          "student": "56bd1da600a526986cf65c80"
- *          "paper": "secretpasas"
+ *          "studentId": "56bd1da600a526986cf65c80"
+ *          "paper": "secretpass"
  *          "scores": [{
  *            "teacherId": "56bd1da600a526986cf65c80"
  *            "sum": 100
@@ -229,19 +229,20 @@ export async function deleteDefenses (ctx) {
  *          }]
  *          "remark": "bad guy"
  *          "time": 1479891536874
- *       }]
+ *       }
  *     }
  *
  * @apiUse TokenError
  */
 
-export async function getDefenses (ctx, next) {
-  // ctx.state中储存了koa-passport解析的用户会话信息
-  const defenses = await Defense.find({student: ctx.state.student._id})
-  ctx.body = {
-    defenses,
-  }
-  if (next) {
-    return next()
+export async function getMyDefense (ctx) {
+  const id = ctx.params.id
+  try {
+    const defense = await Defense.find({ studentId: id })
+    ctx.body = {
+      defense,
+    }
+  } catch (err) {
+    ctx.throw(401)
   }
 }

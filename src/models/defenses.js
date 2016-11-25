@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 const Defense = new mongoose.Schema({
-  student: { type: String, required: true },
+  studentId: { type: String, required: true },
   paper: { type: String, required: true },
   scores: { type: Array },
   remark: { type: String },
