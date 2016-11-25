@@ -1,14 +1,14 @@
-import Defense from '../../models/defenses'
+import Defense from '../../models/defensess'
 
 /**
- * @api {post} /defense Create defenses
- * @apiPermission
+ * @api {post} /defenses Create defenses
+ * @apiPermission Admin
  * @apiVersion 0.2.0
  * @apiName CreateDefense
  * @apiGroup Defenses
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X POST -d '{ "defenses": [{ "student": "56bd1da600a526986cf65c80", "paper": "secretpasas", "scores": [{"teacherId": "56bd1da600a526986cf65c80", "sum": 100, "items": [50, 20, 30]}], "remark": "bad guy", "time": 1479891536874 }] }' localhost:5000/defense
+ * curl -H "Content-Type: application/json" -X POST -d '{ "defenses": [{ "student": "56bd1da600a526986cf65c80", "paper": "secretpasas", "scores": [{"teacherId": "56bd1da600a526986cf65c80", "sum": 100, "items": [50, 20, 30]}], "remark": "bad guy", "time": 1479891536874 }] }' localhost:5000/defenses
  *
  * @apiParam {Object[]} defenses          Defenses array (required)
  * @apiParam {String} defenses.student Defense student's id (required).
@@ -58,14 +58,14 @@ async function getDefense (id) {
 }
 
 /**
- * @api {get} /defense Get defenses
- * @apiPermission defense
+ * @api {get} /defenses Get all defenses
+ * @apiPermission Admin
  * @apiVersion 0.2.0
  * @apiName GetDefense
  * @apiGroup Defenses
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X GET localhost:5000/defense
+ * curl -H "Content-Type: application/json" -X GET localhost:5000/defenses
  *
  * @apiSuccess {Object[]}   defenses           Defense objects
  * @apiSuccess {String} defenses.student Defense student's id (required).
@@ -109,14 +109,14 @@ export async function getDefenses (ctx, next) {
 }
 
 /**
- * @api {put} /defense Update defenses
- * @apiPermission
+ * @api {put} /defenses Update defenses
+ * @apiPermission Admin
  * @apiVersion 0.2.0
  * @apiName UpdateDefense
  * @apiGroup Defenses
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X PUT -d '{ "defense": [{ "student": "56bd1da600a526986cf65c80", "paper": "secretpasas", "scores": [{"teacherId": "56bd1da600a526986cf65c80", "sum": 100, "items": [50, 20, 30]}], "remark": "bad guy", "time": 1479891536874 }] }' localhost:5000/defense
+ * curl -H "Content-Type: application/json" -X PUT -d '{ "defense": [{ "student": "56bd1da600a526986cf65c80", "paper": "secretpasas", "scores": [{"teacherId": "56bd1da600a526986cf65c80", "sum": 100, "items": [50, 20, 30]}], "remark": "bad guy", "time": 1479891536874 }] }' localhost:5000/defenses
  *
  * @apiParam {Object} defenses          Defenses array (required)
  * @apiParam {String} defenses.student Defense student's id (required).
@@ -160,14 +160,14 @@ export async function updateDefenses (ctx) {
 }
 
 /**
- * @api {delete} /defense Delete defenses
- * @apiPermission
+ * @api {delete} /defenses Delete defenses
+ * @apiPermission Admin
  * @apiVersion 0.2.0
  * @apiName DeleteDefense
  * @apiGroup Defenses
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X DELETE -d '{ "defenseIds": ["56bd1da600a526986cf65c80"] }' localhost:5000/defense
+ * curl -H "Content-Type: application/json" -X DELETE -d '{ "defenseIds": ["56bd1da600a526986cf65c80"] }' localhost:5000/defenses
  *
  * @apiParam {String[]} defenseIds Defenses' id to be deleted.
  *

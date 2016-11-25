@@ -1,7 +1,7 @@
 import { ensureUser } from '../../middleware/validators'
 import * as defense from './controller'
 
-export const baseUrl = '/defense'
+export const baseUrl = '/defenses'
 
 export default [
   {
