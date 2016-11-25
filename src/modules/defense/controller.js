@@ -4,7 +4,7 @@ import Defense from '../../models/defensess'
  * @api {post} /defenses Create defenses
  * @apiPermission Admin
  * @apiVersion 0.2.0
- * @apiName CreateDefense
+ * @apiName CreateDefenses
  * @apiGroup Defenses
  *
  * @apiExample Example usage:
@@ -61,7 +61,7 @@ async function getDefense (id) {
  * @api {get} /defenses Get all defenses
  * @apiPermission Admin
  * @apiVersion 0.2.0
- * @apiName GetDefense
+ * @apiName GetDefenses
  * @apiGroup Defenses
  *
  * @apiExample Example usage:
@@ -112,7 +112,7 @@ export async function getDefenses (ctx, next) {
  * @api {put} /defenses Update defenses
  * @apiPermission Admin
  * @apiVersion 0.2.0
- * @apiName UpdateDefense
+ * @apiName UpdateDefenses
  * @apiGroup Defenses
  *
  * @apiExample Example usage:
@@ -163,7 +163,7 @@ export async function updateDefenses (ctx) {
  * @api {delete} /defenses Delete defenses
  * @apiPermission Admin
  * @apiVersion 0.2.0
- * @apiName DeleteDefense
+ * @apiName DeleteDefenses
  * @apiGroup Defenses
  *
  * @apiExample Example usage:
@@ -192,5 +192,56 @@ export async function deleteDefenses (ctx) {
     }
   } catch (err) {
     ctx.throw(422, err.message)
+  }
+}
+
+/**
+ * @api {get} /defenses/:id Get a defense
+ * @apiPermission User
+ * @apiVersion 0.2.0
+ * @apiName GetDefense
+ * @apiGroup Defenses
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -X GET localhost:5000/defenses
+ *
+ * @apiSuccess {Object[]}   defenses           Defense objects
+ * @apiSuccess {String} defenses.student Defense student's id (required).
+ * @apiSuccess {String} defenses.paper Paper's id (required).
+ * @apiSuccess {Object[]} defenses.scores Defense scores array.
+ * @apiSuccess {Number[]} defenses.scores.items Each item of teacher's scores.
+ * @apiSuccess {String} defenses.scores.teacherId Teacher's id.
+ * @apiSuccess {Number} defenses.scores.sum Sum of each teacher's scores.
+ * @apiSuccess {String} defenses.remark Defense's remark.
+ * @apiSuccess {Number} defenses.time Defense's time (default to current time).
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "defenses": [{
+ *          "_id": "56bd1da600a526986cf65c80"
+ *          "student": "56bd1da600a526986cf65c80"
+ *          "paper": "secretpasas"
+ *          "scores": [{
+ *            "teacherId": "56bd1da600a526986cf65c80"
+ *            "sum": 100
+ *            "items": [50, 20, 30]
+ *          }]
+ *          "remark": "bad guy"
+ *          "time": 1479891536874
+ *       }]
+ *     }
+ *
+ * @apiUse TokenError
+ */
+
+export async function getDefenses (ctx, next) {
+  // ctx.state中储存了koa-passport解析的用户会话信息
+  const defenses = await Defense.find({student: ctx.state.student._id})
+  ctx.body = {
+    defenses,
+  }
+  if (next) {
+    return next()
   }
 }
