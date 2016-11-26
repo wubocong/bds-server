@@ -11,7 +11,7 @@ import cors from 'koa-cors'
 
 import config from '../config'
 import {
-  errorMiddleware
+  errorMiddleware,
 } from '../src/middleware'
 
 const app = new Koa()

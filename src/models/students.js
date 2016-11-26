@@ -5,8 +5,8 @@ const Student = new mongoose.Schema({
   studentId: { type: String, required: true, unique: true },
   grade: { type: Number, required: true, default: 2013 },
   major: { type: String, required: true, default: '软件工程' },
-  paperId: { type: String, unique: true },
-  defenseId: { type: String, unique: true },
+  paperId: { type: String },
+  defenseId: { type: String },
   tutor: { type: String },
 })
 

@@ -13,6 +13,14 @@ export default [
   },
   {
     method: 'GET',
+    route: '/me/',
+    handlers: [
+      ensureUser,
+      user.getMe,
+    ],
+  },
+  {
+    method: 'GET',
     route: '/',
     handlers: [
       ensureUser,
@@ -56,14 +64,6 @@ export default [
       ensureUser,
       ensureSelf,
       user.modifyPassword,
-    ],
-  },
-  {
-    method: 'GET',
-    route: '/me',
-    handlers: [
-      ensureUser,
-      user.getMe,
     ],
   },
 ]

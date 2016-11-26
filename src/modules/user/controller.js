@@ -387,36 +387,11 @@ export async function modifyPassword(ctx) {
  * @apiUse TokenError
  */
 export async function getMe(ctx) {
-  let role
-  try {
-    switch (ctx.state.user.role) {
-      case 'student':
-        {
-          role = await Student.find({studentId: ctx.state.user._id}, '-studentId')
-          break
-        }
-      case 'teacher':
-        {
-          role = await Teacher.find({teacherId: ctx.state.user._id}, '-teacherId')
-          break
-        }
-      case 'admin':
-        {
-          role = await Admin.find({adminId: ctx.state.user._id}, '-adminId')
-          break
-        }
-      default:
-        break
-    }
-  } catch (err) {
-    if (err === 404 || err.name === 'CastError') {
-      ctx.throw(404)
-    }
-
-    ctx.throw(500)
+  if (!ctx.state.user) {
+    ctx.throw(401)
   }
   ctx.status = 200
   ctx.body = {
-    user: Object.assign(role, ctx.state.user),
+    user: ctx.state.user,
   }
 }

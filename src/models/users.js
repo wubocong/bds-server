@@ -8,11 +8,13 @@ const User = new mongoose.Schema({
   name: { type: String, required: true },
   account: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  phone: { type: Number, required: true, unique: true },
+  email: { type: String, unique: true },
   role: { type: String, required: true, default: 'student' },
   gender: { type: Boolean, required: true, default: true },
 })
 
-User.pre('save', function preSave (next) {
+User.pre('save', function preSave(next) {
   const user = this
 
   if (!user.isModified('password')) {
@@ -37,7 +39,7 @@ User.pre('save', function preSave (next) {
     .catch(err => next(err))
 })
 
-User.methods.validatePassword = function validatePassword (password) {
+User.methods.validatePassword = function validatePassword(password) {
   const user = this
 
   return new Promise((resolve, reject) => {
@@ -49,7 +51,7 @@ User.methods.validatePassword = function validatePassword (password) {
   })
 }
 
-User.methods.generateToken = function generateToken () {
+User.methods.generateToken = function generateToken() {
   const user = this
 
   return jwt.sign({ id: user.id }, config.token)

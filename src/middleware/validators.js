@@ -1,4 +1,8 @@
 import User from '../models/users'
+import Student from '../models/students'
+import Teacher from '../models/teachers'
+import Admin from '../models/admins'
+
 import config from '../../config'
 import { getToken } from '../utils/auth'
 import { verify } from 'jsonwebtoken'
@@ -17,7 +21,37 @@ export async function ensureUser (ctx, next) {
     ctx.throw(401)
   }
 
-  ctx.state.user = await User.findById(decoded.id, '-password')
+  const user = await User.findById(decoded.id, '-password')
+  const id = user._id.toString()
+
+  try {
+    switch (user.role) {
+      case 'student':
+        {
+          Object.assign(user, await Student.find({studentId: id}, '-studentId'))
+          break
+        }
+      case 'teacher':
+        {
+          Object.assign(user, await Teacher.find({teacherId: id}, '-teacherId'))
+          break
+        }
+      case 'admin':
+        {
+          Object.assign(user, await Admin.find({adminId: id}, '-adminId'))
+          break
+        }
+      default:
+        break
+    }
+  } catch (err) {
+    if (err === 404 || err.name === 'CastError') {
+      ctx.throw(404)
+    }
+
+    ctx.throw(500)
+  }
+  ctx.state.user = user
   if (!ctx.state.user) {
     ctx.throw(401)
   }
