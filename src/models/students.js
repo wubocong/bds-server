@@ -7,7 +7,7 @@ const Student = new mongoose.Schema({
   major: { type: String, required: true, default: '软件工程' },
   paperId: { type: String },
   defenseId: { type: String },
-  tutor: { type: String },
+  teacherId: { type: String },
 })
 
 export default mongoose.model('student', Student)

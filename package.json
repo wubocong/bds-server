@@ -1,7 +1,7 @@
 {
   "name": "bachelor-denfese-server",
   "version": "0.2.0",
-  "description": "YunBackup Server with Koa2",
+  "description": "Bachelor defense API",
   "main": "index.js",
   "private": true,
   "scripts": {
