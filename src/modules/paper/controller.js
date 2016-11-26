@@ -1,6 +1,6 @@
 import Paper from '../../models/papers'
-import Student from '../../models/students'
-import Teacher from '../../models/teachers'
+// import Student from '../../models/students'
+// import Teacher from '../../models/teachers'
 
 /**
  * @api {post} /papers Create a new paper
@@ -40,7 +40,7 @@ import Teacher from '../../models/teachers'
  */
 export async function createPaper(ctx) {
   try {
-    const paper = new Paper(ctx.request.fields.paper)
+    const paper = new Paper(Object.assign(ctx.request.fields.paper, { studentId: ctx.state.user._id }))
     await paper.save()
 
     ctx.body = {
@@ -246,7 +246,7 @@ export async function updatePaper(ctx) {
 export async function getMyPaper(ctx) {
   const id = ctx.state.user._id
   try {
-    let paper = await Paper.find({studentId: id})
+    let paper = await Paper.find({ studentId: id })
     if (!paper) {
       ctx.throw(404)
     }

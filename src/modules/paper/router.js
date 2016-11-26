@@ -1,31 +1,50 @@
-import { ensureUser } from '../../middleware/validators'
+import { ensureUser, ensureAdmin } from '../../middleware/validators'
 import * as paper from './controller'
 
-export const baseUrl = '/paper'
+export const baseUrl = '/papers'
 
 export default [
-  {
-    method: 'GET',
-    route: '/',
-    handlers: [
-      ensureUser,
-      paper.getPapers,
-    ],
-  },
   {
     method: 'POST',
     route: '/',
     handlers: [
       ensureUser,
-      paper.createPapers,
+      paper.createPaper,
     ],
   },
   {
-    method: 'DELETE',
+    method: 'GET',
+    route: '/me',
+    handlers: [
+      ensureUser,
+      paper.getMyPaper,
+    ],
+  },
+  {
+    method: 'GET',
     route: '/',
     handlers: [
       ensureUser,
-      paper.deletePapers,
+      ensureAdmin,
+      paper.getPapers,
+    ],
+  },
+  {
+    method: 'GET',
+    route: '/:id',
+    handlers: [
+      ensureUser,
+      ensureAdmin,
+      paper.getPaper,
+    ],
+  },
+  {
+    method: 'PUT',
+    route: '/:id',
+    handlers: [
+      ensureUser,
+      paper.getPaper,
+      paper.updatePaper,
     ],
   },
 ]

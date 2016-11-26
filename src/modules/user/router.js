@@ -1,4 +1,4 @@
-import { ensureUser, ensureAdmin, ensureSelf } from '../../middleware/validators'
+import { ensureUser, ensureAdmin } from '../../middleware/validators'
 import * as user from './controller'
 
 export const baseUrl = '/users'
@@ -62,7 +62,6 @@ export default [
     route: '/password/:id',
     handlers: [
       ensureUser,
-      ensureSelf,
       user.modifyPassword,
     ],
   },

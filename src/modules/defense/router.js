@@ -1,4 +1,4 @@
-import { ensureUser, ensureAdmin, ensureSelf } from '../../middleware/validators'
+import { ensureUser, ensureAdmin } from '../../middleware/validators'
 import * as defense from './controller'
 
 export const baseUrl = '/defenses'
@@ -45,7 +45,6 @@ export default [
     route: '/:id',
     handlers: [
       ensureUser,
-      ensureSelf,
       defense.getMyDefense,
     ],
   },
