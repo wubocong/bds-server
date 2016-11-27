@@ -8,5 +8,8 @@
   "env": {
     "node": true,
     "mocha": true
-  }
+  },
+  "ignore": [
+    "data.json"
+  ]
 }

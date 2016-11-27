@@ -236,6 +236,10 @@ export async function getUser(ctx, next) {
 export async function updateUser(ctx) {
   const user = ctx.body.user
 
+  if (!ctx.request.fields.user) {
+    ctx.throw(422)
+  }
+  delete ctx.request.fields.user.password
   Object.assign(user, ctx.request.fields.user)
 
   await user.save()

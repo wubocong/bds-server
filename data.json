@@ -1,0 +1,114 @@
+// 创建用户
+{
+  "user": {
+    "name": "gly",
+    "account": "gly",
+    "password": "phy",
+    "role": "admin",
+    "phone": 18813752176,
+    "email": "2",
+    "gender": false
+  }
+} {
+  "user": {
+    "name": "xs",
+    "account": "xs",
+    "password": "phy",
+    "role": "student",
+    "phone": 18813752175,
+    "email": "1",
+    "gender": true
+  }
+} {
+  "user": {
+    "name": "ls",
+    "account": "ls",
+    "password": "phy",
+    "role": "teacher",
+    "phone": 18813752174,
+    "email": "0",
+    "gender": false
+  }
+}
+
+// 登录
+{
+  "account": "gly",
+  "role": "admin"
+} {
+  "account": "xs",
+  "role": "student"
+} {
+  "account": "ls",
+  "role": "teacher"
+}
+
+// 修改用户
+{
+  "user": {
+    "name": "phy2",
+    "account": "ls",
+    "password": "wbc"
+  }
+}
+
+// 改密码
+{
+  "role": "student",
+  "newPassword": "g123",
+  "oldPassword": "phy"
+} {
+  "role": "student",
+  "newPassword": "phy",
+  "oldPassword": "g123"
+}
+
+// 修改答辩信息
+{
+  "defenses": [{
+    "_id": "583802c0d7d97d4284e62a05",
+    "studentId": "5836fc8c1b22ed1cc8278e12",
+    "paper": "stupid"
+  }]
+}
+
+// 创建答辩信息
+{
+  "defenses": [{
+    "studentId": "56bd1da600a526986cf65c80",
+    "paper": "secretpass",
+    "scores": [{
+      "teacherId": "56bd1da600a526986cf65c80",
+      "sum": 100,
+      "items": [50, 20, 30]
+    }],
+    "remark": "bad guy",
+    "time": 1479891536874
+  }]
+}
+
+// 创建论文
+{
+  "paper": {
+    "name": "How to become a millionaire",
+    "studentId": "56bd1da600a526986cf65c80",
+    "teacherId": "56bd1da600a526986cf65c80",
+    "filePath": "http://localhost:5000/file/1s2d1da600a526986cf85c4f",
+    "fileSize": 1022392,
+    "desp": "fuckfuckfuck",
+    "lastModifiedDate": 1480155509491
+  }
+}
+
+// 修改论文
+{
+  "paper": {
+    "name": "How to become a millionaire",
+    "studentId": "56bd1da600a526986cf65c80",
+    "teacherId": "56bd1da600a526986cf65c80",
+    "filePath": "http://localhost:5000/file/1s2d1da600a526986cf85c4f",
+    "fileSize": 1022392,
+    "desp": "fuckfuckfuck",
+    "lastModifiedDate": 1480155509491
+  }
+}
