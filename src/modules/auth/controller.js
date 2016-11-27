@@ -61,6 +61,7 @@ import Defense from '../../models/defenses'
 
 export async function authUser (ctx, next) {
   return passport.authenticate('local', async (user) => {
+    let newUser
     if (!user || (ctx.request.fields.role || 'student') !== user.role) {
       ctx.throw(401)
     }
@@ -70,17 +71,17 @@ export async function authUser (ctx, next) {
           {
             const data = await student.getStudent(user._id)
             const {grade, major, clazz} = data
-            user = {...user, grade, major, clazz, teacher: (await User.findById(data.teacherId, 'name')), paper: (await Paper.findById(data.paperId, '-type -studentId -teacherId')), defense: (await Defense.findById(data.defenseId, '-type -studentId -paperId'))}
+            newUser = {...user, grade, major, clazz, teacher: (await User.findById(data.teacherId, 'name')), paper: (await Paper.findById(data.paperId, '-type -studentId -teacherId')), defense: (await Defense.findById(data.defenseId, '-type -studentId -paperId'))}
             break
           }
         case 'teacher':
           {
-            user = {...user, ...(await teacher.getTeacher(user._id))}
+            newuser = {...user, ...(await teacher.getTeacher(user._id))}
             break
           }
         case 'admin':
           {
-            user = {...user, ...(await admin.getAdmin(user._id))}
+            newuser = {...user, ...(await admin.getAdmin(user._id))}
             break
           }
         default:
@@ -90,9 +91,9 @@ export async function authUser (ctx, next) {
       ctx.throw(401, err.message)
     }
 
-    const token = user.generateToken()
+    const token = newUser.generateToken()
 
-    const response = user.toJSON()
+    const response = newUser.toJSON()
 
     delete response.password
     ctx.body = {
