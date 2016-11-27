@@ -12,7 +12,7 @@ export async function createTeacher(user) {
 
 export async function getTeacher(id) {
   try {
-    let teacher = await Teacher.find({teacherId: id})
+    let teacher = await Teacher.find({teacherId: id}, '-type')
     if (!teacher) {
       return 404
     }

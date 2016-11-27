@@ -12,7 +12,7 @@ export async function createAdmin(user) {
 
 export async function getAdmin(id) {
   try {
-    let admin = await Admin.find({adminId: id})
+    let admin = await Admin.find({adminId: id}, '-type')
     if (!admin) {
       return 404
     }

@@ -1,4 +1,10 @@
 import passport from 'koa-passport'
+import * as student from '../student/controller'
+import * as admin from '../admin/controller'
+import * as teacher from '../teacher/controller'
+import User from '../../models/users'
+import Paper from '../../models/papers'
+import Defense from '../../models/defenses'
 
 /**
  * @apiDefine TokenError
@@ -54,9 +60,34 @@ import passport from 'koa-passport'
  */
 
 export async function authUser (ctx, next) {
-  return passport.authenticate('local', (user) => {
+  return passport.authenticate('local', async (user) => {
     if (!user || (ctx.request.fields.role || 'student') !== user.role) {
       ctx.throw(401)
+    }
+    try {
+      switch (user.role) {
+        case 'student':
+          {
+            const data = await student.getStudent(user._id)
+            const {grade, major, clazz} = data
+            user = {...user, grade, major, clazz, teacher: (await User.findById(data.teacherId, 'name')), paper: (await Paper.findById(data.paperId, '-type -studentId -teacherId')), defense: (await Defense.findById(data.defenseId, '-type -studentId -paperId'))}
+            break
+          }
+        case 'teacher':
+          {
+            user = {...user, ...(await teacher.getTeacher(user._id))}
+            break
+          }
+        case 'admin':
+          {
+            user = {...user, ...(await admin.getAdmin(user._id))}
+            break
+          }
+        default:
+          break
+      }
+    } catch (err) {
+      ctx.throw(401, err.message)
     }
 
     const token = user.generateToken()
@@ -64,7 +95,6 @@ export async function authUser (ctx, next) {
     const response = user.toJSON()
 
     delete response.password
-
     ctx.body = {
       token,
       user: response,

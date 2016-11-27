@@ -12,9 +12,9 @@ export async function createStudent(user) {
   }
 }
 
-export async function getStudent(id) {
+export async function getStudent(id, query) {
   try {
-    let student = await Student.find({studentId: id})
+    let student = await Student.find({studentId: id}, `-type ${query}`)
     if (!student) {
       return 404
     }

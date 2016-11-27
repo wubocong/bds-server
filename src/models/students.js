@@ -6,6 +6,7 @@ const Student = new mongoose.Schema({
   grade: { type: Number, required: true, default: 2013 },
   major: { type: String, required: true, default: '软件工程' },
   clazz: { type: String, required: true, default: 'R5' },
+  teacherId: { type: String },
   paperId: { type: String },
   defenseId: { type: String },
 })

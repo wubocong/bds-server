@@ -155,7 +155,7 @@ export async function getUser(ctx, next) {
         }
       case 'admin':
         {
-          user = {...user, ...(await student.getAdmin(id))}
+          user = {...user, ...(await admin.getAdmin(id))}
           break
         }
       default:
