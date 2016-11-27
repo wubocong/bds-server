@@ -3,6 +3,9 @@ import Student from '../../models/students'
 import Teacher from '../../models/teachers'
 import Admin from '../../models/admins'
 import * as student from '../student/controller'
+import * as admin from '../admin/controller'
+import * as teacher from '../teacher/controller'
+
 /**
  * @api {post} /users Create a new user
  * @apiPermission User
@@ -60,39 +63,20 @@ export async function createUser(ctx) {
       }
     case 'teacher':
       {
-        const teacher = new Teacher({
-          ...user,
-          teacherId: user._id,
-        })
-        try {
-          await teacher.save()
-        } catch (err) {
-          ctx.throw(500, err.message)
-        }
+        teacher.createStudent(ctx, user._id)
         break
       }
     case 'admin':
       {
-        const admin = new Admin({
-          ...user,
-          adminId: user._id,
-        })
-        try {
-          await admin.save()
-        } catch (err) {
-          ctx.throw(500, err.message)
-        }
+        admin.createStudent(ctx, user._id)
         break
       }
     default:
       break
   }
-  const response = user.toJSON()
-
-  delete response.password
 
   ctx.body = {
-    user: response,
+    create: true,
   }
 }
 
@@ -106,23 +90,12 @@ export async function createUser(ctx) {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X GET localhost:5000/users
  *
- * @apiSuccess {Object[]} users           Array of user objects
- * @apiSuccess {ObjectId} users._id       User id
- * @apiSuccess {String}   users.name      User name
- * @apiSuccess {String}   users.account   User account
- * @apiSuccess {String}   users.role      User role
- * @apiSuccess {Boolean}  user.gender    User gender
+ * @apiSuccess {StatusCode} 200
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "users": [{
- *          "_id": "56bd1da600a526986cf65c80"
- *          "name": "John Doe"
- *          "account": "20080202"
- *          "role": "teacher"
- *          "gender": true
- *       }]
+ *       "create": true
  *     }
  *
  * @apiUse TokenError
@@ -172,17 +145,17 @@ export async function getUser(ctx, next) {
     switch (user.role) {
       case 'student':
         {
-          user = {...user, ...(await Student.find({studentId: id}, '-studentId'))}
+          user = {...user, ...(await Student.find({ studentId: id }, '-studentId'))}
           break
         }
       case 'teacher':
         {
-          user = {...user, ...(await Teacher.find({teacherId: id}, '-teacherId'))}
+          user = {...user, ...(await Teacher.find({ teacherId: id }, '-teacherId'))}
           break
         }
       case 'admin':
         {
-          user = {...user, ...(await Admin.find({adminId: id}, '-adminId'))}
+          user = {...user, ...(await Admin.find({ adminId: id }, '-adminId'))}
           break
         }
       default:
@@ -281,7 +254,7 @@ export async function updateUser(ctx) {
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "success": true
+ *       "delete": true
  *     }
  *
  * @apiUse TokenError
@@ -294,7 +267,7 @@ export async function deleteUser(ctx) {
 
   ctx.status = 200
   ctx.body = {
-    success: true,
+    delete: true,
   }
 }
 

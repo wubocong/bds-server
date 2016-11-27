@@ -6,107 +6,70 @@ export async function createStudent(ctx, id) {
   try {
     await student.save()
   } catch (err) {
-    throw (422, err.message)
+    return err
   }
 }
 
-/**
- * @api {put} /students/:id Update a student
- * @apiPermission Admin
- * @apiVersion 0.2.0
- * @apiName UpdateStudent
- * @apiGroup Students
- *
- * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X PUT -d '{ "student": { "studentId": "56bd1da600a526986cf65c80", "defenseId": "56bd1da600a526986cf65c80", "paperId": "56bd1da600a526986cf65c80" } }' localhost:5000/students/56bd1da600a526986cf65c80
- *
- * @apiParam {Object}     student             Student object (required)
- * @apiParam {ObjectId}   student.studentId   Student's user id.
- * @apiParam {ObjectId}   student.defenseId   Student's defenseId.
- * @apiParam {ObjectId}   student.paperId     Student's paperId.
- *
- * @apiSuccess {StatusCode} 200
- *
- * @apiSuccessExample {json} Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *       "update": true
- *     }
- *
- * @apiError UnprocessableEntity Missing required parameters
- *
- * @apiErrorExample {json} Error-Response:
- *     HTTP/1.1 422 Unprocessable Entity
- *     {
- *       "status": 422,
- *       "error": "Unprocessable Entity"
- *     }
- *
- * @apiUse TokenError
- */
-export async function updateStudent(ctx) {
-  const newStudent = ctx.request.fields.student
-  let student
+export async function getStudent(ctx, id) {
   try {
-    student = await Student.find({studentId: newStudent._id})
+    let student = await Student.findById(id)
+    if (!student) {
+      return 404
+    }
+    return student
   } catch (err) {
-    ctx.throw(422, err.message)
-  }
-  if (newStudent.paperId) {
-    try {
-      const paper = await Paper.findById(newStudent.paperId)
-      paper.studentId = newStudent._id
-      student.paperId = newStudent.paperId
-    } catch (err) {
-      ctx.throw(422, err.message)
-    }
-  }
-  if (newStudent.defenseId) {
-    try {
-      const defense = await Paper.findById(newStudent.defenseId)
-      defense.studentId = newStudent._id
-      student.defenseId = newStudent.defenseId
-    } catch (err) {
-      ctx.throw(422, err.message)
-    }
-  }
-
-  await student.save()
-
-  ctx.body = {
-    update: true,
+    return err
   }
 }
 
-/**
- * @api {delete} /students/:id Delete a student
- * @apiPermission Admin
- * @apiVersion 0.2.0
- * @apiName DeleteStudent
- * @apiGroup Students
- *
- * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X DELETE localhost:5000/students/56bd1da600a526986cf65c80
- *
- * @apiSuccess {StatusCode} 200
- *
- * @apiSuccessExample {json} Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *       "success": true
- *     }
- *
- * @apiUse TokenError
- */
+export async function updateStudent(ctx, student) {
+  let newStudent
+  try {
+    newStudent = await Student.find({studentId: student._id})
+  } catch (err) {
+    return err
+  }
+  if (student.paperId) {
+    try {
+      const paper = await Paper.findById(student.paperId)
+      if (paper) {
+        paper.studentId = student._id
+        newStudent.paperId = student.paperId
+      } else {
+        return 404
+      }
+    } catch (err) {
+      return err
+    }
+  }
+  if (student.defenseId) {
+    try {
+      const defense = await Paper.findById(student.defenseId)
+      if (defense) {
+        defense.studentId = student._id
+        newStudent.defenseId = student.defenseId
+      } else {
+        return 404
+      }
+    } catch (err) {
+      return err
+    }
+  }
+  try {
+    await newStudent.save()
+    return true
+  } catch (err) {
+    return err
+  }
+}
 
-export async function deleteStudent(ctx) {
-  const student = ctx.body.student
-
-  await student.remove()
-
-  ctx.status = 200
-  ctx.body = {
-    success: true,
+export async function deleteStudent(ctx, id) {
+  const student = Student.find({studentId: id})
+  try {
+    await student.remove()
+    return true
+  } catch (err) {
+    return err
   }
 }
 
