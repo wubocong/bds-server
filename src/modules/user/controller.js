@@ -61,12 +61,12 @@ export async function createUser(ctx) {
       }
     case 'teacher':
       {
-        result = await teacher.createStudent(user._id)
+        result = await teacher.createTeacher(user._id)
         break
       }
     case 'admin':
       {
-        result = await admin.createStudent(user._id)
+        result = await admin.createAdmin(user._id)
         break
       }
     default:
