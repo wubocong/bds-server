@@ -149,7 +149,7 @@ export async function getDefenses(ctx, next) {
 export async function updateDefense(ctx) {
   try {
     const defense = ctx.request.fields.defense
-    await Object.assign((await getDefense(defense._id)), defense:{ time: defense.time }).save()
+    await Object.assign((await getDefense(defense._id)), { time: defense.time }).save()
     ctx.body = {
       update: true,
     }

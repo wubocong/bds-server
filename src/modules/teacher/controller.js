@@ -2,7 +2,7 @@ import User from '../../models/users'
 import Student from '../../models/students'
 import Teacher from '../../models/teachers'
 import Admin from '../../models/admins'
-import * as student from '../student/controller'
+
 /**
  * @api {post} /users Create a new user
  * @apiPermission User
@@ -55,7 +55,15 @@ export async function createUser(ctx) {
   switch (user.role) {
     case 'student':
       {
-        student.createStudent(ctx, user._id)
+        const student = new Student({
+          ...user,
+          studentId: user._id,
+        })
+        try {
+          await student.save()
+        } catch (err) {
+          ctx.throw(500, err.message)
+        }
         break
       }
     case 'teacher':
@@ -335,7 +343,7 @@ export async function modifyPassword(ctx) {
   try {
     const user = await User.findById(ctx.params.id)
     if (user.role === ctx.request.fields.role && (await user.validatePassword(ctx.request.fields.oldPassword))) {
-      user.password = ctx.request.fields.newPassword
+      user.set('password', ctx.request.fields.newPassword)
       await user.save()
     }
   } catch (err) {
