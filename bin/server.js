@@ -8,6 +8,7 @@ import passport from 'koa-passport'
 import mount from 'koa-mount'
 import serve from 'koa-static'
 import cors from 'koa-cors'
+// import log4js from 'koa-log4'
 
 import config from '../config'
 import {
