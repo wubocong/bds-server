@@ -9,9 +9,11 @@ const User = new mongoose.Schema({
   account: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   phone: { type: Number, required: true, unique: true },
-  email: { type: String, unique: true },
   role: { type: String, required: true, default: 'student' },
   gender: { type: Boolean, required: true, default: true },
+  university: {type: String, required: true, default: 'scau'},
+  school: { type: String, required: true, default: '软件学院' },
+  email: { type: String, unique: true },
 })
 
 User.pre('save', function preSave(next) {

@@ -8,6 +8,7 @@ const Paper = new mongoose.Schema({
   filePath: { type: String },
   fileSize: { type: Number },
   desp: { type: String },
+  comments: { type: Array },
   lastModifiedDate: { type: Number, default: new Date().getTime() },
 })
 
