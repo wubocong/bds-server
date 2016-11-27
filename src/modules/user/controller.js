@@ -290,7 +290,7 @@ export async function deleteUser(ctx) {
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "success": true
+ *       "update": true
  *     }
  *
  * @apiError Unauthorized Incorrect credentials
@@ -316,7 +316,7 @@ export async function modifyPassword(ctx) {
   }
   ctx.status = 200
   ctx.body = {
-    success: true,
+    update: true,
   }
 }
 

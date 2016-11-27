@@ -18,7 +18,7 @@ export async function ensureUser (ctx, next) {
   try {
     decoded = verify(token, config.token)
   } catch (err) {
-    ctx.throw(401)
+    ctx.throw(401, err.message)
   }
 
   const user = await User.findById(decoded.id, '-password')
