@@ -1,7 +1,10 @@
 import User from '../../models/users'
-import * as student from '../student/controller'
-import * as admin from '../admin/controller'
-import * as teacher from '../teacher/controller'
+import Student from '../../models/students'
+import Teacher from '../../models/teachers'
+import Admin from '../../models/admins'
+// import * as student from '../student/controller'
+// import * as admin from '../admin/controller'
+// import * as teacher from '../teacher/controller'
 
 /**
  * @api {post} /users Create a new user
@@ -47,33 +50,36 @@ import * as teacher from '../teacher/controller'
  */
 export async function createUser(ctx) {
   const user = new User(ctx.request.fields.user)
-  let result
   try {
     await user.save()
   } catch (err) {
     ctx.throw(422, err.message)
   }
-  switch (user.role) {
-    case 'student':
-      {
-        result = await student.createStudent(user)
+  try {
+    switch (user.role) {
+      case 'student':
+        {
+          const student = new Student({studentId: user._id})
+          student.save()
+          break
+        }
+      case 'teacher':
+        {
+          const teacher = new Teacher({teacherId: user._id})
+          teacher.save()
+          break
+        }
+      case 'admin':
+        {
+          const admin = new Admin({adminId: user._id})
+          admin.save()
+          break
+        }
+      default:
         break
-      }
-    case 'teacher':
-      {
-        result = await teacher.createTeacher(user._id)
-        break
-      }
-    case 'admin':
-      {
-        result = await admin.createAdmin(user._id)
-        break
-      }
-    default:
-      break
-  }
-  if (!(result === true || !(result instanceof Error))) {
-    ctx.throw(422, result.message)
+    }
+  } catch (err) {
+    ctx.throw(422, err.message)
   }
   ctx.body = {
     create: true,
@@ -145,17 +151,17 @@ export async function getUser(ctx, next) {
     switch (user.role) {
       case 'student':
         {
-          user = Object.assign(user, (await student.getStudent(id)))
+          // user = Object.assign(user, (await student.getStudent(id)))
           break
         }
       case 'teacher':
         {
-          user = Object.assign(user, (await teacher.getTeacher(id)))
+          // user = Object.assign(user, (await teacher.getTeacher(id)))
           break
         }
       case 'admin':
         {
-          user = Object.assign(user, (await admin.getAdmin(id)))
+          // user = Object.assign(user, (await admin.getAdmin(id)))
           break
         }
       default:

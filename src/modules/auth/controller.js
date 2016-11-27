@@ -1,8 +1,11 @@
 import passport from 'koa-passport'
-import * as student from '../student/controller'
-import * as admin from '../admin/controller'
-import * as teacher from '../teacher/controller'
+// import * as student from '../student/controller'
+// import * as admin from '../admin/controller'
+// import * as teacher from '../teacher/controller'
 import User from '../../models/users'
+import Student from '../../models/students'
+import Teacher from '../../models/teachers'
+import Admin from '../../models/admins'
 import Paper from '../../models/papers'
 import Defense from '../../models/defenses'
 
@@ -64,23 +67,25 @@ export async function authUser (ctx, next) {
     if (!user || (ctx.request.fields.role || 'student') !== user.role) {
       ctx.throw(401)
     }
+    const id = user._id.toString()
     try {
       switch (user.role) {
         case 'student':
           {
-            const data = await student.getStudent(user._id)
+            const data = await Student.findOne({studentId: id}, '-type')
             const {grade, major, clazz} = data
-            Object.assign(user, {grade, major, clazz, teacher: (await User.findById(data.teacherId, 'name')), paper: (await Paper.findById(data.paperId, '-type -studentId -teacherId')), defense: (await Defense.findById(data.defenseId, '-type -studentId -paperId'))})
+            const studentInfo = {grade, major, clazz, teacher: (await User.findById(data.teacherId, 'name')), paper: (await Paper.findById(data.paperId, '-type -studentId -teacherId')), defense: (await Defense.findById(data.defenseId, '-type -studentId -paperId'))}
+            user = Object.assign(user, studentInfo)
             break
           }
         case 'teacher':
           {
-            Object.assign(user, (await teacher.getTeacher(user._id)))
+            Object.assign(user, await Teacher.findOne({teacherId: id}, '-type'))
             break
           }
         case 'admin':
           {
-            Object.assign(user, (await admin.getAdmin(user._id)))
+            Object.assign(user, (await Admin.findOne({adminId: id}, '-type')))
             break
           }
         default:
@@ -93,6 +98,7 @@ export async function authUser (ctx, next) {
     const token = user.generateToken()
 
     const response = user.toJSON()
+    console.log(user)
 
     delete response.password
     ctx.body = {

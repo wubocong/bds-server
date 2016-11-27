@@ -14,7 +14,7 @@ export async function ensureUser (ctx, next) {
     ctx.throw(401)
   }
 
-  let decoded = null
+  let decoded
   try {
     decoded = verify(token, config.token)
   } catch (err) {
@@ -22,7 +22,9 @@ export async function ensureUser (ctx, next) {
   }
 
   const user = await User.findById(decoded.id, '-password')
-
+  if (!user) {
+    ctx.throw(401)
+  }
   try {
     switch (user.role) {
       case 'student':
@@ -45,10 +47,10 @@ export async function ensureUser (ctx, next) {
     }
   } catch (err) {
     if (err === 404 || err.name === 'CastError') {
-      ctx.throw(404)
+      ctx.throw(404, err.message)
     }
 
-    ctx.throw(500)
+    ctx.throw(500, err.message)
   }
   ctx.state.user = user
   if (!ctx.state.user) {
