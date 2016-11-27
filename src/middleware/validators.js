@@ -22,23 +22,22 @@ export async function ensureUser (ctx, next) {
   }
 
   const user = await User.findById(decoded.id, '-password')
-  const id = user._id.toString()
 
   try {
     switch (user.role) {
       case 'student':
         {
-          Object.assign(user, await Student.find({studentId: id}, '-studentId'))
+          Object.assign(user, await Student.find({studentId: decoded.id}, '-studentId'))
           break
         }
       case 'teacher':
         {
-          Object.assign(user, await Teacher.find({teacherId: id}, '-teacherId'))
+          Object.assign(user, await Teacher.find({teacherId: decoded.id}, '-teacherId'))
           break
         }
       case 'admin':
         {
-          Object.assign(user, await Admin.find({adminId: id}, '-adminId'))
+          Object.assign(user, await Admin.find({adminId: decoded.id}, '-adminId'))
           break
         }
       default:
