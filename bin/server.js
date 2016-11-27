@@ -1,7 +1,7 @@
 import Koa from 'koa'
 import body from 'koa-better-body'
 import convert from 'koa-convert'
-import logger from 'koa-logger'
+// import logger from 'koa-logger'
 import mongoose from 'mongoose'
 import session from 'koa-generic-session'
 import passport from 'koa-passport'
@@ -15,6 +15,7 @@ import {
   errorMiddleware,
 } from '../src/middleware'
 
+const logger = log4js.getLogger('app')
 const app = new Koa()
 app.keys = [config.session]
 
@@ -23,7 +24,8 @@ mongoose.connect(config.database)
 
 app.use(convert(cors()))
 
-app.use(convert(logger()))
+app.use(log4js.koaLogger(log4js.getLogger('http'), { level: 'auto' }))
+// app.use(convert(logger()))
 app.use(convert(body({
   uploadDir: `${process.cwd()}/upload_files`,
   strict: false,
@@ -39,6 +41,14 @@ app.use(passport.session())
 
 const modules = require('../src/modules')
 modules(app)
+
+// logger
+app.use(async (ctx, next) => {
+  const start = new Date()
+  await next()
+  const ms = new Date() - start
+  logger.info(`${ctx.method} ${ctx.url} - ${ms}ms`)
+})
 
 app.listen(config.port, () => {
   console.log(`Server started on ${config.port}`)

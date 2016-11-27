@@ -1,3 +1,4 @@
 require('babel-core/register')()
 require('babel-polyfill')
-require('./bin/server.js')
+require('./bin/server')
+// require('./bin/logged-server')
