@@ -43,7 +43,6 @@ User.pre('save', function preSave(next) {
 
 User.methods.validatePassword = function validatePassword(password) {
   const user = this
-  console.log(user.password)
   return new Promise((resolve, reject) => {
     bcrypt.compare(password, user.password, (err, isMatch) => {
       if (err) { return reject(err) }
