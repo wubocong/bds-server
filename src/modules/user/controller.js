@@ -1,7 +1,4 @@
 import User from '../../models/users'
-import Student from '../../models/students'
-import Teacher from '../../models/teachers'
-import Admin from '../../models/admins'
 import * as student from '../student/controller'
 import * as admin from '../admin/controller'
 import * as teacher from '../teacher/controller'
@@ -50,6 +47,7 @@ import * as teacher from '../teacher/controller'
  */
 export async function createUser(ctx) {
   const user = new User(ctx.request.fields.user)
+  let result
   try {
     await user.save()
   } catch (err) {
@@ -58,23 +56,25 @@ export async function createUser(ctx) {
   switch (user.role) {
     case 'student':
       {
-        student.createStudent(ctx, user._id)
+        result = await student.createStudent(user)
         break
       }
     case 'teacher':
       {
-        teacher.createStudent(ctx, user._id)
+        result = await teacher.createStudent(user._id)
         break
       }
     case 'admin':
       {
-        admin.createStudent(ctx, user._id)
+        result = await admin.createStudent(user._id)
         break
       }
     default:
       break
   }
-
+  if (!(result === true || !(result instanceof Error))) {
+    ctx.throw(422, result.message)
+  }
   ctx.body = {
     create: true,
   }
@@ -145,17 +145,17 @@ export async function getUser(ctx, next) {
     switch (user.role) {
       case 'student':
         {
-          user = {...user, ...(await Student.find({ studentId: id }, '-studentId'))}
+          user = {...user, ...(await student.getStudent(id))}
           break
         }
       case 'teacher':
         {
-          user = {...user, ...(await Teacher.find({ teacherId: id }, '-teacherId'))}
+          user = {...user, ...(await teacher.getTeacher(id))}
           break
         }
       case 'admin':
         {
-          user = {...user, ...(await Admin.find({ adminId: id }, '-adminId'))}
+          user = {...user, ...(await student.getAdmin(id))}
           break
         }
       default:

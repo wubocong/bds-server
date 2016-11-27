@@ -1,72 +1,31 @@
-import Student from '../../models/students'
-import Paper from '../../models/papers'
+import Teacher from '../../models/teachers'
 
-export async function createStudent(ctx, id) {
-  const student = new Student({...ctx.request.fields.user, studentId: id})
+export async function createTeacher(user) {
+  const teacher = new Teacher({...user, teacherId: user._id})
   try {
-    await student.save()
-  } catch (err) {
-    return err
-  }
-}
-
-export async function getStudent(ctx, id) {
-  try {
-    let student = await Student.findById(id)
-    if (!student) {
-      return 404
-    }
-    return student
-  } catch (err) {
-    return err
-  }
-}
-
-export async function updateStudent(ctx, student) {
-  let newStudent
-  try {
-    newStudent = await Student.find({studentId: student._id})
-  } catch (err) {
-    return err
-  }
-  if (student.paperId) {
-    try {
-      const paper = await Paper.findById(student.paperId)
-      if (paper) {
-        paper.studentId = student._id
-        newStudent.paperId = student.paperId
-      } else {
-        return 404
-      }
-    } catch (err) {
-      return err
-    }
-  }
-  if (student.defenseId) {
-    try {
-      const defense = await Paper.findById(student.defenseId)
-      if (defense) {
-        defense.studentId = student._id
-        newStudent.defenseId = student.defenseId
-      } else {
-        return 404
-      }
-    } catch (err) {
-      return err
-    }
-  }
-  try {
-    await newStudent.save()
+    await teacher.save()
     return true
   } catch (err) {
     return err
   }
 }
 
-export async function deleteStudent(ctx, id) {
-  const student = Student.find({studentId: id})
+export async function getTeacher(id) {
   try {
-    await student.remove()
+    let teacher = await Teacher.find({teacherId: id})
+    if (!teacher) {
+      return 404
+    }
+    return teacher
+  } catch (err) {
+    return err
+  }
+}
+
+export async function deleteTeacher(id) {
+  const teacher = Teacher.find({teacherId: id})
+  try {
+    await teacher.remove()
     return true
   } catch (err) {
     return err

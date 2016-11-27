@@ -1,18 +1,20 @@
 import Student from '../../models/students'
 import Paper from '../../models/papers'
+import Defense from '../../models/defenses'
 
-export async function createStudent(ctx, id) {
-  const student = new Student({...ctx.request.fields.user, studentId: id})
+export async function createStudent(user) {
+  const student = new Student({...user, studentId: user._id})
   try {
     await student.save()
+    return true
   } catch (err) {
     return err
   }
 }
 
-export async function getStudent(ctx, id) {
+export async function getStudent(id) {
   try {
-    let student = await Student.findById(id)
+    let student = await Student.find({studentId: id})
     if (!student) {
       return 404
     }
@@ -22,19 +24,19 @@ export async function getStudent(ctx, id) {
   }
 }
 
-export async function updateStudent(ctx, student) {
-  let newStudent
+export async function updateStudent(user) {
+  let student
   try {
-    newStudent = await Student.find({studentId: student._id})
+    student = await Student.find({studentId: user._id})
   } catch (err) {
     return err
   }
-  if (student.paperId) {
+  if (user.paperId) {
     try {
-      const paper = await Paper.findById(student.paperId)
+      const paper = await Paper.findById(user.paperId)
       if (paper) {
-        paper.studentId = student._id
-        newStudent.paperId = student.paperId
+        paper.studentId = user._id
+        student.paperId = user.paperId
       } else {
         return 404
       }
@@ -42,12 +44,12 @@ export async function updateStudent(ctx, student) {
       return err
     }
   }
-  if (student.defenseId) {
+  if (user.defenseId) {
     try {
-      const defense = await Paper.findById(student.defenseId)
+      const defense = await Defense.findById(user.defenseId)
       if (defense) {
-        defense.studentId = student._id
-        newStudent.defenseId = student.defenseId
+        defense.studentId = user._id
+        student.defenseId = user.defenseId
       } else {
         return 404
       }
@@ -56,14 +58,14 @@ export async function updateStudent(ctx, student) {
     }
   }
   try {
-    await newStudent.save()
+    await student.save()
     return true
   } catch (err) {
     return err
   }
 }
 
-export async function deleteStudent(ctx, id) {
+export async function deleteStudent(id) {
   const student = Student.find({studentId: id})
   try {
     await student.remove()
