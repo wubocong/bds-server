@@ -42,7 +42,6 @@ export default [
     route: '/:id',
     handlers: [
       ensureUser,
-      ensureAdmin,
       user.getUser,
       user.updateUser,
     ],
