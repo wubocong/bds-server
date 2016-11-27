@@ -145,17 +145,17 @@ export async function getUser(ctx, next) {
     switch (user.role) {
       case 'student':
         {
-          user = {...user, ...(await student.getStudent(id))}
+          user = Object.assign(user, (await student.getStudent(id)))
           break
         }
       case 'teacher':
         {
-          user = {...user, ...(await teacher.getTeacher(id))}
+          user = Object.assign(user, (await teacher.getTeacher(id)))
           break
         }
       case 'admin':
         {
-          user = {...user, ...(await admin.getAdmin(id))}
+          user = Object.assign(user, (await admin.getAdmin(id)))
           break
         }
       default:
