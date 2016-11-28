@@ -47,4 +47,13 @@ export default [
       paper.updatePaper,
     ],
   },
+  {
+    method: 'POST',
+    route: '/file/:id',
+    handlers: [
+      ensureUser,
+      paper.getPaper,
+      paper.uploadFile,
+    ],
+  },
 ]

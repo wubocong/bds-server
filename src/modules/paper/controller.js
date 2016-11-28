@@ -37,6 +37,8 @@ import Teacher from '../../models/teachers'
  *       "status": 422,
  *       "error": "Unprocessable Entity"
  *     }
+ *
+ * @apiUse TokenError
  */
 export async function createPaper(ctx) {
   if (ctx.state.user.role !== 'student') {
@@ -270,5 +272,60 @@ export async function getMyPaper(ctx) {
     }
 
     ctx.throw(500)
+  }
+}
+
+/**
+ * @api {post} /papers/file/56bd1da600a526986cf65c80 Upload paper's file
+ * @apiPermission Student
+ * @apiVersion 0.2.0
+ * @apiName UploadFile
+ * @apiGroup Papers
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: multipart/form-data" -X POST -d '{ "paper": {"name": "wbc", "size": 1022392, "lastModified": 1480155509491, "type": "image/png"} }' localhost:5000/papers/file/56bd1da600a526986cf65c80
+ *
+ * @apiParam   {Object}    paper            File object (required)
+ *
+ * @apiSuccess {Object}    file             File info object
+ * @apiSuccess {Object}    file.filePath    File path
+ * @apiSuccess {Object}    file.fileSize    File size
+ *
+ * @apiSuccess {StatusCode} 200
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "upload": true
+ *     }
+ *
+ * @apiError UnprocessableEntity Missing required parameters
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "status": 422,
+ *       "error": "Unprocessable Entity"
+ *     }
+ *
+ * @apiUse TokenError
+ */
+export async function uploadFile(ctx) {
+  if (ctx.state.user.role !== 'student') {
+    ctx.throw(401)
+  }
+  let paper = ctx.body.paper
+  try {
+    paper.fileName = ctx.request.files.paper.name
+    paper.filePath = ctx.request.files.paper.path
+    paper.fileSize = ctx.request.files.paper.size
+    paper.fileType = ctx.request.files.paper.type
+    paper.fileLastModified = ctx.request.files.paper.lastModified
+    await paper.save()
+    ctx.body = {
+      upload: true,
+    }
+  } catch (err) {
+    ctx.throw(422, err.message)
   }
 }
