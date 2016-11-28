@@ -51,7 +51,7 @@ export default [
     method: 'POST',
     route: '/file/:id',
     handlers: [
-      ensureUser,
+      // ensureUser,
       paper.getPaper,
       paper.uploadFile,
     ],
