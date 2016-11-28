@@ -210,16 +210,12 @@ export async function getUser(ctx, next) {
  * @apiSuccess {String}   user.role      Updated role
  * @apiSuccess {Boolean}  user.gender    User gender
  *
+ * @apiSuccess {StatusCode} 200
+ *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "user": {
- *          "_id": "56bd1da600a526986cf65c80"
- *          "name": "Cool new name"
- *          "account": "20080202"
- *          "role": "teacher"
- *          "gender": true
- *       }
+ *       "update": true
  *     }
  *
  * @apiError UnprocessableEntity Missing required parameters
@@ -241,11 +237,31 @@ export async function updateUser(ctx) {
   }
   delete ctx.request.fields.user.password
   Object.assign(user, ctx.request.fields.user)
-
-  await user.save()
-
+  try {
+    switch (user.role) {
+      case 'student': {
+        await Student.findOneAndUpdate({studentId: user._id}, {$set: {teacherId: ctx.request.fields.teacherId, defenseId: ctx.request.fields.defenseId}}, {safe: true, upsert: true})
+        break
+      }
+      case 'teacher': {
+        await Teacher.findOneAndUpdate({teacherId: user._id}, {$concatArrays: ['studentIds', ctx.request.fields.studentIds]}, {safe: true, upsert: true})
+        break
+      }
+      case 'admin': {
+        await Admin.findOneAndUpdate({adminId: user._id}, {$concatArrays: ['defenseIds', ctx.request.fields.defenseIds]}, {safe: true, upsert: true})
+        break
+      }
+      default: {
+        ctx.throw(401)
+        break
+      }
+    }
+    await user.save()
+  } catch (err) {
+    ctx.throw(401, err.message)
+  }
   ctx.body = {
-    user,
+    update: true,
   }
 }
 
@@ -273,8 +289,29 @@ export async function updateUser(ctx) {
 export async function deleteUser(ctx) {
   const user = ctx.body.user
 
-  await user.remove()
-
+  try {
+    switch (user.role) {
+      case 'student': {
+        await Student.findOneAndRemove({studentId: user._id})
+        break
+      }
+      case 'teacher': {
+        await Teacher.findOneAndRemove({teacherId: user._id})
+        break
+      }
+      case 'admin': {
+        await Admin.findOneAndRemove({adminId: user._id})
+        break
+      }
+      default: {
+        ctx.throw(401)
+        break
+      }
+    }
+    await user.remove()
+  } catch (err) {
+    ctx.throw(401, err.message)
+  }
   ctx.status = 200
   ctx.body = {
     delete: true,

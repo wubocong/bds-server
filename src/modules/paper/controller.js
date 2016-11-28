@@ -45,6 +45,7 @@ export async function createPaper(ctx) {
     ctx.throw(401)
   }
   let paper = {...ctx.request.fields.paper, studentId: ctx.state.user._id, teacherId: ctx.state.user.teacherId, fileSize: 0, filePath: ''}
+  console.log(paper)
   try {
     paper = new Paper(paper)
     await paper.save()
@@ -291,12 +292,13 @@ export async function getMyPaper(ctx) {
  * @apiSuccess {Object}    file.filePath    File path
  * @apiSuccess {Object}    file.fileSize    File size
  *
- * @apiSuccess {StatusCode} 200
- *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "upload": true
+ *       "file": {
+ *         "filePath": "http://localhost:5000/file/1s2d1da600a526986cf85c4f"
+ *         "fileSize": 1022392
+ *       }
  *     }
  *
  * @apiError UnprocessableEntity Missing required parameters
