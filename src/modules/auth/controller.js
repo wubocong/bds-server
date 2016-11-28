@@ -68,14 +68,18 @@ export async function authUser (ctx, next) {
       ctx.throw(401)
     }
     const id = user._id.toString()
+    let info
     try {
       switch (user.role) {
         case 'student':
           {
             const data = await Student.findOne({studentId: id}, '-type')
             const {grade, major, clazz} = data
-            const studentInfo = {grade, major, clazz, teacher: (await User.findById(data.teacherId, 'name')), paper: (await Paper.findById(data.paperId, '-type -studentId -teacherId')), defense: (await Defense.findById(data.defenseId, '-type -studentId -paperId'))}
-            user = Object.assign(user, studentInfo)
+            const teacher = await User.findById(data.teacherId, 'name')
+            // console.log(teacher)
+            const paper = await Paper.findById(data.paperId, '-type -studentId -teacherId')
+            const defense = await Defense.findById(data.defenseId, '-type -studentId -paperId')
+            info = {grade, major, clazz, teacher, paper, defense}
             break
           }
         case 'teacher':
@@ -103,7 +107,7 @@ export async function authUser (ctx, next) {
     delete response.password
     ctx.body = {
       token,
-      user: response,
+      user: {...response, ...info},
     }
   })(ctx, next)
 }
