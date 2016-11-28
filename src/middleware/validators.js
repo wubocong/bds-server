@@ -27,21 +27,22 @@ export async function ensureUser (ctx, next) {
   if (!user) {
     ctx.throw(401)
   }
+  let role
   try {
     switch (user.role) {
       case 'student':
         {
-          Object.assign(user, await Student.find({studentId: decoded.id}, '-studentId'))
+          role = await Student.findOne({studentId: decoded.id}, '-studentId')
           break
         }
       case 'teacher':
         {
-          Object.assign(user, await Teacher.find({teacherId: decoded.id}, '-teacherId'))
+          role = await Teacher.findOne({teacherId: decoded.id}, '-teacherId')
           break
         }
       case 'admin':
         {
-          Object.assign(user, await Admin.find({adminId: decoded.id}, '-adminId'))
+          role = await Admin.findOne({adminId: decoded.id}, '-adminId')
           break
         }
       default:
@@ -56,6 +57,8 @@ export async function ensureUser (ctx, next) {
     ctx.throw(500, err.message)
   }
   ctx.state.user = user
+  ctx.state.role = role
+  logger.info(ctx.state)
   if (!ctx.state.user) {
     ctx.throw(401)
   }

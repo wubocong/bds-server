@@ -1,7 +1,6 @@
 import Paper from '../../models/papers'
 import Student from '../../models/students'
 import Teacher from '../../models/teachers'
-
 const logger = require('koa-log4').getLogger('index')
 
 /**
@@ -46,8 +45,7 @@ export async function createPaper(ctx) {
   if (ctx.state.user.role !== 'student') {
     ctx.throw(401)
   }
-  let paper = {...ctx.request.fields.paper, studentId: ctx.state.user._id, teacherId: ctx.state.user.teacherId, fileSize: 0, filePath: ''}
-  logger.info()
+  let paper = {...ctx.request.fields.paper, studentId: ctx.state.user._id, teacherId: ctx.state.role.teacherId, fileSize: 0, filePath: ''}
   try {
     paper = new Paper(paper)
     await paper.save()
@@ -58,10 +56,11 @@ export async function createPaper(ctx) {
     logger.error(err.message)
     ctx.throw(422, err.message)
   }
+  logger.info(paper)
   try {
-    ctx.state.user.paperId = paper._id
+    ctx.state.role.paperId = paper._id
     await Student.findByIdAndUpdate(ctx.state.user._id, {$set: {paperId: paper._id}}, {safe: true, upsert: true})
-    await Teacher.findByIdAndUpdate(ctx.state.user.teacherId, {$push: {paperIds: paper._id}}, {safe: true, upsert: true})
+    await Teacher.findByIdAndUpdate(ctx.state.role.teacherId, {$push: {paperIds: paper._id, studentIds: ctx.state.user._id}}, {safe: true, upsert: true})
   } catch (err) {
     logger.error(err.message)
     ctx.throw(401, err.message)

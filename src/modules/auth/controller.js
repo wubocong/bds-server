@@ -42,11 +42,11 @@ const logger = require('koa-log4').getLogger('index')
  *     HTTP/1.1 200 OK
  *     {
  *       "user": {
- *          "_id": "56bd1da600a526986cf65c80"
- *          "account": "20090909"
- *          "name": "John Doe"
- *          "role": "teacher"
- *        },
+ *         "_id": "56bd1da600a526986cf65c80"
+ *         "account": "20090909"
+ *         "name": "John Doe"
+ *         "role": "teacher"
+ *       }
  *       "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"
  *     }
  *
@@ -65,29 +65,30 @@ export async function authUser (ctx, next) {
     if (!user || (ctx.request.fields.role || 'student') !== user.role) {
       ctx.throw(401)
     }
-    const id = user._id.toString()
-    let info
+    let role
     try {
       switch (user.role) {
         case 'student':
           {
-            const data = await Student.findOne({studentId: id}, '-type')
+            const data = await Student.findOne({studentId: user._id}, '-type')
             const {grade, major, clazz} = data
             const teacher = await User.findById(data.teacherId)
-            console.log(teacher)
             const paper = await Paper.findById(data.paperId, '-type -studentId -teacherId')
             const defense = await Defense.findById(data.defenseId, '-type -studentId -paperId')
-            info = {grade, major, clazz, teacher, paper, defense}
+            role = {grade, major, clazz, teacher, paper, defense}
+            logger.info(role)
             break
           }
         case 'teacher':
           {
-            Object.assign(user, await Teacher.findOne({teacherId: id}, '-type'))
+            role = await Teacher.findOne({teacherId: user._id}, '-type').toJSON()
+            logger.info(role)
             break
           }
         case 'admin':
           {
-            Object.assign(user, (await Admin.findOne({adminId: id}, '-type')))
+            role = await Admin.findOne({adminId: user._id}, '-type').toJSON()
+            logger.info(role)
             break
           }
         default:
@@ -97,6 +98,7 @@ export async function authUser (ctx, next) {
       logger.error(err.message)
       ctx.throw(401, err.message)
     }
+    logger.info(Object.keys(user))
 
     const token = user.generateToken()
 
@@ -104,8 +106,8 @@ export async function authUser (ctx, next) {
 
     delete response.password
     ctx.body = {
+      user: {...response, ...role},
       token,
-      user: {...response, ...info},
     }
   })(ctx, next)
 }

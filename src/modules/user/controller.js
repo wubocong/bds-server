@@ -241,7 +241,7 @@ export async function updateUser(ctx) {
   try {
     switch (user.role) {
       case 'student': {
-        await Student.findOneAndUpdate({studentId: user._id}, {$set: {teacherId: ctx.request.fields.teacherId, defenseId: ctx.request.fields.defenseId}}, {safe: true, upsert: true})
+        await Student.findOneAndUpdate({studentId: user._id}, {$set: {teacherId: ctx.request.fields.teacherId, paperId: ctx.request.fields.paperId, defenseId: ctx.request.fields.defenseId}}, {safe: true, upsert: true})
         break
       }
       case 'teacher': {
