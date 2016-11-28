@@ -1,4 +1,5 @@
 import passport from 'koa-passport'
+import mongoose from 'mongoose'
 // import * as student from '../student/controller'
 // import * as admin from '../admin/controller'
 // import * as teacher from '../teacher/controller'
@@ -8,7 +9,6 @@ import Teacher from '../../models/teachers'
 import Admin from '../../models/admins'
 import Paper from '../../models/papers'
 import Defense from '../../models/defenses'
-
 /**
  * @apiDefine TokenError
  * @apiError Unauthorized Invalid JWT token
@@ -75,9 +75,9 @@ export async function authUser (ctx, next) {
           {
             const data = await Student.findOne({studentId: id}, '-type')
             const {grade, major, clazz} = data
-            const teacher = await User.findById(data.teacherId, 'name')
-            // console.log(teacher)
-            const paper = await Paper.findById(data.paperId, '-type -studentId -teacherId')
+            const teacher = await User.findById(mongoose.Types.ObjectId(data.teacherId), 'name')
+            const paper = await Paper.findById(mongoose.Types.ObjectId(data.paperId), '-type -studentId -teacherId')
+            console.log(paper)
             const defense = await Defense.findById(data.defenseId, '-type -studentId -paperId')
             info = {grade, major, clazz, teacher, paper, defense}
             break
@@ -102,7 +102,6 @@ export async function authUser (ctx, next) {
     const token = user.generateToken()
 
     const response = user.toJSON()
-    console.log(user)
 
     delete response.password
     ctx.body = {

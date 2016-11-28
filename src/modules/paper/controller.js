@@ -1,6 +1,6 @@
 import Paper from '../../models/papers'
-// import Student from '../../models/students'
-// import Teacher from '../../models/teachers'
+import Student from '../../models/students'
+import Teacher from '../../models/teachers'
 
 /**
  * @api {post} /papers Create a new paper
@@ -39,15 +39,25 @@ import Paper from '../../models/papers'
  *     }
  */
 export async function createPaper(ctx) {
+  if (ctx.state.user.role !== 'student') {
+    ctx.throw(401)
+  }
+  let paper = {...ctx.request.fields.paper, studentId: ctx.state.user._id, teacherId: ctx.state.user.teacherId, fileSize: 0, filePath: ''}
   try {
-    const paper = new Paper(Object.assign(ctx.request.fields.paper, { studentId: ctx.state.user._id }))
+    paper = new Paper(paper)
     await paper.save()
-
     ctx.body = {
       id: paper._id,
     }
   } catch (err) {
     ctx.throw(422, err.message)
+  }
+  try {
+    ctx.state.user.paperId = paper._id
+    await Student.findByIdAndUpdate(ctx.state.user._id, {$set: {paperId: paper._id}}, {safe: true, upsert: true})
+    await Teacher.findByIdAndUpdate(ctx.state.user.teacherId, {$push: {paperIds: paper._id}}, {safe: true, upsert: true})
+  } catch (err) {
+    ctx.throw(401, err.message)
   }
 }
 
