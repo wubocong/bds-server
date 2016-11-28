@@ -2,9 +2,7 @@ import User from '../../models/users'
 import Student from '../../models/students'
 import Teacher from '../../models/teachers'
 import Admin from '../../models/admins'
-// import * as student from '../student/controller'
-// import * as admin from '../admin/controller'
-// import * as teacher from '../teacher/controller'
+const logger = require('koa-log4').getLogger('index')
 
 /**
  * @api {post} /users Create a new user
@@ -53,6 +51,7 @@ export async function createUser(ctx) {
   try {
     await user.save()
   } catch (err) {
+    logger.error(err.message)
     ctx.throw(422, err.message)
   }
   try {
@@ -79,6 +78,7 @@ export async function createUser(ctx) {
         break
     }
   } catch (err) {
+    logger.error(err.message)
     ctx.throw(422, err.message)
   }
   ctx.body = {
@@ -175,6 +175,7 @@ export async function getUser(ctx, next) {
       user,
     }
   } catch (err) {
+    logger.error(err.message)
     if (err === 404 || err.name === 'CastError') {
       ctx.throw(404)
     }
@@ -258,6 +259,7 @@ export async function updateUser(ctx) {
     }
     await user.save()
   } catch (err) {
+    logger.error(err.message)
     ctx.throw(401, err.message)
   }
   ctx.body = {
@@ -310,6 +312,7 @@ export async function deleteUser(ctx) {
     }
     await user.remove()
   } catch (err) {
+    logger.error(err.message)
     ctx.throw(401, err.message)
   }
   ctx.status = 200
@@ -366,6 +369,7 @@ export async function modifyPassword(ctx) {
       ctx.throw(401)
     }
   } catch (err) {
+    logger.error(err.message)
     ctx.throw(401, err.message)
   }
 }

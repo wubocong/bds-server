@@ -1,4 +1,5 @@
 import Teacher from '../../models/teachers'
+const logger = require('koa-log4').getLogger('index')
 
 export async function createTeacher(user) {
   const teacher = new Teacher({...user, teacherId: user._id})
@@ -6,6 +7,7 @@ export async function createTeacher(user) {
     await teacher.save()
     return true
   } catch (err) {
+    logger.error(err.message)
     return err
   }
 }
@@ -18,6 +20,7 @@ export async function getTeacher(id) {
     }
     return teacher
   } catch (err) {
+    logger.error(err.message)
     return err
   }
 }
@@ -28,6 +31,7 @@ export async function deleteTeacher(id) {
     await teacher.remove()
     return true
   } catch (err) {
+    logger.error(err.message)
     return err
   }
 }

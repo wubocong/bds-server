@@ -1,4 +1,5 @@
 import Admin from '../../models/admins'
+const logger = require('koa-log4').getLogger('index')
 
 export async function createAdmin(user) {
   const admin = new Admin({...user, adminId: user._id})
@@ -6,6 +7,7 @@ export async function createAdmin(user) {
     await admin.save()
     return true
   } catch (err) {
+    logger.error(err.message)
     return err
   }
 }
@@ -18,6 +20,7 @@ export async function getAdmin(id) {
     }
     return admin
   } catch (err) {
+    logger.error(err.message)
     return err
   }
 }
@@ -28,6 +31,7 @@ export async function deleteAdmin(id) {
     await admin.remove()
     return true
   } catch (err) {
+    logger.error(err.message)
     return err
   }
 }

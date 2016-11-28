@@ -38,7 +38,7 @@ passport.deserializeUser(async (id, done) => {
   try {
     const user = await User.findById(id, '-password')
     done(null, user)
-  } catch (err) {
+  } catch (err) { logger.error(err.message)
     done(err)
   }
 })
@@ -57,10 +57,10 @@ passport.use('local', new Strategy({
       if (!isMatch) { return done(null, false) }
 
       done(null, user)
-    } catch (err) {
+    } catch (err) { logger.error(err.message)
       done(err)
     }
-  } catch (err) {
+  } catch (err) { logger.error(err.message)
     return done(err)
   }
 }))

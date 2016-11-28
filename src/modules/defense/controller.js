@@ -1,5 +1,6 @@
 import Defense from '../../models/defenses'
 import Student from '../../models/students'
+const logger = require('koa-log4').getLogger('index')
 
 /**
  * @api {post} /defenses Create defenses
@@ -54,6 +55,7 @@ export async function createDefenses(ctx) {
       defenseIds,
     }
   } catch (err) {
+    logger.error(err.message)
     ctx.throw(422, err.message)
   }
 }
@@ -154,6 +156,7 @@ export async function updateDefense(ctx) {
       update: true,
     }
   } catch (err) {
+    logger.error(err.message)
     ctx.throw(422, err.message)
   }
 }
@@ -206,6 +209,7 @@ export async function updateDefenses(ctx) {
       update: true,
     }
   } catch (err) {
+    logger.error(err.message)
     ctx.throw(422, err.message)
   }
 }
@@ -242,6 +246,7 @@ export async function deleteDefenses(ctx) {
       delete: true,
     }
   } catch (err) {
+    logger.error(err.message)
     ctx.throw(422, err.message)
   }
 }
@@ -295,6 +300,7 @@ export async function getMyDefense(ctx) {
       defense,
     }
   } catch (err) {
+    logger.error(err.message)
     ctx.throw(401)
   }
 }

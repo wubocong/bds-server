@@ -5,6 +5,8 @@ import Teacher from '../../models/teachers'
 import Admin from '../../models/admins'
 import Paper from '../../models/papers'
 import Defense from '../../models/defenses'
+const logger = require('koa-log4').getLogger('index')
+
 /**
  * @apiDefine TokenError
  * @apiError Unauthorized Invalid JWT token
@@ -71,9 +73,9 @@ export async function authUser (ctx, next) {
           {
             const data = await Student.findOne({studentId: id}, '-type')
             const {grade, major, clazz} = data
-            const teacher = await User.findById(data.teacherId, 'name')
+            const teacher = await User.findById(data.teacherId)
+            console.log(teacher)
             const paper = await Paper.findById(data.paperId, '-type -studentId -teacherId')
-            console.log(paper)
             const defense = await Defense.findById(data.defenseId, '-type -studentId -paperId')
             info = {grade, major, clazz, teacher, paper, defense}
             break
@@ -92,6 +94,7 @@ export async function authUser (ctx, next) {
           break
       }
     } catch (err) {
+      logger.error(err.message)
       ctx.throw(401, err.message)
     }
 

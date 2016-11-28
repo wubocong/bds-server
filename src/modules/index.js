@@ -1,9 +1,13 @@
 import glob from 'glob'
 import Router from 'koa-router'
+const logger = require('koa-log4').getLogger('index')
 
 exports = module.exports = function initModules (app) {
   glob(`${__dirname}/!(student|teacher|admin)`, { ignore: '**/index.js' }, (err, matches) => {
-    if (err) { throw err }
+    if (err) {
+      logger.error(err)
+      throw err
+    }
 
     matches.forEach((mod) => {
       const router = require(`${mod}/router`)

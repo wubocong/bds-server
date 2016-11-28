@@ -1,6 +1,7 @@
 import Student from '../../models/students'
 import Paper from '../../models/papers'
 import Defense from '../../models/defenses'
+const logger = require('koa-log4').getLogger('index')
 
 export async function createStudent(user) {
   const student = new Student({...user, studentId: user._id})
@@ -8,6 +9,7 @@ export async function createStudent(user) {
     await student.save()
     return true
   } catch (err) {
+    logger.error(err.message)
     return err
   }
 }
@@ -20,6 +22,7 @@ export async function getStudent(id, query) {
     }
     return student
   } catch (err) {
+    logger.error(err.message)
     return err
   }
 }
@@ -29,6 +32,7 @@ export async function updateStudent(user) {
   try {
     student = await Student.find({studentId: user._id})
   } catch (err) {
+    logger.error(err.message)
     return err
   }
   if (user.paperId) {
@@ -41,6 +45,7 @@ export async function updateStudent(user) {
         return 404
       }
     } catch (err) {
+      logger.error(err.message)
       return err
     }
   }
@@ -54,6 +59,7 @@ export async function updateStudent(user) {
         return 404
       }
     } catch (err) {
+      logger.error(err.message)
       return err
     }
   }
@@ -61,6 +67,7 @@ export async function updateStudent(user) {
     await student.save()
     return true
   } catch (err) {
+    logger.error(err.message)
     return err
   }
 }
@@ -71,6 +78,7 @@ export async function deleteStudent(id) {
     await student.remove()
     return true
   } catch (err) {
+    logger.error(err.message)
     return err
   }
 }

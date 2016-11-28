@@ -2,6 +2,8 @@ import Paper from '../../models/papers'
 import Student from '../../models/students'
 import Teacher from '../../models/teachers'
 
+const logger = require('koa-log4').getLogger('index')
+
 /**
  * @api {post} /papers Create a new paper
  * @apiPermission Student
@@ -45,7 +47,7 @@ export async function createPaper(ctx) {
     ctx.throw(401)
   }
   let paper = {...ctx.request.fields.paper, studentId: ctx.state.user._id, teacherId: ctx.state.user.teacherId, fileSize: 0, filePath: ''}
-  console.log(paper)
+  logger.info()
   try {
     paper = new Paper(paper)
     await paper.save()
@@ -53,6 +55,7 @@ export async function createPaper(ctx) {
       id: paper._id,
     }
   } catch (err) {
+    logger.error(err.message)
     ctx.throw(422, err.message)
   }
   try {
@@ -60,6 +63,7 @@ export async function createPaper(ctx) {
     await Student.findByIdAndUpdate(ctx.state.user._id, {$set: {paperId: paper._id}}, {safe: true, upsert: true})
     await Teacher.findByIdAndUpdate(ctx.state.user.teacherId, {$push: {paperIds: paper._id}}, {safe: true, upsert: true})
   } catch (err) {
+    logger.error(err.message)
     ctx.throw(401, err.message)
   }
 }
@@ -157,6 +161,7 @@ export async function getPaper(ctx, next) {
       paper,
     }
   } catch (err) {
+    logger.error(err.message)
     if (err === 404 || err.name === 'CastError') {
       ctx.throw(404)
     }
@@ -268,6 +273,7 @@ export async function getMyPaper(ctx) {
       paper,
     }
   } catch (err) {
+    logger.error(err.message)
     if (err === 404 || err.name === 'CastError') {
       ctx.throw(404)
     }
@@ -328,6 +334,7 @@ export async function uploadFile(ctx) {
       upload: true,
     }
   } catch (err) {
+    logger.error(err.message)
     ctx.throw(422, err.message)
   }
 }

@@ -6,6 +6,7 @@ import Admin from '../models/admins'
 import config from '../../config'
 import { getToken } from '../utils/auth'
 import { verify } from 'jsonwebtoken'
+const logger = require('koa-log4').getLogger('index')
 
 export async function ensureUser (ctx, next) {
   const token = getToken(ctx)
@@ -18,6 +19,7 @@ export async function ensureUser (ctx, next) {
   try {
     decoded = verify(token, config.token)
   } catch (err) {
+    logger.error(err.message)
     ctx.throw(401, err.message)
   }
 
@@ -46,6 +48,7 @@ export async function ensureUser (ctx, next) {
         break
     }
   } catch (err) {
+    logger.error(err.message)
     if (err === 404 || err.name === 'CastError') {
       ctx.throw(404, err.message)
     }

@@ -8,12 +8,6 @@
       "appenders": [
         {
           "type": "dateFile",
-          "filename": "startup.log",
-          "pattern": "-yyyy-MM-dd",
-          "category": "startup"
-        },
-        {
-          "type": "dateFile",
           "filename": "http.log",
           "pattern": "-yyyy-MM-dd",
           "category": "http"
