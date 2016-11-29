@@ -248,8 +248,6 @@ export async function updateUser(ctx) {
   if (!ctx.request.fields.user) {
     ctx.throw(422)
   }
-  // 下面一行有漏洞
-  Object.assign(user, {phone: ctx.request.fields.user.phone, email: ctx.request.fields.user.email})
   try {
     switch (user.role) {
       case 'student': {
@@ -272,7 +270,8 @@ export async function updateUser(ctx) {
         throw (new Error('illegal request, may be attacked!'))
       }
     }
-    await user.save()
+    logger.info(user)
+    await user.update({phone: ctx.request.fields.user.phone || user.phone, email: ctx.request.fields.user.email || user.email})
   } catch (err) {
     logger.error(err.message)
     ctx.throw(401, err.message)
