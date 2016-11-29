@@ -81,13 +81,13 @@ export async function authUser (ctx, next) {
           }
         case 'teacher':
           {
-            role = await Teacher.findOne({teacherId: user._id}, '-type').toJSON()
+            role = (await Teacher.findOne({teacherId: user._id}, '-type')).toJSON()
             logger.info(role)
             break
           }
         case 'admin':
           {
-            role = await Admin.findOne({adminId: user._id}, '-type').toJSON()
+            role = (await Admin.findOne({adminId: user._id}, '-type')).toJSON()
             logger.info(role)
             break
           }

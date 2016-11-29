@@ -61,19 +61,19 @@ export async function createUser(ctx) {
       case 'student':
         {
           const student = new Student({studentId: user._id})
-          student.save()
+          await student.save()
           break
         }
       case 'teacher':
         {
           const teacher = new Teacher({teacherId: user._id})
-          teacher.save()
+          await teacher.save()
           break
         }
       case 'admin':
         {
           const admin = new Admin({adminId: user._id})
-          admin.save()
+          await admin.save()
           break
         }
       default: {
@@ -166,13 +166,13 @@ export async function getUser(ctx, next) {
         }
       case 'teacher':
         {
-          role = await Teacher.findOne({teacherId: user._id}, '-type').toJSON()
+          role = (await Teacher.findOne({teacherId: user._id}, '-type')).toJSON()
           logger.info(role)
           break
         }
       case 'admin':
         {
-          role = await Admin.findOne({adminId: user._id}, '-type').toJSON()
+          role = (await Admin.findOne({adminId: user._id}, '-type')).toJSON()
           logger.info(role)
           break
         }
