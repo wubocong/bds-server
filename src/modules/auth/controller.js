@@ -107,7 +107,7 @@ export async function authUser (ctx, next) {
 
     delete response.password
     ctx.body = {
-      user: {...response, ...role},
+      user: {...role, ...response},
       token,
     }
   })(ctx, next)
