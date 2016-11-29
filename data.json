@@ -76,7 +76,7 @@
 {
   "defenses": [{
     "studentId": "56bd1da600a526986cf65c80",
-    "paper": "secretpass",
+    "paper": "56bd1da600a526986cf65c80",
     "scores": [{
       "teacherId": "56bd1da600a526986cf65c80",
       "sum": 100,
