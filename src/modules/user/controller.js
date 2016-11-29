@@ -150,7 +150,7 @@ export async function getUsers(ctx) {
 export async function getUser(ctx, next) {
   const id = ctx.params.id
   try {
-    const user = (await User.findById(id, '-password')).toJSON()
+    const user = await User.findById(id, '-password')
     let role
     switch (user.role) {
       case 'student':
