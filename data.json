@@ -91,15 +91,14 @@
 {
   "paper": {
     "name": "How to become a millionaire",
-    "studentId": "56bd1da600a526986cf65c80",
-    "teacherId": "56bd1da600a526986cf65c80",
-    "filePath": "http://localhost:5000/file/1s2d1da600a526986cf85c4f",
-    "fileSize": 1022392,
-    "desp": "fuckfuckfuck",
-    "lastModifiedDate": 1480155509491
+    "desp": "fuckfuckfuck"
+  }
+} {
+  "paper": {
+    "name": "How to become a fool",
+    "desp": "fuckfuckfuck"
   }
 }
-
 // 修改论文
 {
   "paper": {

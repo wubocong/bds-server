@@ -1,8 +1,9 @@
 import mongoose from 'mongoose'
 
+const ObjectId = require('mongoose').Schema.Types.ObjectId
 const Teacher = new mongoose.Schema({
   type: { type: String, default: 'Teacher' },
-  teacherId: { type: String, required: true, unique: true },
+  teacherId: { type: ObjectId, required: true, unique: true },
   studentIds: { type: Array, default: [] },
   paperIds: { type: Array, default: [] },
 })

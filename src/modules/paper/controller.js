@@ -58,9 +58,8 @@ export async function createPaper(ctx) {
   }
   logger.info(paper)
   try {
-    ctx.state.role.paperId = paper._id
-    await Student.findByIdAndUpdate(ctx.state.user._id, {$set: {paperId: paper._id}}, {safe: true, upsert: true})
-    await Teacher.findByIdAndUpdate(ctx.state.role.teacherId, {$push: {paperIds: paper._id, studentIds: ctx.state.user._id}}, {safe: true, upsert: true})
+    await Student.findOneAndUpdate({studentId: ctx.state.user._id}, {$set: {paperId: paper._id}}, {safe: true, upsert: true})
+    await Teacher.findByIdAndUpdate(ctx.state.role.teacherId, {$addToSet: {paperIds: paper._id, studentIds: ctx.state.user._id}}, {safe: true, upsert: true})
   } catch (err) {
     logger.error(err.message)
     ctx.throw(401, err.message)

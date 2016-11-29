@@ -1,10 +1,11 @@
 import mongoose from 'mongoose'
 
+const ObjectId = require('mongoose').Schema.Types.ObjectId
 const Paper = new mongoose.Schema({
   type: { type: String, default: 'Paper' },
   name: { type: String, required: true, unique: true },
-  studentId: { type: String, required: true },
-  teacherId: { type: String, required: true },
+  studentId: { type: ObjectId, required: true },
+  teacherId: { type: ObjectId, required: true },
   fileName: { type: String },
   filePath: { type: String },
   fileSize: { type: Number },
