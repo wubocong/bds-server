@@ -74,8 +74,10 @@ export async function createUser(ctx) {
           admin.save()
           break
         }
-      default:
-        break
+      default: {
+        logger.error('illegal request, may be attacked!')
+        throw (new Error('illegal request'))
+      }
     }
   } catch (err) {
     logger.error(err.message)
