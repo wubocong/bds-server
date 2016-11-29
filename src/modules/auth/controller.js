@@ -91,8 +91,9 @@ export async function authUser (ctx, next) {
             logger.info(role)
             break
           }
-        default:
-          break
+        default: {
+          throw (new Error('illegal request, may be attacked!'))
+        }
       }
     } catch (err) {
       logger.error(err.message)

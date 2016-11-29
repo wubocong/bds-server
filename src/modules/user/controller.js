@@ -2,6 +2,8 @@ import User from '../../models/users'
 import Student from '../../models/students'
 import Teacher from '../../models/teachers'
 import Admin from '../../models/admins'
+import Paper from '../../models/papers'
+import Defense from '../../models/defenses'
 const logger = require('koa-log4').getLogger('index')
 
 /**
@@ -75,8 +77,7 @@ export async function createUser(ctx) {
           break
         }
       default: {
-        logger.error('illegal request, may be attacked!')
-        throw (new Error('illegal request'))
+        throw (new Error('illegal request, may be attacked!'))
       }
     }
   } catch (err) {
@@ -149,32 +150,39 @@ export async function getUsers(ctx) {
 export async function getUser(ctx, next) {
   const id = ctx.params.id
   try {
-    let user = await User.findById(id, '-password')
+    const user = (await User.findById(id, '-password')).toJSON()
+    let role
     switch (user.role) {
       case 'student':
         {
-          // user = Object.assign(user, (await student.getStudent(id)))
+          const data = await Student.findOne({studentId: user._id}, '-type')
+          const {grade, major, clazz} = data
+          const teacher = await User.findById(data.teacherId)
+          const paper = await Paper.findById(data.paperId, '-type -studentId -teacherId')
+          const defense = await Defense.findById(data.defenseId, '-type -studentId -paperId')
+          role = {grade, major, clazz, teacher, paper, defense}
+          logger.info(role)
           break
         }
       case 'teacher':
         {
-          // user = Object.assign(user, (await teacher.getTeacher(id)))
+          role = await Teacher.findOne({teacherId: user._id}, '-type').toJSON()
+          logger.info(role)
           break
         }
       case 'admin':
         {
-          // user = Object.assign(user, (await admin.getAdmin(id)))
+          role = await Admin.findOne({adminId: user._id}, '-type').toJSON()
+          logger.info(role)
           break
         }
-      default:
-        break
-    }
-    if (!user) {
-      ctx.throw(404)
+      default: {
+        throw (new Error(404))
+      }
     }
 
     ctx.body = {
-      user,
+      user: {...user.toJSON(), ...role},
     }
   } catch (err) {
     logger.error(err.message)
@@ -255,8 +263,7 @@ export async function updateUser(ctx) {
         break
       }
       default: {
-        ctx.throw(401)
-        break
+        throw (new Error('illegal request, may be attacked!'))
       }
     }
     await user.save()
@@ -308,8 +315,7 @@ export async function deleteUser(ctx) {
         break
       }
       default: {
-        ctx.throw(401)
-        break
+        throw (new Error('illegal request, may be attacked!'))
       }
     }
     await user.remove()
@@ -368,7 +374,7 @@ export async function modifyPassword(ctx) {
         update: true,
       }
     } else {
-      ctx.throw(401)
+      throw (new Error('illegal request, may be attacked!'))
     }
   } catch (err) {
     logger.error(err.message)
