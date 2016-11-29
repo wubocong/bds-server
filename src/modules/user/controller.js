@@ -180,7 +180,13 @@ export async function getUser(ctx, next) {
         throw (new Error(404))
       }
     }
-
+    if (next) {
+      ctx.body = {
+        user,
+        role,
+      }
+      return next()
+    }
     ctx.body = {
       user: {...user.toJSON(), ...role},
     }
@@ -191,10 +197,6 @@ export async function getUser(ctx, next) {
     }
 
     ctx.throw(500)
-  }
-
-  if (next) {
-    return next()
   }
 }
 
@@ -246,8 +248,8 @@ export async function updateUser(ctx) {
   if (!ctx.request.fields.user) {
     ctx.throw(422)
   }
-  delete ctx.request.fields.user.password
-  Object.assign(user, ctx.request.fields.user)
+  // 下面一行有漏洞
+  Object.assign(user, {phone: ctx.request.fields.user.phone, email: ctx.request.fields.user.email})
   try {
     switch (user.role) {
       case 'student': {
@@ -255,11 +257,15 @@ export async function updateUser(ctx) {
         break
       }
       case 'teacher': {
-        await Teacher.findOneAndUpdate({teacherId: user._id}, {$concatArrays: ['studentIds', ctx.request.fields.studentIds]}, {safe: true, upsert: true})
+        if (ctx.request.fields.user.studentIds) {
+          await Teacher.findOneAndUpdate({teacherId: user._id}, {$pushAll: {studentIds: ctx.request.fields.user.studentIds}})
+        }
         break
       }
       case 'admin': {
-        await Admin.findOneAndUpdate({adminId: user._id}, {$concatArrays: ['defenseIds', ctx.request.fields.defenseIds]}, {safe: true, upsert: true})
+        if (ctx.request.fields.user.studentIds) {
+          await Admin.findOneAndUpdate({adminId: user._id}, {$pushAll: {defenseIds: ctx.request.fields.user.defenseIds}})
+        }
         break
       }
       default: {
