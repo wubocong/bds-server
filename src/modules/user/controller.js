@@ -365,6 +365,7 @@ export async function deleteUser(ctx) {
 export async function modifyPassword(ctx) {
   try {
     const user = await User.findById(ctx.params.id)
+    logger.info('modifyPassword: ' + ctx.request.fields)
     if (user.role === ctx.request.fields.role && ctx.params.id === user._id.toString() && (await user.validatePassword(ctx.request.fields.oldPassword))) {
       user.password = ctx.request.fields.newPassword
       await user.save()

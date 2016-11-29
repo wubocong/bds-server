@@ -15,6 +15,7 @@ import {
   errorMiddleware,
 } from '../src/middleware'
 
+log4js.configure(`${process.cwd()}/log4js.json`, { cwd: `${process.cwd()}/logs` })
 const logger = log4js.getLogger('app')
 const app = new Koa()
 app.keys = [config.session]

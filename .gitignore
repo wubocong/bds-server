@@ -62,3 +62,5 @@ dbdata
 
 # upload files
 upload_files
+
+!.gitkeep
