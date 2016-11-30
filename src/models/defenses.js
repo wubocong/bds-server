@@ -10,6 +10,7 @@ const Defense = new mongoose.Schema({
   teacherIds: [{ type: ObjectId, unique: true, ref: 'user' }],
   adminIds: [{ type: ObjectId, unique: true, ref: 'user' }],
   paperIds: [{ type: ObjectId, unique: true, ref: 'paper' }],
+  leaderId: { type: ObjectId, ref: 'user' },
 })
 
 export default mongoose.model('defense', Defense)

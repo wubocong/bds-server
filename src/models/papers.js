@@ -6,6 +6,7 @@ const Paper = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   studentId: { type: ObjectId, required: true, ref: 'user' },
   teacherId: { type: ObjectId, required: true, ref: 'user' },
+  desp: { type: String, required: true, default: '我是猪' },
   file: {
     name: { type: String },
     path: { type: String },
@@ -13,14 +14,15 @@ const Paper = new mongoose.Schema({
     type: { type: String },
     lastModified: { type: Date, default: Date.now },
   },
-  scores: {
-    teacherId: { type: ObjectId, ref: 'teacher' },
+  scores: [{
     items: [{ type: Number }],
+    teacherId: { type: ObjectId, ref: 'teacher' },
     sum: { type: Number },
-    remark: { type: String },
-  },
-  desp: { type: String },
+    isLeader: { type: Boolean, required: true, default: false },
+  }],
   comments: [{ content: { type: String }, time: { type: Date, default: Date.now } }],
+  finalScore: { type: Number, default: 0 },
+  remark: { type: String, default: '你是猪' },
   lastModified: { type: Date, default: Date.now },
 })
 

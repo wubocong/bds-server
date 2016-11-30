@@ -114,7 +114,6 @@ async function getDefense(id) {
  */
 
 export async function getDefenses(ctx, next) {
-  // ctx.state中储存了koa-passport解析的用户会话信息
   const defenses = await Defense.find()
   ctx.body = {
     defenses,
@@ -310,5 +309,53 @@ export async function getMyDefense(ctx) {
   } catch (err) {
     logger.error(err.message)
     ctx.throw(401)
+  }
+}
+
+/**
+ * @api {get} /defenses/detail/:id Get all defenses
+ * @apiPermission Admin
+ * @apiVersion 0.2.0
+ * @apiName GetDefenses
+ * @apiGroup Defenses
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -X GET localhost:5000/defenses
+ *
+ * @apiSuccess {Object}     defense                  Defense object
+ * @apiSuccess {ObjectId}   defense._id              Defense's id
+ * @apiSuccess {String}     defense.studentId        Defense student's id
+ * @apiSuccess {String}     defense.paperId          Paper's id
+ * @apiSuccess {Object[]}   defense.scores           Defense scores array
+ * @apiSuccess {Number[]}   defense.scores.items     Each item of teacher's scores
+ * @apiSuccess {String}     defense.scores.teacherId Teacher's id
+ * @apiSuccess {Number}     defense.scores.sum       Sum of each teacher's scores
+ * @apiSuccess {String}     defense.remark           Defense's remark
+ * @apiSuccess {Number}     defense.time             Defense's time
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "defense": {
+ *          "_id": "56bd1da600a526986cf65c80"
+ *          "studentId": "56bd1da600a526986cf65c80"
+ *          "paperId": "56bd1da600a526986cf65c80"
+ *          "scores": [{
+ *            "teacherId": "56bd1da600a526986cf65c80"
+ *            "sum": 100
+ *            "items": [50, 20, 30]
+ *          }]
+ *          "remark": "bad guy"
+ *          "time": 1479891536874
+ *       }
+ *     }
+ *
+ * @apiUse TokenError
+ */
+
+export async function getDefenseDetail(ctx) {
+  const defense = await Defense.findById(ctx.params.id)
+  ctx.body = {
+    defense,
   }
 }

@@ -81,10 +81,24 @@ export async function createPaper(ctx) {
  * @apiSuccess {String}   papers.name              Paper name
  * @apiSuccess {String}   papers.studentId         Id of student
  * @apiSuccess {String}   papers.teacherId         Id of student's teacher
- * @apiSuccess {String}   papers.filePath          Paper file's path
- * @apiSuccess {Number}   papers.fileSize          Paper doc's size in bytes
  * @apiSuccess {String}   papers.desp              Paper description
- * @apiSuccess {Number}   papers.lastModifiedDate  Last modified date of document
+ * @apiSuccess {Object[]} papers.scores            Defense scores
+ * @apiSuccess {Number[]} papers.scores.items      Each item of teacher's scores
+ * @apiSuccess {String}   papers.scores.teacherId  Teacher's id
+ * @apiSuccess {Number}   papers.scores.sum        Sum of each teacher's scores
+ * @apiSuccess {Boolean}  papers.scores.isLeader   Sum of each teacher's scores
+ * @apiSuccess {Object}   papers.file              Paper file
+ * @apiSuccess {String}   papers.file.name         Paper file's name
+ * @apiSuccess {String}   papers.file.path         Paper file's path
+ * @apiSuccess {Number}   papers.file.size         Paper file's size in bytes
+ * @apiSuccess {Number}   papers.file.type         Paper file's type
+ * @apiSuccess {Date}     papers.file.lastModified Paper file's last modified time
+ * @apiSuccess {Object[]} papers.comments          Daily comments of tutor
+ * @apiSuccess {String}   papers.comments.content  Content of comment
+ * @apiSuccess {Date}     papers.comments.time     Create time of comment
+ * @apiSuccess {Number}   papers.finalScore        Final score after defense
+ * @apiSuccess {String}   papers.finalRemark       Final remark after defense
+ * @apiSuccess {Date}     papers.lastModified      Last modified time of Paper doc
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
