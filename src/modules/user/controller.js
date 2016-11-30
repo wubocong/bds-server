@@ -60,7 +60,7 @@ export async function createUser(ctx) {
     switch (user.role) {
       case 'student':
         {
-          const student = new Student({studentId: user._id})
+          const student = new Student({studentId: user._id, teacherId: user.teacherId})
           await student.save()
           break
         }
