@@ -21,7 +21,7 @@ const logger = require('koa-log4').getLogger('index')
 
 /**
  * @api {post} /auth Authenticate user
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName AuthUser
  * @apiGroup Auth
  *

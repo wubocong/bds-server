@@ -9,7 +9,7 @@ const logger = require('koa-log4').getLogger('index')
 /**
  * @api {post} /users Create a new user
  * @apiPermission User
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName CreateUser
  * @apiGroup Users
  *
@@ -94,7 +94,7 @@ export async function createUser(ctx) {
 /**
  * @api {get} /users Get all user
  * @apiPermission Admin
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName GetUsers
  * @apiGroup Users
  *
@@ -121,7 +121,7 @@ export async function getUsers(ctx) {
 /**
  * @api {get} /users/:id Get user by id
  * @apiPermission Admin
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName GetUser
  * @apiGroup Users
  *
@@ -218,7 +218,7 @@ export async function getUser(ctx, next) {
 /**
  * @api {put} /users/:id Update a user
  * @apiPermission Admin
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName UpdateUser
  * @apiGroup Users
  *
@@ -299,7 +299,7 @@ export async function updateUser(ctx) {
 /**
  * @api {delete} /users/:id Delete a user
  * @apiPermission Admin
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName DeleteUser
  * @apiGroup Users
  *
@@ -352,7 +352,7 @@ export async function deleteUser(ctx) {
 /**
  * @api {put} /users/password/:id Modify a user's password
  * @apiPermission Admin
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName ModifyPassword
  * @apiGroup Users
  *
@@ -406,7 +406,7 @@ export async function modifyPassword(ctx) {
 /**
  * @api {get} /users/me Get personal user
  * @apiPermission User personally
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName GetMe
  * @apiGroup Users
  *
@@ -447,7 +447,7 @@ export async function getMe(ctx) {
 /**
  * @api {get} /users/contactAdmin Get admin's email and phone number
  * @apiPermission All
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName ContactAdmin
  * @apiGroup Users
  *

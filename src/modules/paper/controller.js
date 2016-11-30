@@ -6,21 +6,35 @@ const logger = require('koa-log4').getLogger('index')
 /**
  * @api {post} /papers Create a new paper
  * @apiPermission Student
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName CreatePaper
  * @apiGroup Papers
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X POST -d '{ "paper": { "name": "How to become a millionaire", "studentId": "56bd1da600a526986cf65c80", "teacherId": "56bd1da600a526986cf65c80","filePath": "http://localhost:5000/file/1s2d1da600a526986cf85c4f","fileSize": 1022392,"desp": "fuckfuckfuck", "lastModifiedDate": 1480155509491} }' localhost:5000/papers
+ * curl -H "Content-Type: application/json" -X POST -d '{ "paper": { "name": "How to become a millionaire", "studentId": "56bd1da600a526986cf65c80", "teacherId": "56bd1da600a526986cf65c80", "desp": "fuckfuckfuck"} }' localhost:5000/papers
  *
  * @apiParam {Object}   paper                   Paper object (required)
- * @apiParam {String}   paper.name              Paper name.
- * @apiParam {String}   paper.studentId         Id of student.
- * @apiParam {String}   paper.teacherId         Id of student's teacher.
- * @apiParam {String}   paper.filePath          Paper file's path
- * @apiParam {Number}   paper.fileSize          Paper doc's size in bytes
- * @apiParam {String}   paper.desp              Paper description
- * @apiParam {Number}   paper.lastModifiedDate  Last modified date of document
+ * @apiParam {String}   paper.name              Paper name (required)
+ * @apiParam {String}   paper.studentId         Id of student (required)
+ * @apiParam {String}   paper.teacherId         Id of student's teacher (required)
+ * @apiParam {String}   paper.desp              Paper description (required)
+ * @apiParam {Object[]} paper.scores            Defense scores
+ * @apiParam {Number[]} paper.scores.items      Each item of teacher's scores
+ * @apiParam {String}   paper.scores.teacherId  Teacher's id
+ * @apiParam {Number}   paper.scores.sum        Sum of each teacher's scores
+ * @apiParam {Boolean}  paper.scores.isLeader   Sum of each teacher's scores
+ * @apiParam {Object}   paper.file              Paper file
+ * @apiParam {String}   paper.file.name         Paper file's name
+ * @apiParam {String}   paper.file.path         Paper file's path
+ * @apiParam {Number}   paper.file.size         Paper file's size in bytes
+ * @apiParam {Number}   paper.file.type         Paper file's type
+ * @apiParam {Date}     paper.file.lastModified Paper file's last modified time
+ * @apiParam {Object[]} paper.comments          Daily comments of tutor
+ * @apiParam {String}   paper.comments.content  Content of comment
+ * @apiParam {Date}     paper.comments.time     Create time of comment
+ * @apiParam {Number}   paper.finalScore        Final score after defense
+ * @apiParam {String}   paper.finalRemark       Final remark after defense
+ * @apiParam {Date}     paper.lastModified      Last modified time of paper doc
  *
  * @apiSuccess {ObjectId}    id      Paper id
  *
@@ -69,14 +83,14 @@ export async function createPaper(ctx) {
 /**
  * @api {get} /papers Get all paper
  * @apiPermission SuperAdmin
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName GetPapers
  * @apiGroup Papers
  *
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X GET localhost:5000/papers
  *
- * @apiSuccess {Object[]} papers                   Array of paper objects
+ * @apiSuccess {Object[]} papers                   Paper objects
  * @apiSuccess {ObjectId} papers._id               Paper id
  * @apiSuccess {String}   papers.name              Paper name
  * @apiSuccess {String}   papers.studentId         Id of student
@@ -98,7 +112,7 @@ export async function createPaper(ctx) {
  * @apiSuccess {Date}     papers.comments.time     Create time of comment
  * @apiSuccess {Number}   papers.finalScore        Final score after defense
  * @apiSuccess {String}   papers.finalRemark       Final remark after defense
- * @apiSuccess {Date}     papers.lastModified      Last modified time of Paper doc
+ * @apiSuccess {Date}     papers.lastModified      Last modified time of paper doc
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -108,10 +122,13 @@ export async function createPaper(ctx) {
  *          "name": "How to become a millionaire"
  *          "studentId": "56bd1da600a526986cf65c80"
  *          "teacherId": "56bd1da600a526986cf65c80"
- *          "filePath": "http://localhost:5000/file/1s2d1da600a526986cf85c4f"
- *          "fileSize": 1022392
  *          "desp": "fuckfuckfuck"
- *          "lastModifiedDate": 1480155509491
+ *          "file": {
+ *            "path": "http://localhost:5000/file/1s2d1da600a526986cf85c4f"
+ *            "size": 1022392
+ *          }
+ *          "comments": [{"content": "too bad", "time": 1480155509491}]
+ *          "lastModified": 1480155509491
  *       }]
  *     }
  *
@@ -127,22 +144,36 @@ export async function getPapers(ctx) {
 /**
  * @api {get} /papers/:id Get paper by id
  * @apiPermission Admin
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName GetPaper
  * @apiGroup Papers
  *
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X GET localhost:5000/papers/56bd1da600a526986cf65c80
  *
- * @apiSuccess {Object[]} paper                   Paper object (required)
+ * @apiSuccess {Object}   paper                   Paper object
  * @apiSuccess {ObjectId} paper._id               Paper id
- * @apiSuccess {String}   paper.name              Paper name.
- * @apiSuccess {String}   paper.studentId         Id of student.
- * @apiSuccess {String}   paper.teacherId         Id of student's teacher.
- * @apiSuccess {String}   paper.filePath          Paper file's path
- * @apiSuccess {Number}   paper.fileSize          Paper doc's size in bytes
+ * @apiSuccess {String}   paper.name              Paper name
+ * @apiSuccess {String}   paper.studentId         Id of student
+ * @apiSuccess {String}   paper.teacherId         Id of student's teacher
  * @apiSuccess {String}   paper.desp              Paper description
- * @apiSuccess {Number}   paper.lastModifiedDate  Last modified date of document
+ * @apiSuccess {Object[]} paper.scores            Defense scores
+ * @apiSuccess {Number[]} paper.scores.items      Each item of teacher's scores
+ * @apiSuccess {String}   paper.scores.teacherId  Teacher's id
+ * @apiSuccess {Number}   paper.scores.sum        Sum of each teacher's scores
+ * @apiSuccess {Boolean}  paper.scores.isLeader   Sum of each teacher's scores
+ * @apiSuccess {Object}   paper.file              Paper file
+ * @apiSuccess {String}   paper.file.name         Paper file's name
+ * @apiSuccess {String}   paper.file.path         Paper file's path
+ * @apiSuccess {Number}   paper.file.size         Paper file's size in bytes
+ * @apiSuccess {Number}   paper.file.type         Paper file's type
+ * @apiSuccess {Date}     paper.file.lastModified Paper file's last modified time
+ * @apiSuccess {Object[]} paper.comments          Daily comments of tutor
+ * @apiSuccess {String}   paper.comments.content  Content of comment
+ * @apiSuccess {Date}     paper.comments.time     Create time of comment
+ * @apiSuccess {Number}   paper.finalScore        Final score after defense
+ * @apiSuccess {String}   paper.finalRemark       Final remark after defense
+ * @apiSuccess {Date}     paper.lastModified      Last modified time of paper doc
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -152,10 +183,13 @@ export async function getPapers(ctx) {
  *          "name": "How to become a millionaire"
  *          "studentId": "56bd1da600a526986cf65c80"
  *          "teacherId": "56bd1da600a526986cf65c80"
- *          "filePath": "http://localhost:5000/file/1s2d1da600a526986cf85c4f"
- *          "fileSize": 1022392
  *          "desp": "fuckfuckfuck"
- *          "lastModifiedDate": 1480155509491
+ *          "file": {
+ *            "path": "http://localhost:5000/file/1s2d1da600a526986cf85c4f"
+ *            "size": 1022392
+ *          }
+ *          "comments": [{"content": "too bad", "time": 1480155509491}]
+ *          "lastModified": 1480155509491
  *       }
  *     }
  *
@@ -189,21 +223,35 @@ export async function getPaper(ctx, next) {
 /**
  * @api {put} /papers/:id Update a paper
  * @apiPermission Student
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName UpdatePaper
  * @apiGroup Papers
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X PUT -d '{ "paper": { "name": "How to become a millionaire", "studentId": "56bd1da600a526986cf65c80", "teacherId": "56bd1da600a526986cf65c80","filePath": "http://localhost:5000/file/1s2d1da600a526986cf85c4f","fileSize": 1022392,"desp": "fuckfuckfuck", "lastModifiedDate": 1480155509491} }' localhost:5000/papers/56bd1da600a526986cf65c80
+ * curl -H "Content-Type: application/json" -X PUT -d '{ "paper": { "name": "How to become a millionaire", "studentId": "56bd1da600a526986cf65c80", "teacherId": "56bd1da600a526986cf65c80", "desp": "fuckfuckfuck"} }' localhost:5000/papers/56bd1da600a526986cf65c80
  *
- * @apiParam {Object}   paper                   Paper object (required)
- * @apiParam {String}   paper.name              Paper name.
- * @apiParam {String}   paper.studentId         Id of student.
- * @apiParam {String}   paper.teacherId         Id of student's teacher.
- * @apiParam {String}   paper.filePath          Paper file's path
- * @apiParam {Number}   paper.fileSize          Paper doc's size in bytes
+ * @apiParam {Object}   paper                   Paper object
+ * @apiParam {String}   paper.name              Paper name
+ * @apiParam {String}   paper.studentId         Id of student
+ * @apiParam {String}   paper.teacherId         Id of student's teacher
  * @apiParam {String}   paper.desp              Paper description
- * @apiParam {Number}   paper.lastModifiedDate  Last modified date of document
+ * @apiParam {Object[]} paper.scores            Defense scores
+ * @apiParam {Number[]} paper.scores.items      Each item of teacher's scores
+ * @apiParam {String}   paper.scores.teacherId  Teacher's id
+ * @apiParam {Number}   paper.scores.sum        Sum of each teacher's scores
+ * @apiParam {Boolean}  paper.scores.isLeader   Sum of each teacher's scores
+ * @apiParam {Object}   paper.file              Paper file
+ * @apiParam {String}   paper.file.name         Paper file's name
+ * @apiParam {String}   paper.file.path         Paper file's path
+ * @apiParam {Number}   paper.file.size         Paper file's size in bytes
+ * @apiParam {Number}   paper.file.type         Paper file's type
+ * @apiParam {Date}     paper.file.lastModified Paper file's last modified time
+ * @apiParam {Object[]} paper.comments          Daily comments of tutor
+ * @apiParam {String}   paper.comments.content  Content of comment
+ * @apiParam {Date}     paper.comments.time     Create time of comment
+ * @apiParam {Number}   paper.finalScore        Final score after defense
+ * @apiParam {String}   paper.finalRemark       Final remark after defense
+ * @apiParam {Date}     paper.lastModified      Last modified time of paper doc
  *
  * @apiSuccess {StatusCode} 200
  *
@@ -239,22 +287,36 @@ export async function updatePaper(ctx) {
 /**
  * @api {get} /papers/me Get personal paper
  * @apiPermission Student
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName GetMyPaper
  * @apiGroup Papers
  *
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X GET localhost:5000/papers/me
  *
- * @apiSuccess {Object[]} paper                   Paper object
+ * @apiSuccess {Object}   paper                   Paper object
  * @apiSuccess {ObjectId} paper._id               Paper id
  * @apiSuccess {String}   paper.name              Paper name
  * @apiSuccess {String}   paper.studentId         Id of student
  * @apiSuccess {String}   paper.teacherId         Id of student's teacher
- * @apiSuccess {String}   paper.filePath          Paper file's path
- * @apiSuccess {Number}   paper.fileSize          Paper doc's size in bytes
  * @apiSuccess {String}   paper.desp              Paper description
- * @apiSuccess {Number}   paper.lastModifiedDate  Last modified date of document
+ * @apiSuccess {Object[]} paper.scores            Defense scores
+ * @apiSuccess {Number[]} paper.scores.items      Each item of teacher's scores
+ * @apiSuccess {String}   paper.scores.teacherId  Teacher's id
+ * @apiSuccess {Number}   paper.scores.sum        Sum of each teacher's scores
+ * @apiSuccess {Boolean}  paper.scores.isLeader   Sum of each teacher's scores
+ * @apiSuccess {Object}   paper.file              Paper file
+ * @apiSuccess {String}   paper.file.name         Paper file's name
+ * @apiSuccess {String}   paper.file.path         Paper file's path
+ * @apiSuccess {Number}   paper.file.size         Paper file's size in bytes
+ * @apiSuccess {Number}   paper.file.type         Paper file's type
+ * @apiSuccess {Date}     paper.file.lastModified Paper file's last modified time
+ * @apiSuccess {Object[]} paper.comments          Daily comments of tutor
+ * @apiSuccess {String}   paper.comments.content  Content of comment
+ * @apiSuccess {Date}     paper.comments.time     Create time of comment
+ * @apiSuccess {Number}   paper.finalScore        Final score after defense
+ * @apiSuccess {String}   paper.finalRemark       Final remark after defense
+ * @apiSuccess {Date}     paper.lastModified      Last modified time of paper doc
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -264,10 +326,13 @@ export async function updatePaper(ctx) {
  *          "name": "How to become a millionaire"
  *          "studentId": "56bd1da600a526986cf65c80"
  *          "teacherId": "56bd1da600a526986cf65c80"
- *          "filePath": "http://localhost:5000/file/1s2d1da600a526986cf85c4f"
- *          "fileSize": 1022392
  *          "desp": "fuckfuckfuck"
- *          "lastModifiedDate": 1480155509491
+ *          "file": {
+ *            "path": "http://localhost:5000/file/1s2d1da600a526986cf85c4f"
+ *            "size": 1022392
+ *          }
+ *          "comments": [{"content": "too bad", "time": 1480155509491}]
+ *          "lastModified": 1480155509491
  *       }
  *     }
  *
@@ -297,7 +362,7 @@ export async function getMyPaper(ctx) {
 /**
  * @api {post} /papers/file/56bd1da600a526986cf65c80 Upload paper's file
  * @apiPermission Student
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName UploadFile
  * @apiGroup Papers
  *
@@ -307,15 +372,17 @@ export async function getMyPaper(ctx) {
  * @apiParam   {Object}    paper            File object (required)
  *
  * @apiSuccess {Object}    file             File info object
- * @apiSuccess {Object}    file.filePath    File path
- * @apiSuccess {Object}    file.fileSize    File size
+ * @apiSuccess {String}    file.path        File path
+ * @apiSuccess {Number}    file.size        File size
+ * @apiSuccess {String}    file.name        File name
+ * @apiSuccess {String}    file.type        File type
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
  *       "file": {
- *         "filePath": "http://localhost:5000/file/1s2d1da600a526986cf85c4f"
- *         "fileSize": 1022392
+ *         "path": "http://localhost:5000/file/1s2d1da600a526986cf85c4f"
+ *         "size": 1022392
  *       }
  *     }
  *
@@ -340,7 +407,7 @@ export async function uploadFile(ctx) {
     paper.file = ctx.request.files.paper
     await paper.save()
     ctx.body = {
-      upload: true,
+      file: paper.file,
     }
   } catch (err) {
     logger.error(err.message)

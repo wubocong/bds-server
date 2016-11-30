@@ -7,7 +7,7 @@ const logger = require('koa-log4').getLogger('index')
 /**
  * @api {post} /defenses Create defenses
  * @apiPermission Admin
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName CreateDefenses
  * @apiGroup Defenses
  *
@@ -75,7 +75,7 @@ async function getDefense(id) {
 /**
  * @api {get} /defenses Get all defenses
  * @apiPermission Admin
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName GetDefenses
  * @apiGroup Defenses
  *
@@ -126,7 +126,7 @@ export async function getDefenses(ctx, next) {
 /**
  * @api {put} /defenses/:id Update a defense
  * @apiPermission Admin
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName UpdateDefenses
  * @apiGroup Defenses
  *
@@ -171,7 +171,7 @@ export async function updateDefense(ctx) {
 /**
  * @api {put} /defenses/ Update defenses
  * @apiPermission SuperAdmin
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName UpdateDefenses
  * @apiGroup Defenses
  *
@@ -224,7 +224,7 @@ export async function updateDefenses(ctx) {
 /**
  * @api {delete} /defenses Delete defenses
  * @apiPermission Admin
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName DeleteDefenses
  * @apiGroup Defenses
  *
@@ -261,7 +261,7 @@ export async function deleteDefenses(ctx) {
 /**
  * @api {get} /defenses/:id Get a defense
  * @apiPermission User
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName GetDefense
  * @apiGroup Defenses
  *
@@ -315,7 +315,7 @@ export async function getMyDefense(ctx) {
 /**
  * @api {get} /defenses/detail/:id Get all defenses
  * @apiPermission Admin
- * @apiVersion 0.2.0
+ * @apiVersion 0.3.0
  * @apiName GetDefenses
  * @apiGroup Defenses
  *
