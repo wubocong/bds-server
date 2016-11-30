@@ -1,5 +1,7 @@
 import Defense from '../../models/defenses'
 import Student from '../../models/students'
+import Teacher from '../../models/teachers'
+import Admin from '../../models/admins'
 const logger = require('koa-log4').getLogger('index')
 
 /**
@@ -46,10 +48,16 @@ export async function createDefenses(ctx) {
       const newDefense = new Defense(defense)
       await newDefense.save()
       defenseIds.push(newDefense._id)
-
-      const student = Student.find({ studentId: defense.studentId })
-      student.defenseId = newDefense._id
-      await student.save()
+      logger.info(newDefense)
+      await Promise.all(newDefense.adminIds.map(async (adminId) => {
+        await Admin.findOneAndUpdate({ adminId }, { $addToSet: { defenseIds: newDefense._id } })
+      }))
+      await Promise.all(newDefense.teacherIds.map(async (teacherId) => {
+        await Teacher.findOneAndUpdate({ teacherId }, { $addToSet: { defenseIds: newDefense._id } })
+      }))
+      await Promise.all(newDefense.studentIds.map(async (studentId) => {
+        await Student.findOneAndUpdate({ studentId }, { $set: { defenseId: newDefense._id } })
+      }))
     }))
     ctx.body = {
       defenseIds,

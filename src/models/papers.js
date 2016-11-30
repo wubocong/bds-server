@@ -13,7 +13,12 @@ const Paper = new mongoose.Schema({
     type: { type: String },
     lastModified: { type: Date, default: Date.now },
   },
-  scores: [{ teacherId: { type: ObjectId, ref: 'teacher' }, items: [{ type: Number }], sum: { type: Number } }],
+  scores: {
+    teacherId: { type: ObjectId, ref: 'teacher' },
+    items: [{ type: Number }],
+    sum: { type: Number },
+    remark: { type: String },
+  },
   desp: { type: String },
   comments: [{ content: { type: String }, time: { type: Date, default: Date.now } }],
   lastModified: { type: Date, default: Date.now },

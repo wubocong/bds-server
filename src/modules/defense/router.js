@@ -9,7 +9,7 @@ export default [
     route: '/',
     handlers: [
       ensureUser,
-      ensureAdmin,
+      // ensureAdmin,
       defense.getDefenses,
     ],
   },
@@ -18,7 +18,7 @@ export default [
     route: '/',
     handlers: [
       ensureUser,
-      ensureAdmin,
+      // ensureAdmin,
       defense.createDefenses,
     ],
   },
@@ -27,7 +27,7 @@ export default [
     route: '/',
     handlers: [
       ensureUser,
-      ensureAdmin,
+      // ensureAdmin,
       defense.updateDefenses,
     ],
   },
@@ -36,7 +36,7 @@ export default [
     route: '/',
     handlers: [
       ensureUser,
-      ensureAdmin,
+      // ensureAdmin,
       defense.deleteDefenses,
     ],
   },

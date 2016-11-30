@@ -6,6 +6,13 @@ export const baseUrl = '/users'
 export default [
   {
     method: 'POST',
+    route: '/contactAdmin',
+    handlers: [
+      user.contactAdmin,
+    ],
+  },
+  {
+    method: 'POST',
     route: '/',
     handlers: [
       user.createUser,
@@ -24,7 +31,7 @@ export default [
     route: '/',
     handlers: [
       ensureUser,
-      ensureAdmin,
+      // ensureAdmin,
       user.getUsers,
     ],
   },
@@ -33,7 +40,7 @@ export default [
     route: '/:id',
     handlers: [
       ensureUser,
-      ensureAdmin,
+      // ensureAdmin,
       user.getUser,
     ],
   },
@@ -51,7 +58,7 @@ export default [
     route: '/:id',
     handlers: [
       ensureUser,
-      ensureAdmin,
+      // ensureAdmin,
       user.getUser,
       user.deleteUser,
     ],

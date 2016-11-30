@@ -81,8 +81,13 @@ export async function authUser (ctx, next) {
           }
         case 'teacher':
           {
-            role = (await Teacher.findOne({teacherId: user._id}, '-type')).toJSON()
-            logger.info(role)
+            const data = await Teacher.findOne({teacherId: user._id}, '-type')
+            let defenses = []
+            await Promise.all(data.defenseIds.map(async (defenseId) => {
+              defenses.push(await Defense.findById(defenseId))
+            }))
+            role = {...data.toJSON(), defenses}
+            logger.warn(role)
             break
           }
         case 'admin':

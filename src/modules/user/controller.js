@@ -83,6 +83,7 @@ export async function createUser(ctx) {
   } catch (err) {
     logger.error(err.message)
     ctx.throw(422, err.message)
+    await user.remove()
   }
   ctx.body = {
     create: true,
@@ -166,8 +167,13 @@ export async function getUser(ctx, next) {
         }
       case 'teacher':
         {
-          role = (await Teacher.findOne({teacherId: user._id}, '-type')).toJSON()
-          logger.info(role)
+          const data = await Teacher.findOne({teacherId: user._id}, '-type')
+          let defenses = []
+          await Promise.all(data.defenseIds.map(async (defenseId) => {
+            defenses.push(await Defense.findById(defenseId))
+          }))
+
+          logger.info(defenses)
           break
         }
       case 'admin':

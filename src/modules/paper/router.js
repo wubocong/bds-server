@@ -25,7 +25,7 @@ export default [
     route: '/',
     handlers: [
       ensureUser,
-      ensureAdmin,
+      // ensureAdmin,
       paper.getPapers,
     ],
   },
@@ -34,7 +34,7 @@ export default [
     route: '/:id',
     handlers: [
       ensureUser,
-      ensureAdmin,
+      // ensureAdmin,
       paper.getPaper,
     ],
   },
