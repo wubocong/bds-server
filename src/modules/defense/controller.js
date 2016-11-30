@@ -12,17 +12,18 @@ const logger = require('koa-log4').getLogger('index')
  * @apiGroup Defenses
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X POST -d '{ "defenses": [{ "studentId": "56bd1da600a526986cf65c80", "paperId": "56bd1da600a526986cf65c80", "scores": [{"teacherId": "56bd1da600a526986cf65c80", "sum": 100, "items": [50, 20, 30]}], "remark": "bad guy", "time": 1479891536874 }] }' localhost:5000/defenses
+ * curl -H "Content-Type: application/json" -X POST -d '{ "defenses": [{"name":"华南农业大学", "status": 2, "studentIds": ["{{studentId}}"], "teacherIds":["{{teacherId}}"], "adminIds":["{{adminId}}"], "paperIds": ["{{paperId}}"], "address": "7 day inn", "time": "1122"}]' localhost:5000/defenses
  *
- * @apiParam {Object[]} defenses          Defenses array (required)
- * @apiParam {String} defenses.studentId Defense student's id (required).
- * @apiParam {String} defenses.paperId Paper's id (required).
- * @apiParam {Object[]} defenses.scores Defense scores array.
- * @apiParam {Number[]} defenses.scores.items Each item of teacher's scores.
- * @apiParam {String} defenses.scores.teacherId Teacher's id.
- * @apiParam {Number} defenses.scores.sum Sum of each teacher's scores.
- * @apiParam {String} defenses.remark Defense's remark.
- * @apiParam {Number} defenses.time Defense's time (default to current time).
+ * @apiParam {Object[]}     defenses              Defense objects (required)
+ * @apiParam {String}       defenses.name         Defense name (required)
+ * @apiParam {String}       defenses.address      Defense address (required)
+ * @apiParam {Date}         defenses.time         Defense time (required)
+ * @apiParam {Number}       defenses.status       Defense status(0-2) (required)
+ * @apiParam {ObjectId[]}   defenses.studentIds   Defense students' ids
+ * @apiParam {ObjectId[]}   defenses.teacherIds   Defense teachers' ids
+ * @apiParam {ObjectId[]}   defenses.adminIds     Defense admins' ids
+ * @apiParam {ObjectId[]}   defenses.paperIds     Defense papers' ids
+ * @apiParam {ObjectId}     defenses.leaderId     Id of teachers' leader
  *
  * @apiSuccess {ObjectId[]}   defenseIds           Defenses' ids
  *
@@ -40,6 +41,7 @@ const logger = require('koa-log4').getLogger('index')
  *       "status": 422,
  *       "error": "Unprocessable Entity"
  *     }
+ * @apiUse TokenError
  */
 export async function createDefenses(ctx) {
   const defenseIds = []
@@ -82,32 +84,43 @@ async function getDefense(id) {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X GET localhost:5000/defenses
  *
- * @apiSuccess {Object[]}   defenses                  Defense object
- * @apiSuccess {ObjectId}   defenses._id              Defense's id
- * @apiSuccess {String}     defenses.studentId        Defense student's id
- * @apiSuccess {String}     defenses.paperId          Paper's id
- * @apiSuccess {Object[]}   defenses.scores           Defense scores array
- * @apiSuccess {Number[]}   defenses.scores.items     Each item of teacher's scores
- * @apiSuccess {String}     defenses.scores.teacherId Teacher's id
- * @apiSuccess {Number}     defenses.scores.sum       Sum of each teacher's scores
- * @apiSuccess {String}     defenses.remark           Defense's remark
- * @apiSuccess {Number}     defenses.time             Defense's time
+ * @apiSuccess {Object[]}     defenses              Defense objects
+ * @apiSuccess {ObjectId}     defenses._id          Defense id
+ * @apiSuccess {String}       defenses.name         Defense name
+ * @apiSuccess {String}       defenses.address      Defense address
+ * @apiSuccess {Date}         defenses.time         Defense time
+ * @apiSuccess {Number}       defenses.status       Defense status(0-2)
+ * @apiSuccess {ObjectId[]}   defenses.studentIds   Defense students' ids
+ * @apiSuccess {ObjectId[]}   defenses.teacherIds   Defense teachers' ids
+ * @apiSuccess {ObjectId[]}   defenses.adminIds     Defense admins' ids
+ * @apiSuccess {ObjectId[]}   defenses.paperIds     Defense papers' ids
+ * @apiSuccess {ObjectId}     defenses.leaderId     Id of teachers' leader
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "defenses": [{
- *          "_id": "56bd1da600a526986cf65c80"
- *          "studentId": "56bd1da600a526986cf65c80"
- *          "paperId": "56bd1da600a526986cf65c80"
- *          "scores": [{
- *            "teacherId": "56bd1da600a526986cf65c80"
- *            "sum": 100
- *            "items": [50, 20, 30]
- *          }]
- *          "remark": "bad guy"
- *          "time": 1479891536874
- *       }]
+ *       "defenses": [
+ *         {
+ *           "_id": "583ea545a180765d1b9aa4ce",
+ *           "name": "华南农业大学",
+ *           "address": "7 day inn",
+ *           "time": "1970-01-01T00:00:01.122Z",
+ *           "__v": 0,
+ *           "paperIds": [
+ *             "583e9d201d17a94b1c81932f"
+ *           ],
+ *           "adminIds": [
+ *             "583e8fb7de1723468cd09cb4"
+ *           ],
+ *           "teacherIds": [
+ *             "583ea43ca180765d1b9aa4ca"
+ *           ],
+ *           "studentIds": [
+ *             "583ea29584fbf44f47eb8129"
+ *           ],
+ *           "status": 1
+ *         }
+ *       ]
  *     }
  *
  * @apiUse TokenError
@@ -131,11 +144,18 @@ export async function getDefenses(ctx, next) {
  * @apiGroup Defenses
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X PUT -d '{ "defense": { "_id": "56bd1da600a526986cf65c80", "time": 1479891536874 } }' localhost:5000/defenses
+ * curl -H "Content-Type: application/json" -X PUT -d '{ "defense": { "address": "小米公司", "time": 1479891536874 } }' localhost:5000/defenses/56bd1da600a526986cf65c80
  *
- * @apiParam {Object}   defense          Defenses array (required)
- * @apiParam {ObjectId} defenses._id     Defense's id.
- * @apiParam {Number}   defenses.time    Defense's time (default to current time).
+ * @apiParam {Object[]}     defense              Defense objects (required)
+ * @apiParam {String}       defense.name         Defense name
+ * @apiParam {String}       defense.address      Defense address
+ * @apiParam {Date}         defense.time         Defense time
+ * @apiParam {Number}       defense.status       Defense status(0-2)
+ * @apiParam {ObjectId[]}   defense.studentIds   Defense students' ids
+ * @apiParam {ObjectId[]}   defense.teacherIds   Defense teachers' ids
+ * @apiParam {ObjectId[]}   defense.adminIds     Defense admins' ids
+ * @apiParam {ObjectId[]}   defense.paperIds     Defense papers' ids
+ * @apiParam {ObjectId}     defense.leaderId     Id of teachers' leader
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -178,16 +198,17 @@ export async function updateDefense(ctx) {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X PUT -d '{ "defenses": [{ "_id": "56bd1da600a526986cf65c80", "studentId": "56bd1da600a526986cf65c80", "paperId": "56bd1da600a526986cf65c80", "scores": [{"teacherId": "56bd1da600a526986cf65c80", "sum": 100, "items": [50, 20, 30]}], "remark": "bad guy", "time": 1479891536874 }] }' localhost:5000/defenses
  *
- * @apiParam {Object} defenses                  Array of defenses (required)
- * @apiParam {ObjectId} defenses._id            Defense's id.
- * @apiParam {String} defenses.studentId        Defense studentId's id (required).
- * @apiParam {String} defenses.paperId          Paper's id (required).
- * @apiParam {Object[]} defenses.scores         Array of Defense's scores.
- * @apiParam {Number[]} defenses.scores.items   Each item of teacher's scores.
- * @apiParam {String} defenses.scores.teacherId Teacher's id.
- * @apiParam {Number} defenses.scores.sum       Sum of each teacher's scores.
- * @apiParam {String} defenses.remark           Defense's remark.
- * @apiParam {Number} defenses.time             Defense's time (default to current time).
+ * @apiParam {Object[]}     defenses              Defense objects (required)
+ * @apiParam {ObjectId}     defenses._id          Defense id (required)
+ * @apiParam {String}       defenses.name         Defense name
+ * @apiParam {String}       defenses.address      Defense address
+ * @apiParam {Date}         defenses.time         Defense time
+ * @apiParam {Number}       defenses.status       Defense status(0-2)
+ * @apiParam {ObjectId[]}   defenses.studentIds   Defense students' ids
+ * @apiParam {ObjectId[]}   defenses.teacherIds   Defense teachers' ids
+ * @apiParam {ObjectId[]}   defenses.adminIds     Defense admins' ids
+ * @apiParam {ObjectId[]}   defenses.paperIds     Defense papers' ids
+ * @apiParam {ObjectId}     defenses.leaderId     Id of teachers' leader
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -268,31 +289,40 @@ export async function deleteDefenses(ctx) {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X GET localhost:5000/defenses/56bd1da600a526986cf65c80
  *
- * @apiSuccess {Object}     defense                  Defense object
- * @apiSuccess {ObjectId}   defense._id              Defense's id
- * @apiSuccess {String}     defense.studentId        Defense student's id
- * @apiSuccess {String}     defense.paperId          Paper's id
- * @apiSuccess {Object[]}   defense.scores           Defense scores array
- * @apiSuccess {Number[]}   defense.scores.items     Each item of teacher's scores
- * @apiSuccess {String}     defense.scores.teacherId Teacher's id
- * @apiSuccess {Number}     defense.scores.sum       Sum of each teacher's scores
- * @apiSuccess {String}     defense.remark           Defense's remark
- * @apiSuccess {Number}     defense.time             Defense's time
+ * @apiSuccess {Object[]}     defense              Defense objects
+ * @apiSuccess {ObjectId}     defense._id          Defense id
+ * @apiSuccess {String}       defense.name         Defense name
+ * @apiSuccess {String}       defense.address      Defense address
+ * @apiSuccess {Date}         defense.time         Defense time
+ * @apiSuccess {Number}       defense.status       Defense status(0-2)
+ * @apiSuccess {ObjectId[]}   defense.studentIds   Defense students' ids
+ * @apiSuccess {ObjectId[]}   defense.teacherIds   Defense teachers' ids
+ * @apiSuccess {ObjectId[]}   defense.adminIds     Defense admins' ids
+ * @apiSuccess {ObjectId[]}   defense.paperIds     Defense papers' ids
+ * @apiSuccess {ObjectId}     defense.leaderId     Id of teachers' leader
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
  *       "defense": {
- *          "_id": "56bd1da600a526986cf65c80"
- *          "studentId": "56bd1da600a526986cf65c80"
- *          "paperId": "56bd1da600a526986cf65c80"
- *          "scores": [{
- *            "teacherId": "56bd1da600a526986cf65c80"
- *            "sum": 100
- *            "items": [50, 20, 30]
- *          }]
- *          "remark": "bad guy"
- *          "time": 1479891536874
+ *         "_id": "583ea545a180765d1b9aa4ce",
+ *         "name": "华南农业大学",
+ *         "address": "7 day inn",
+ *         "time": "1970-01-01T00:00:01.122Z",
+ *         "__v": 0,
+ *         "paperIds": [
+ *           "583e9d201d17a94b1c81932f"
+ *         ],
+ *         "adminIds": [
+ *           "583e8fb7de1723468cd09cb4"
+ *         ],
+ *         "teacherIds": [
+ *           "583ea43ca180765d1b9aa4ca"
+ *         ],
+ *         "studentIds": [
+ *           "583ea29584fbf44f47eb8129"
+ *         ],
+ *         "status": 1
  *       }
  *     }
  *
@@ -322,31 +352,40 @@ export async function getMyDefense(ctx) {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X GET localhost:5000/defenses
  *
- * @apiSuccess {Object}     defense                  Defense object
- * @apiSuccess {ObjectId}   defense._id              Defense's id
- * @apiSuccess {String}     defense.studentId        Defense student's id
- * @apiSuccess {String}     defense.paperId          Paper's id
- * @apiSuccess {Object[]}   defense.scores           Defense scores array
- * @apiSuccess {Number[]}   defense.scores.items     Each item of teacher's scores
- * @apiSuccess {String}     defense.scores.teacherId Teacher's id
- * @apiSuccess {Number}     defense.scores.sum       Sum of each teacher's scores
- * @apiSuccess {String}     defense.remark           Defense's remark
- * @apiSuccess {Number}     defense.time             Defense's time
+ * @apiSuccess {Object[]}     defense              Defense objects
+ * @apiSuccess {ObjectId}     defense._id          Defense id
+ * @apiSuccess {String}       defense.name         Defense name
+ * @apiSuccess {String}       defense.address      Defense address
+ * @apiSuccess {Date}         defense.time         Defense time
+ * @apiSuccess {Number}       defense.status       Defense status(0-2)
+ * @apiSuccess {ObjectId[]}   defense.studentIds   Defense students' ids
+ * @apiSuccess {ObjectId[]}   defense.teacherIds   Defense teachers' ids
+ * @apiSuccess {ObjectId[]}   defense.adminIds     Defense admins' ids
+ * @apiSuccess {ObjectId[]}   defense.paperIds     Defense papers' ids
+ * @apiSuccess {ObjectId}     defense.leaderId     Id of teachers' leader
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
  *       "defense": {
- *          "_id": "56bd1da600a526986cf65c80"
- *          "studentId": "56bd1da600a526986cf65c80"
- *          "paperId": "56bd1da600a526986cf65c80"
- *          "scores": [{
- *            "teacherId": "56bd1da600a526986cf65c80"
- *            "sum": 100
- *            "items": [50, 20, 30]
- *          }]
- *          "remark": "bad guy"
- *          "time": 1479891536874
+ *         "_id": "583ea545a180765d1b9aa4ce",
+ *         "name": "华南农业大学",
+ *         "address": "7 day inn",
+ *         "time": "1970-01-01T00:00:01.122Z",
+ *         "__v": 0,
+ *         "paperIds": [
+ *           "583e9d201d17a94b1c81932f"
+ *         ],
+ *         "adminIds": [
+ *           "583e8fb7de1723468cd09cb4"
+ *         ],
+ *         "teacherIds": [
+ *           "583ea43ca180765d1b9aa4ca"
+ *         ],
+ *         "studentIds": [
+ *           "583ea29584fbf44f47eb8129"
+ *         ],
+ *         "status": 1
  *       }
  *     }
  *
