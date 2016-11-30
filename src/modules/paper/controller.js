@@ -323,11 +323,7 @@ export async function uploadFile(ctx) {
   }
   let paper = ctx.body.paper
   try {
-    paper.fileName = ctx.request.files.paper.name
-    paper.filePath = ctx.request.files.paper.path
-    paper.fileSize = ctx.request.files.paper.size
-    paper.fileType = ctx.request.files.paper.type
-    paper.fileLastModified = new Date(ctx.request.files.paper.lastModified).getTime()
+    paper.file = ctx.request.files.paper
     await paper.save()
     ctx.body = {
       upload: true,

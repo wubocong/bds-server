@@ -428,3 +428,46 @@ export async function getMe(ctx) {
     user: ctx.state.user,
   }
 }
+
+/**
+ * @api {get} /users/contactAdmin Get admin's email and phone number
+ * @apiPermission All
+ * @apiVersion 0.2.0
+ * @apiName ContactAdmin
+ * @apiGroup Users
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -X GET localhost:5000/users/contactAdmin
+ *
+ * @apiSuccess {Object}   user           User object
+ * @apiSuccess {Number}   user.phone     User phone number
+ * @apiSuccess {String}   user.email     User email
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "user": {
+ *          "_id": "56bd1da600a526986cf65c80"
+ *          "name": "John Doe"
+ *          "account": "20080202"
+ *          "role": "admin"
+ *          "gender": true
+ *       }
+ *     }
+ *
+ * @apiUse TokenError
+ */
+export async function contactAdmin(ctx, next) {
+  try {
+    const user = await User.findOne({ role: 'admin', school: ctx.request.fields.school, university: ctx.request.fields.university }, 'email phone')
+    ctx.body = {
+      user: user.toJSON(),
+    }
+  } catch (err) {
+    logger.error(err.message)
+    if (err === 404 || err.name === 'CastError') {
+      ctx.throw(404)
+    }
+    ctx.throw(500)
+  }
+}
