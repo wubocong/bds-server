@@ -343,14 +343,14 @@ export async function getMyDefense(ctx) {
 }
 
 /**
- * @api {get} /defenses/detail/:id Get all defenses
+ * @api {get} /defenses/detail/:id Get a defense's related info
  * @apiPermission Admin
  * @apiVersion 0.3.0
- * @apiName GetDefenses
+ * @apiName GetDefenseDetail
  * @apiGroup Defenses
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X GET localhost:5000/defenses
+ * curl -H "Content-Type: application/json" -X GET localhost:5000/defenses/detail/56bd1da600a526986cf65c80
  *
  * @apiSuccess {Object[]}     defense              Defense objects
  * @apiSuccess {ObjectId}     defense._id          Defense id

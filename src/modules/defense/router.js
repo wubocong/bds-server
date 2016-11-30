@@ -6,6 +6,22 @@ export const baseUrl = '/defenses'
 export default [
   {
     method: 'GET',
+    route: '/:id',
+    handlers: [
+      ensureUser,
+      defense.getMyDefense,
+    ],
+  },
+  {
+    method: 'GET',
+    route: '/detail/:id',
+    handlers: [
+      ensureUser,
+      defense.getDefenseDetail,
+    ],
+  },
+  {
+    method: 'GET',
     route: '/',
     handlers: [
       ensureUser,
@@ -38,14 +54,6 @@ export default [
       ensureUser,
       // ensureAdmin,
       defense.deleteDefenses,
-    ],
-  },
-  {
-    method: 'GET',
-    route: '/:id',
-    handlers: [
-      ensureUser,
-      defense.getMyDefense,
     ],
   },
 ]
