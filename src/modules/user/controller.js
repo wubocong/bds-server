@@ -14,7 +14,7 @@ const logger = require('koa-log4').getLogger('index')
  * @apiGroup Users
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X POST -d '{ "user": { "account": "20080202", "password": "secretpasas", "role": "admin" } }' localhost:5000/users
+ * curl -H "Content-Type: application/json" -X POST -d '{ "user": { "account": "20080202", "role": "admin" } }' localhost:5000/users
  *
  * @apiParam {Object} user          User object (required)
  * @apiParam {String} user.account   User account.
@@ -56,23 +56,24 @@ export async function createUser(ctx) {
     logger.error(err.message)
     ctx.throw(422, err.message)
   }
+  delete ctx.request.fields.user.type
   try {
     switch (user.role) {
       case 'student':
         {
-          const student = new Student({studentId: user._id, teacherId: user.teacherId})
+          const student = new Student({...ctx.request.fields.user, studentId: user._id})
           await student.save()
           break
         }
       case 'teacher':
         {
-          const teacher = new Teacher({teacherId: user._id})
+          const teacher = new Teacher({...ctx.request.fields.user, teacherId: user._id})
           await teacher.save()
           break
         }
       case 'admin':
         {
-          const admin = new Admin({adminId: user._id})
+          const admin = new Admin({...ctx.request.fields.user, adminId: user._id})
           await admin.save()
           break
         }
@@ -156,34 +157,42 @@ export async function getUser(ctx, next) {
     switch (user.role) {
       case 'student':
         {
-          const data = await Student.findOne({studentId: user._id}, '-type')
+          const data = await Student.findOne({studentId: user._id}, '-type -studentId')
           const {grade, major, clazz} = data
-          const teacher = await User.findById(data.teacherId)
+          const teacher = await User.findById(data.teacherId, '-type -password -account')
           const paper = await Paper.findById(data.paperId, '-type -studentId -teacherId')
           const defense = await Defense.findById(data.defenseId, '-type -studentId -paperId')
           role = {grade, major, clazz, teacher, paper, defense}
+
           logger.info(role)
           break
         }
       case 'teacher':
         {
-          const data = await Teacher.findOne({teacherId: user._id}, '-type')
+          const data = await Teacher.findOne({teacherId: user._id}, '-type -teacherId')
           let defenses = []
           await Promise.all(data.defenseIds.map(async (defenseId) => {
             defenses.push(await Defense.findById(defenseId))
           }))
+          role = {...data.toJSON(), defenses}
 
-          logger.info(defenses)
+          logger.info(role)
           break
         }
       case 'admin':
         {
-          role = (await Admin.findOne({adminId: user._id}, '-type')).toJSON()
+          const data = await Admin.findOne({teacherId: user._id}, '-type -adminId')
+          let defenses = []
+          await Promise.all(data.defenseIds.map(async (defenseId) => {
+            defenses.push(await Defense.findById(defenseId))
+          }))
+          role = {...data.toJSON(), defenses}
+
           logger.info(role)
           break
         }
       default: {
-        throw (new Error(404))
+        throw (new Error('illegal request, may be attacked!'))
       }
     }
     if (next) {

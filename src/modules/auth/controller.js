@@ -70,29 +70,37 @@ export async function authUser (ctx, next) {
       switch (user.role) {
         case 'student':
           {
-            const data = await Student.findOne({studentId: user._id}, '-type')
+            const data = await Student.findOne({studentId: user._id}, '-type -studentId')
             const {grade, major, clazz} = data
-            const teacher = await User.findById(data.teacherId)
+            const teacher = await User.findById(data.teacherId, '-type -password -account')
             const paper = await Paper.findById(data.paperId, '-type -studentId -teacherId')
             const defense = await Defense.findById(data.defenseId, '-type -studentId -paperId')
             role = {grade, major, clazz, teacher, paper, defense}
+
             logger.info(role)
             break
           }
         case 'teacher':
           {
-            const data = await Teacher.findOne({teacherId: user._id}, '-type')
+            const data = await Teacher.findOne({teacherId: user._id}, '-type -teacherId')
             let defenses = []
             await Promise.all(data.defenseIds.map(async (defenseId) => {
               defenses.push(await Defense.findById(defenseId))
             }))
             role = {...data.toJSON(), defenses}
-            logger.warn(role)
+
+            logger.info(role)
             break
           }
         case 'admin':
           {
-            role = (await Admin.findOne({adminId: user._id}, '-type')).toJSON()
+            const data = await Admin.findOne({teacherId: user._id}, '-type -adminId')
+            let defenses = []
+            await Promise.all(data.defenseIds.map(async (defenseId) => {
+              defenses.push(await Defense.findById(defenseId))
+            }))
+            role = {...data.toJSON(), defenses}
+
             logger.info(role)
             break
           }

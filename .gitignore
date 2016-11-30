@@ -64,3 +64,4 @@ dbdata
 upload_files
 
 !.gitkeep
+*.xlsx
