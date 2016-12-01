@@ -384,27 +384,44 @@ export async function getMyDefense(ctx) {
  */
 
 export async function getDefenseDetail(ctx) {
-  const defense = await Defense.findById(ctx.params.id, '-adminIds')
+  const defense = await Defense.findById(ctx.params.id, '-adminIds -paperIds')
+  if (!defense) {
+    throw new Error(404)
+  }
   let teachers = []
   let students = []
   let papers = []
-  await Promise.all([
-    await Promise.all(defense.teacherIds.map(async(teacherId) => {
-      const teacher = await User.findById(teacherId, '-type -password -account -role')
-      if (teacher) { teachers.push(teacher.toJSON()) }
-    })),
-    await Promise.all(defense.studentIds.map(async(studentId) => {
-      students.push((await User.findById(studentId, '-type -password -account -role')).toJSON())
-    })),
-    await Promise.all(defense.paperIds.map(async(paperId) => {
-      papers.push((await Paper.findById(paperId, '-type')).toJSON())
-    })),
-  ])
+  try {
+    await Promise.all([
+      await Promise.all((defense.teacherIds || []).map(async (teacherId) => {
+        const teacher = await User.findById(teacherId, '-type -password -account -role')
+        if (teacher) { teachers.push(teacher.toJSON()) }
+      })),
+      await Promise.all((defense.studentIds || []).map(async (studentId) => {
+        const student = await User.findById(studentId, '-type -password -account -role')
+        let paper
+        let teacher
+        await Promise.all([
+          async () => {
+            paper = await Paper.findById(student.paperId)
+          }, async () => {
+            teacher = await Teacher.findById(student.teacherId)
+          },
+        ])
+        const response = student.toJSON()
+
+        delete response.teacherId
+        delete response.paperId
+        if (student) { students.push({...response, paper, teacher}) }
+      })),
+    ])
+  } catch (err) {
+    ctx.throw(500)
+  }
   const response = defense.toJSON()
   delete response.teacherIds
   delete response.studentIds
-  delete response.paperIds
   ctx.body = {
-    defense: {...response, teachers, students, papers},
+    defense: { ...response, teachers, students, papers },
   }
 }
