@@ -14,6 +14,7 @@ const User = new mongoose.Schema({
   university: {type: String, required: true, default: 'scau'},
   school: { type: String, required: true, default: '软件学院' },
   email: { type: String, unique: true },
+  avatar: { type: String, default: 'http://pic.qqtn.com/up/2016-1/2016010715221310532.jpg' },
 })
 
 User.pre('save', function preSave(next) {

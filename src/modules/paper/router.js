@@ -43,8 +43,37 @@ export default [
     route: '/:id',
     handlers: [
       ensureUser,
+      // ensureAdmin,
       paper.getPaper,
       paper.updatePaper,
+    ],
+  },
+  {
+    method: 'PUT',
+    route: '/basic/:id',
+    handlers: [
+      ensureUser,
+      // ensureAdmin,
+      paper.getPaper,
+      paper.updatePaperBasic,
+    ],
+  },
+  {
+    method: 'PUT',
+    route: '/score/:id',
+    handlers: [
+      ensureUser,
+      paper.getPaper,
+      paper.updatePaperScore,
+    ],
+  },
+  {
+    method: 'PUT',
+    route: '/comment/:id',
+    handlers: [
+      ensureUser,
+      paper.getPaper,
+      paper.updatePaperComment,
     ],
   },
   {

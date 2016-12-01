@@ -59,7 +59,12 @@ export async function createPaper(ctx) {
   if (ctx.state.user.role !== 'student') {
     ctx.throw(401)
   }
-  let paper = {...ctx.request.fields.paper, studentId: ctx.state.user._id, teacherId: ctx.state.role.teacherId, fileSize: 0, filePath: ''}
+  let paper = {...ctx.request.fields.paper,
+    studentId: ctx.state.user._id,
+    teacherId: ctx.state.role.teacherId,
+    fileSize: 0,
+    filePath: '',
+  }
   try {
     paper = new Paper(paper)
     await paper.save()
@@ -72,8 +77,27 @@ export async function createPaper(ctx) {
   }
   logger.info(paper)
   try {
-    await Student.findOneAndUpdate({studentId: ctx.state.user._id}, {$set: {paperId: paper._id}}, {safe: true, upsert: true})
-    await Teacher.findOneAndUpdate({teacherId: ctx.state.role.teacherId}, {$addToSet: {paperIds: paper._id, studentIds: ctx.state.user._id}}, {safe: true, upsert: true})
+    await Student.findOneAndUpdate({
+      studentId: ctx.state.user._id,
+    }, {
+      $set: {
+        paperId: paper._id,
+      },
+    }, {
+      safe: true,
+      upsert: true,
+    })
+    await Teacher.findOneAndUpdate({
+      teacherId: ctx.state.role.teacherId,
+    }, {
+      $addToSet: {
+        paperIds: paper._id,
+        studentIds: ctx.state.user._id,
+      },
+    }, {
+      safe: true,
+      upsert: true,
+    })
   } catch (err) {
     logger.error(err.message)
     ctx.throw(401, err.message)
@@ -341,7 +365,9 @@ export async function updatePaper(ctx) {
 export async function getMyPaper(ctx) {
   const id = ctx.state.user._id
   try {
-    let paper = await Paper.find({ studentId: id })
+    let paper = await Paper.find({
+      studentId: id,
+    })
     if (!paper) {
       ctx.throw(404)
     }
@@ -423,13 +449,11 @@ export async function uploadFile(ctx) {
  * @apiGroup Papers
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X PUT -d '{ "score": {"teacherId": "56bd1da600a526986cf65c80", "isLeader": true, "sum": 100, "items": [50, 20, 30]} }' localhost:5000/papers/score/56bd1da600a526986cf65c80
+ * curl -H "Content-Type: application/json" -X PUT -d '{ "score": {"sum": 100, "items": [50, 20, 30]} }' localhost:5000/papers/score/56bd1da600a526986cf65c80
  *
  * @apiParam {Object}   score            A teacher's score (required)
  * @apiParam {Number[]} score.items      Each item of score (required)
- * @apiParam {String}   score.teacherId  Teacher's id (required)
  * @apiParam {Number}   score.sum        Sum of items
- * @apiParam {Boolean}  score.isLeader   Sum of items
  *
  * @apiSuccess {StatusCode} 200
  *
@@ -453,7 +477,15 @@ export async function uploadFile(ctx) {
 export async function updatePaperScore(ctx) {
   const paper = ctx.body.paper
 
-  await paper.update({$push: {scores: ctx.request.fields.score}})
+  await paper.update({
+    'scores.teacherId': ctx.state.user._id,
+  }, {
+    $set: {
+      'scores.$.isLeader': ctx.state.user.role === 'teacher' && ctx.state.isLeader,
+      'scores.$.items': ctx.request.fields.score.items,
+      'scores.$.sum': ctx.request.fields.score.items.reduce((pre, cur) => pre + cur),
+    },
+  })
 
   ctx.body = {
     updatePaperScore: true,
@@ -496,7 +528,11 @@ export async function updatePaperScore(ctx) {
 export async function updatePaperComment(ctx) {
   const paper = ctx.body.paper
 
-  await paper.update({$push: {comments: ctx.request.fields.comment}})
+  await paper.update({
+    $push: {
+      comments: ctx.request.fields.comment,
+    },
+  })
 
   ctx.body = {
     updatePaperComment: true,
