@@ -159,7 +159,7 @@ export async function getUser(ctx, next) {
         {
           const data = await Student.findOne({studentId: user._id}, '-type -studentId')
           const {grade, major, clazz} = data
-          const teacher = await User.findById(data.teacherId, '-type -password -account')
+          const teacher = await User.findById(data.teacherId, '-type -password -account -role')
           const paper = await Paper.findById(data.paperId, '-type -studentId -teacherId')
           const defense = await Defense.findById(data.defenseId, '-type -studentId -paperId')
           role = {grade, major, clazz, teacher, paper, defense}

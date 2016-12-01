@@ -143,7 +143,7 @@ export async function getPapers(ctx) {
 
 /**
  * @api {get} /papers/:id Get paper by id
- * @apiPermission Admin
+ * @apiPermission SuperAdmin
  * @apiVersion 0.3.0
  * @apiName GetPaper
  * @apiGroup Papers
@@ -222,7 +222,7 @@ export async function getPaper(ctx, next) {
 
 /**
  * @api {put} /papers/:id Update a paper
- * @apiPermission Student
+ * @apiPermission Admin
  * @apiVersion 0.3.0
  * @apiName UpdatePaper
  * @apiGroup Papers
@@ -412,5 +412,140 @@ export async function uploadFile(ctx) {
   } catch (err) {
     logger.error(err.message)
     ctx.throw(422, err.message)
+  }
+}
+
+/**
+ * @api {put} /papers/score/:id Update a paper's score
+ * @apiPermission Teacher(judge)
+ * @apiVersion 0.3.0
+ * @apiName UpdatePaperScore
+ * @apiGroup Papers
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -X PUT -d '{ "score": {"teacherId": "56bd1da600a526986cf65c80", "isLeader": true, "sum": 100, "items": [50, 20, 30]} }' localhost:5000/papers/score/56bd1da600a526986cf65c80
+ *
+ * @apiParam {Object}   score            A teacher's score (required)
+ * @apiParam {Number[]} score.items      Each item of score (required)
+ * @apiParam {String}   score.teacherId  Teacher's id (required)
+ * @apiParam {Number}   score.sum        Sum of items
+ * @apiParam {Boolean}  score.isLeader   Sum of items
+ *
+ * @apiSuccess {StatusCode} 200
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "updatePaperScore": true
+ *     }
+ *
+ * @apiError Unauthorized Incorrect credentials
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "status": 422,
+ *       "error": "Unprocessable Entity"
+ *     }
+ *
+ * @apiUse TokenError
+ */
+export async function updatePaperScore(ctx) {
+  const paper = ctx.body.paper
+
+  await paper.update({$push: {scores: ctx.request.fields.score}})
+
+  ctx.body = {
+    updatePaperScore: true,
+  }
+}
+
+/**
+ * @api {put} /papers/comment/:id Update a paper's comment
+ * @apiPermission Teacher(tutor)
+ * @apiVersion 0.3.0
+ * @apiName UpdatePaperComment
+ * @apiGroup Papers
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -X PUT -d '{ "comment": {"content": "phy biu", "time": 1479891536874} }' localhost:5000/papers/comment/56bd1da600a526986cf65c80
+ *
+ * @apiParam {Object}   comment            Student tutor's comment (required)
+ * @apiParam {String}   comment.content    Comment content (required)
+ * @apiParam {Date}     comment.time       Comment time
+ *
+ * @apiSuccess {StatusCode} 200
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "updatePaperComment": true
+ *     }
+ *
+ * @apiError Unauthorized Incorrect credentials
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "status": 422,
+ *       "error": "Unprocessable Entity"
+ *     }
+ *
+ * @apiUse TokenError
+ */
+export async function updatePaperComment(ctx) {
+  const paper = ctx.body.paper
+
+  await paper.update({$push: {comments: ctx.request.fields.comment}})
+
+  ctx.body = {
+    updatePaperComment: true,
+  }
+}
+
+/**
+ * @api {put} /papers/basic/:id Update a paper's basic info
+ * @apiPermission Admin
+ * @apiVersion 0.3.0
+ * @apiName UpdatePaperBasic
+ * @apiGroup Papers
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -X PUT -d '{ "paper": { "name": "How to become a millionaire", "studentId": "56bd1da600a526986cf65c80", "teacherId": "56bd1da600a526986cf65c80", "desp": "fuckfuckfuck" } }' localhost:5000/papers/basic/56bd1da600a526986cf65c80
+ *
+ * @apiParam {Object}   paper                   Paper object
+ * @apiParam {String}   paper.name              Paper name
+ * @apiParam {String}   paper.studentId         Id of student
+ * @apiParam {String}   paper.teacherId         Id of student's teacher
+ * @apiParam {String}   paper.desp              Paper description
+ *
+ * @apiSuccess {StatusCode} 200
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "updatePaperBasic": true
+ *     }
+ *
+ * @apiError Unauthorized Incorrect credentials
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "status": 422,
+ *       "error": "Unprocessable Entity"
+ *     }
+ *
+ * @apiUse TokenError
+ */
+export async function updatePaperBasic(ctx) {
+  const paper = ctx.body.paper
+
+  Object.assign(paper, ctx.request.fields.paper)
+
+  await paper.save()
+
+  ctx.body = {
+    update: true,
   }
 }

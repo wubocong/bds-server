@@ -1,4 +1,5 @@
 import Defense from '../../models/defenses'
+import Paper from '../../models/papers'
 import User from '../../models/users'
 import Student from '../../models/students'
 import Teacher from '../../models/teachers'
@@ -342,7 +343,7 @@ export async function getMyDefense(ctx) {
 }
 
 /**
- * @api {get} /defenses/detail/:id Get a defense's related info
+ * @api {get} /defenses/detail/:id Get a defense's detailed info
  * @apiPermission Admin
  * @apiVersion 0.3.0
  * @apiName GetDefenseDetail
@@ -357,8 +358,8 @@ export async function getMyDefense(ctx) {
  * @apiSuccess {String}       defense.address      Defense address
  * @apiSuccess {Date}         defense.time         Defense time
  * @apiSuccess {Number}       defense.status       Defense status(0-2)
- * @apiSuccess {Object}       defense.students     Defense students
- * @apiSuccess {Object}       defense.teachers     Defense teachers
+ * @apiSuccess {Object[]}     defense.students     Defense students
+ * @apiSuccess {Object[]}     defense.teachers     Defense teachers
  * @apiSuccess {ObjectId}     defense.leaderId     Id of teachers' leader
  *
  * @apiSuccessExample {json} Success-Response:
@@ -386,18 +387,24 @@ export async function getDefenseDetail(ctx) {
   const defense = await Defense.findById(ctx.params.id, '-paperIds -adminIds')
   let teachers = []
   let students = []
+  let papers = []
   await Promise.all([
     await Promise.all(defense.teacherIds.map(async(teacherId) => {
-      teachers.push((await User.findById(teacherId, '-type -password -account -role')).toJSON())
+      const teacher = await User.findById(teacherId, '-type -password -account -role')
+      if (teacher) { teachers.push(teacher.toJSON()) }
     })),
     await Promise.all(defense.studentIds.map(async(studentId) => {
       students.push((await User.findById(studentId, '-type -password -account -role')).toJSON())
+    })),
+    await Promise.all(defense.paperIds.map(async(paperId) => {
+      papers.push((await Paper.findById(paperId, '-type')).toJSON())
     })),
   ])
   const response = defense.toJSON()
   delete response.teacherIds
   delete response.studentIds
+  delete response.paperIds
   ctx.body = {
-    defense: {...response, teachers, students},
+    defense: {...response, teachers, students, papers},
   }
 }
