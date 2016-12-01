@@ -384,7 +384,7 @@ export async function getMyDefense(ctx) {
  */
 
 export async function getDefenseDetail(ctx) {
-  const defense = await Defense.findById(ctx.params.id, '-paperIds -adminIds')
+  const defense = await Defense.findById(ctx.params.id, '-adminIds')
   let teachers = []
   let students = []
   let papers = []
