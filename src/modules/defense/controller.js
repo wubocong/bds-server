@@ -1,4 +1,5 @@
 import Defense from '../../models/defenses'
+import User from '../../models/users'
 import Student from '../../models/students'
 import Teacher from '../../models/teachers'
 import Admin from '../../models/admins'
@@ -105,7 +106,6 @@ async function getDefense(id) {
  *           "name": "华南农业大学",
  *           "address": "7 day inn",
  *           "time": "1970-01-01T00:00:01.122Z",
- *           "__v": 0,
  *           "paperIds": [
  *             "583e9d201d17a94b1c81932f"
  *           ],
@@ -309,7 +309,6 @@ export async function deleteDefenses(ctx) {
  *         "name": "华南农业大学",
  *         "address": "7 day inn",
  *         "time": "1970-01-01T00:00:01.122Z",
- *         "__v": 0,
  *         "paperIds": [
  *           "583e9d201d17a94b1c81932f"
  *         ],
@@ -358,10 +357,8 @@ export async function getMyDefense(ctx) {
  * @apiSuccess {String}       defense.address      Defense address
  * @apiSuccess {Date}         defense.time         Defense time
  * @apiSuccess {Number}       defense.status       Defense status(0-2)
- * @apiSuccess {ObjectId[]}   defense.studentIds   Defense students' ids
- * @apiSuccess {ObjectId[]}   defense.teacherIds   Defense teachers' ids
- * @apiSuccess {ObjectId[]}   defense.adminIds     Defense admins' ids
- * @apiSuccess {ObjectId[]}   defense.paperIds     Defense papers' ids
+ * @apiSuccess {Object}       defense.students     Defense students
+ * @apiSuccess {Object}       defense.teachers     Defense teachers
  * @apiSuccess {ObjectId}     defense.leaderId     Id of teachers' leader
  *
  * @apiSuccessExample {json} Success-Response:
@@ -372,19 +369,12 @@ export async function getMyDefense(ctx) {
  *         "name": "华南农业大学",
  *         "address": "7 day inn",
  *         "time": "1970-01-01T00:00:01.122Z",
- *         "__v": 0,
- *         "paperIds": [
- *           "583e9d201d17a94b1c81932f"
- *         ],
- *         "adminIds": [
- *           "583e8fb7de1723468cd09cb4"
- *         ],
- *         "teacherIds": [
- *           "583ea43ca180765d1b9aa4ca"
- *         ],
- *         "studentIds": [
- *           "583ea29584fbf44f47eb8129"
- *         ],
+ *         "teachers": [{
+ *           "_id": "583ea43ca180765d1b9aa4ca"
+ *         }],
+ *         "students": [{
+ *           "_id": "583ea29584fbf44f47eb8129"
+ *         }],
  *         "status": 1
  *       }
  *     }
@@ -394,7 +384,18 @@ export async function getMyDefense(ctx) {
 
 export async function getDefenseDetail(ctx) {
   const defense = await Defense.findById(ctx.params.id)
+  let teachers = []
+  let students = []
+  Promise.all(defense.teacherIds.map(async(teacherId) => {
+    teachers.push((await User.findById(teacherId, '-type -password -account -role')).toJSON())
+  }))
+  Promise.all(defense.studentIds.map(async(studentId) => {
+    students.push((await User.findById(studentId, '-type -password -account -role')).toJSON())
+  }))
+
+  delete defense.teacherIds
+  delete defense.studentIds
   ctx.body = {
-    defense,
+    defense: {...defense.toJSON(), teachers, students},
   }
 }
