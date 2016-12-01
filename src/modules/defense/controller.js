@@ -20,7 +20,7 @@ const logger = require('koa-log4').getLogger('index')
  * @apiParam {String}       defenses.name         Defense name (required)
  * @apiParam {String}       defenses.address      Defense address (required)
  * @apiParam {Date}         defenses.time         Defense time (required)
- * @apiParam {Number}       defenses.status       Defense status(0-2) (required)
+ * @apiParam {Number}       defenses.status       Defense status(0-3) (required)
  * @apiParam {ObjectId[]}   defenses.studentIds   Defense students' ids
  * @apiParam {ObjectId[]}   defenses.teacherIds   Defense teachers' ids
  * @apiParam {ObjectId[]}   defenses.adminIds     Defense admins' ids
@@ -91,7 +91,7 @@ async function getDefense(id) {
  * @apiSuccess {String}       defenses.name         Defense name
  * @apiSuccess {String}       defenses.address      Defense address
  * @apiSuccess {Date}         defenses.time         Defense time
- * @apiSuccess {Number}       defenses.status       Defense status(0-2)
+ * @apiSuccess {Number}       defenses.status       Defense status(0-3)
  * @apiSuccess {ObjectId[]}   defenses.studentIds   Defense students' ids
  * @apiSuccess {ObjectId[]}   defenses.teacherIds   Defense teachers' ids
  * @apiSuccess {ObjectId[]}   defenses.adminIds     Defense admins' ids
@@ -151,7 +151,7 @@ export async function getDefenses(ctx, next) {
  * @apiParam {String}       defense.name         Defense name
  * @apiParam {String}       defense.address      Defense address
  * @apiParam {Date}         defense.time         Defense time
- * @apiParam {Number}       defense.status       Defense status(0-2)
+ * @apiParam {Number}       defense.status       Defense status(0-3)
  * @apiParam {ObjectId[]}   defense.studentIds   Defense students' ids
  * @apiParam {ObjectId[]}   defense.teacherIds   Defense teachers' ids
  * @apiParam {ObjectId[]}   defense.adminIds     Defense admins' ids
@@ -204,7 +204,7 @@ export async function updateDefense(ctx) {
  * @apiParam {String}       defenses.name         Defense name
  * @apiParam {String}       defenses.address      Defense address
  * @apiParam {Date}         defenses.time         Defense time
- * @apiParam {Number}       defenses.status       Defense status(0-2)
+ * @apiParam {Number}       defenses.status       Defense status(0-3)
  * @apiParam {ObjectId[]}   defenses.studentIds   Defense students' ids
  * @apiParam {ObjectId[]}   defenses.teacherIds   Defense teachers' ids
  * @apiParam {ObjectId[]}   defenses.adminIds     Defense admins' ids
@@ -295,7 +295,7 @@ export async function deleteDefenses(ctx) {
  * @apiSuccess {String}       defense.name         Defense name
  * @apiSuccess {String}       defense.address      Defense address
  * @apiSuccess {Date}         defense.time         Defense time
- * @apiSuccess {Number}       defense.status       Defense status(0-2)
+ * @apiSuccess {Number}       defense.status       Defense status(0-3)
  * @apiSuccess {ObjectId[]}   defense.studentIds   Defense students' ids
  * @apiSuccess {ObjectId[]}   defense.teacherIds   Defense teachers' ids
  * @apiSuccess {ObjectId[]}   defense.adminIds     Defense admins' ids
@@ -357,7 +357,7 @@ export async function getMyDefense(ctx) {
  * @apiSuccess {String}       defense.name         Defense name
  * @apiSuccess {String}       defense.address      Defense address
  * @apiSuccess {Date}         defense.time         Defense time
- * @apiSuccess {Number}       defense.status       Defense status(0-2)
+ * @apiSuccess {Number}       defense.status       Defense status(0-3)
  * @apiSuccess {Object[]}     defense.students     Defense students
  * @apiSuccess {Object[]}     defense.teachers     Defense teachers
  * @apiSuccess {ObjectId}     defense.leaderId     Id of teachers' leader
@@ -397,7 +397,7 @@ export async function getDefenseDetail(ctx) {
         if (teacher) { teachers.push(teacher.toJSON()) }
       })),
       await Promise.all((defense.studentIds || []).map(async (studentId) => {
-        await Promise.all([User.findById(studentId, '-type -password -account -role'), Student.findOne({studentId}, '-type')])
+        await Promise.all([User.findById(studentId, '-type -password -role'), Student.findOne({studentId}, '-type')])
         .then(async([user, student]) => {
           let paper
           let teacher
