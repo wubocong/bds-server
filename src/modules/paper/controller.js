@@ -449,11 +449,10 @@ export async function uploadFile(ctx) {
  * @apiGroup Papers
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X PUT -d '{ "score": {"sum": 100, "items": [50, 20, 30]} }' localhost:5000/papers/score/56bd1da600a526986cf65c80
+ * curl -H "Content-Type: application/json" -X PUT -d '{ "score": {"items": [50, 20, 30]} }' localhost:5000/papers/score/56bd1da600a526986cf65c80
  *
  * @apiParam {Object}   score            A teacher's score (required)
  * @apiParam {Number[]} score.items      Each item of score (required)
- * @apiParam {Number}   score.sum        Sum of items
  *
  * @apiSuccess {StatusCode} 200
  *
@@ -476,21 +475,29 @@ export async function uploadFile(ctx) {
  */
 export async function updatePaperScore(ctx) {
   try {
-    const paper = await Paper.findById(ctx.params.id)
-    if (!paper) {
-      throw new Error('Unprocessable Entity')
-    }
     delete ctx.request.fields.score.teacherId
-    paper.scores.update(
-      { teacherId: ctx.state.user._id },
-      {
-        $set: {
-          ...ctx.request.fields.score,
-          isLeader: ctx.state.user.role === 'teacher' && ctx.state.user.isLeader,
-          sum: ctx.request.fields.score.items.reduce((pre, cur) => pre + cur),
-        },
+
+    const paper = await Paper.findById(ctx.params.id)
+    const scores = paper.toJSON().scores
+    const newScore = {
+      teacherId: ctx.state.user._id,
+      items: ctx.request.fields.score.items,
+      isLeader: ctx.state.user.role === 'teacher' && ctx.state.user.isLeader,
+      sum: ctx.request.fields.score.items.reduce((pre, cur) => pre + cur),
+    }
+    logger.warn(scores)
+    let overflow = scores.length < 3 && true
+    scores.some((score, i) => {
+      if (score.teacherId === ctx.state.user._id) {
+        scores[i] = newScore
       }
-    )
+      return true
+    })
+    if (overflow) {
+      scores.push(newScore)
+    }
+    paper.scores = scores
+    await paper.save()
   } catch (err) {
     ctx.throw(422, err.message)
   }
