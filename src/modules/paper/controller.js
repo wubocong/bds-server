@@ -476,16 +476,17 @@ export async function uploadFile(ctx) {
  */
 export async function updatePaperScore(ctx) {
   const paper = ctx.body.paper
-
-  await paper.update({
-    'scores.teacherId': ctx.state.user._id,
-  }, {
-    $set: {
-      'scores.$.isLeader': ctx.state.user.role === 'teacher' && ctx.state.isLeader,
-      'scores.$.items': ctx.request.fields.score.items,
-      'scores.$.sum': ctx.request.fields.score.items.reduce((pre, cur) => pre + cur),
-    },
-  })
+  try {
+    await paper.update({
+      'scores.teacherId': ctx.state.user._id,
+    }, {
+      $set: {
+        'scores.$.isLeader': ctx.state.user.role === 'teacher' && ctx.state.isLeader,
+        'scores.$.items': ctx.request.fields.score.items,
+        'scores.$.sum': ctx.request.fields.score.items.reduce((pre, cur) => pre + cur),
+      },
+    })
+  } catch (err) {}
 
   ctx.body = {
     updatePaperScore: true,
