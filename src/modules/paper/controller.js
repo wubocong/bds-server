@@ -475,18 +475,21 @@ export async function uploadFile(ctx) {
  * @apiUse TokenError
  */
 export async function updatePaperScore(ctx) {
-  const paper = ctx.body.paper
   try {
-    await paper.update({
-      'scores.teacherId': ctx.state.user._id,
-    }, {
-      $set: {
-        'scores.$.isLeader': ctx.state.user.role === 'teacher' && ctx.state.isLeader,
-        'scores.$.items': ctx.request.fields.score.items,
-        'scores.$.sum': ctx.request.fields.score.items.reduce((pre, cur) => pre + cur),
-      },
+    await Paper.findById(ctx.params.id, (err, paper) => {
+      delete ctx.request.fields.score.teacherId
+      paper.scores.update({teacherId: ctx.state.user._id},
+        {
+          $set: {
+            ...ctx.request.fields.score,
+            isLeader: ctx.state.user.role === 'teacher' && ctx.state.user.isLeader,
+            sum: ctx.request.fields.score.items.reduce((pre, cur) => pre + cur),
+          },
+        })
     })
-  } catch (err) {}
+  } catch (err) {
+    ctx.throw(422, err.message)
+  }
 
   ctx.body = {
     updatePaperScore: true,
@@ -527,13 +530,17 @@ export async function updatePaperScore(ctx) {
  * @apiUse TokenError
  */
 export async function updatePaperComment(ctx) {
-  const paper = ctx.body.paper
-
-  await paper.update({
-    $push: {
-      comments: ctx.request.fields.comment,
-    },
-  })
+  try {
+    await Paper.findByIdAndUpdate(ctx.request.fields.id, {
+      $addToSet: {
+        comments: {
+          ...ctx.request.fields.comment,
+        },
+      },
+    })
+  } catch (err) {
+    ctx.throw(422, err.message)
+  }
 
   ctx.body = {
     updatePaperComment: true,
@@ -550,7 +557,7 @@ export async function updatePaperComment(ctx) {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X PUT -d '{ "paper": { "name": "How to become a millionaire", "studentId": "56bd1da600a526986cf65c80", "teacherId": "56bd1da600a526986cf65c80", "desp": "fuckfuckfuck" } }' localhost:5000/papers/basic/56bd1da600a526986cf65c80
  *
- * @apiParam {Object}   paper                   Paper object
+ * @apiParam {Object}   paper                   Paper object (required)
  * @apiParam {String}   paper.name              Paper name
  * @apiParam {String}   paper.studentId         Id of student
  * @apiParam {String}   paper.teacherId         Id of student's teacher
@@ -576,13 +583,15 @@ export async function updatePaperComment(ctx) {
  * @apiUse TokenError
  */
 export async function updatePaperBasic(ctx) {
-  const paper = ctx.body.paper
+  try {
+    const paper = await Paper.findById(ctx.request.fields.id)
+    Object.assign(paper, ctx.request.fields.paper)
+    await paper.save()
 
-  Object.assign(paper, ctx.request.fields.paper)
-
-  await paper.save()
-
-  ctx.body = {
-    update: true,
+    ctx.body = {
+      updatePaperBasic: true,
+    }
+  } catch (err) {
+    ctx.throw(422, err.message)
   }
 }

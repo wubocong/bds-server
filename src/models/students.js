@@ -7,6 +7,7 @@ const Student = new mongoose.Schema({
   grade: { type: Number, required: true, default: 2013 },
   major: { type: String, required: true, default: '软件工程' },
   clazz: { type: String, required: true, default: 'R5' },
+  defensed: { type: Boolean, required: true, default: false },
   teacherId: { type: ObjectId, ref: 'user' },
   paperId: { type: ObjectId, ref: 'paper' },
   defenseId: { type: ObjectId, ref: 'defense' },

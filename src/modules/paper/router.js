@@ -54,7 +54,6 @@ export default [
     handlers: [
       ensureUser,
       // ensureAdmin,
-      paper.getPaper,
       paper.updatePaperBasic,
     ],
   },
@@ -72,7 +71,6 @@ export default [
     route: '/comment/:id',
     handlers: [
       ensureUser,
-      paper.getPaper,
       paper.updatePaperComment,
     ],
   },
