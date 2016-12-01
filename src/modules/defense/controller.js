@@ -383,19 +383,21 @@ export async function getMyDefense(ctx) {
  */
 
 export async function getDefenseDetail(ctx) {
-  const defense = await Defense.findById(ctx.params.id)
+  const defense = await Defense.findById(ctx.params.id, '-paperIds -adminIds')
   let teachers = []
   let students = []
-  Promise.all(defense.teacherIds.map(async(teacherId) => {
-    teachers.push((await User.findById(teacherId, '-type -password -account -role')).toJSON())
-  }))
-  Promise.all(defense.studentIds.map(async(studentId) => {
-    students.push((await User.findById(studentId, '-type -password -account -role')).toJSON())
-  }))
-
-  delete defense.teacherIds
-  delete defense.studentIds
+  await Promise.all([
+    await Promise.all(defense.teacherIds.map(async(teacherId) => {
+      teachers.push((await User.findById(teacherId, '-type -password -account -role')).toJSON())
+    })),
+    await Promise.all(defense.studentIds.map(async(studentId) => {
+      students.push((await User.findById(studentId, '-type -password -account -role')).toJSON())
+    })),
+  ])
+  const response = defense.toJSON()
+  delete response.teacherIds
+  delete response.studentIds
   ctx.body = {
-    defense: {...defense.toJSON(), teachers, students},
+    defense: {...response, teachers, students},
   }
 }
