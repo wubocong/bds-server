@@ -390,7 +390,6 @@ export async function getDefenseDetail(ctx) {
   }
   let teachers = []
   let students = []
-  let papers = []
   try {
     await Promise.all([
       await Promise.all((defense.teacherIds || []).map(async (teacherId) => {
@@ -398,21 +397,22 @@ export async function getDefenseDetail(ctx) {
         if (teacher) { teachers.push(teacher.toJSON()) }
       })),
       await Promise.all((defense.studentIds || []).map(async (studentId) => {
-        const student = await User.findById(studentId, '-type -password -account -role')
-        let paper
-        let teacher
-        await Promise.all([
-          async () => {
-            paper = await Paper.findById(student.paperId)
-          }, async () => {
-            teacher = await Teacher.findById(student.teacherId)
-          },
-        ])
-        const response = student.toJSON()
+        await Promise.all([User.findById(studentId, '-type -password -account -role'), Student.findOne({studentId}, '-type')])
+        .then(async([user, student]) => {
+          let paper
+          let teacher
+          await Promise.all([
+            Paper.findById(student.paperId),
+            User.findById(student.teacherId, '-type -password -account -role'),
+          ]).then((values) => {
+            [paper, teacher] = values
+          })
 
-        delete response.teacherId
-        delete response.paperId
-        if (student) { students.push({...response, paper, teacher}) }
+          const response = student.toJSON()
+          delete response.teacherId
+          delete response.paperId
+          if (student) { students.push({...response, paper, teacher}) }
+        })
       })),
     ])
   } catch (err) {
@@ -422,6 +422,6 @@ export async function getDefenseDetail(ctx) {
   delete response.teacherIds
   delete response.studentIds
   ctx.body = {
-    defense: { ...response, teachers, students, papers },
+    defense: { ...response, teachers, students },
   }
 }
