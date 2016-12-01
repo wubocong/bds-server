@@ -476,17 +476,21 @@ export async function uploadFile(ctx) {
  */
 export async function updatePaperScore(ctx) {
   try {
-    await Paper.findById(ctx.params.id, (err, paper) => {
-      delete ctx.request.fields.score.teacherId
-      paper.scores.update({teacherId: ctx.state.user._id},
-        {
-          $set: {
-            ...ctx.request.fields.score,
-            isLeader: ctx.state.user.role === 'teacher' && ctx.state.user.isLeader,
-            sum: ctx.request.fields.score.items.reduce((pre, cur) => pre + cur),
-          },
-        })
-    })
+    const paper = await Paper.findById(ctx.params.id)
+    if (!paper) {
+      throw new Error('Unprocessable Entity')
+    }
+    delete ctx.request.fields.score.teacherId
+    paper.scores.update(
+      { teacherId: ctx.state.user._id },
+      {
+        $set: {
+          ...ctx.request.fields.score,
+          isLeader: ctx.state.user.role === 'teacher' && ctx.state.user.isLeader,
+          sum: ctx.request.fields.score.items.reduce((pre, cur) => pre + cur),
+        },
+      }
+    )
   } catch (err) {
     ctx.throw(422, err.message)
   }
