@@ -5,7 +5,7 @@ import Defense from '../../models/defenses'
 const logger = require('koa-log4').getLogger('index')
 
 /**
- * @api {post} /papers Create a new paper
+ * @api {post} /papers Create a paper
  * @apiPermission Student
  * @apiVersion 0.3.0
  * @apiName CreatePaper
@@ -37,7 +37,8 @@ const logger = require('koa-log4').getLogger('index')
  * @apiParam {String}   paper.finalRemark       Final remark after defense
  * @apiParam {Date}     paper.lastModified      Last modified time of paper doc
  *
- * @apiSuccess {ObjectId}    id      Paper id
+ * @apiSuccess {Object}     paper            Paper Object
+ * @apiSuccess {ObjectId}   paper._id        Paper id
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK

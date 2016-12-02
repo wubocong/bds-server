@@ -94,7 +94,7 @@ export async function authUser (ctx, next) {
           }
         case 'admin':
           {
-            const data = await Admin.findOne({teacherId: user._id}, '-type -adminId')
+            const data = await Admin.findOne({adminId: user._id}, '-type -adminId')
             let defenses = []
             await Promise.all(data.defenseIds.map(async (defenseId) => {
               defenses.push(await Defense.findById(defenseId))
