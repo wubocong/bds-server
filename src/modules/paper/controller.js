@@ -490,8 +490,9 @@ export async function updatePaperScore(ctx) {
     scores.some((score, i) => {
       if (score.teacherId === ctx.state.user._id) {
         scores[i] = newScore
+        overflow = false
+        return true
       }
-      return true
     })
     if (overflow) {
       scores.push(newScore)
@@ -518,6 +519,7 @@ export async function updatePaperScore(ctx) {
  * curl -H "Content-Type: application/json" -X PUT -d '{ "comment": {"content": "phy biu", "time": 1479891536874} }' localhost:5000/papers/comment/56bd1da600a526986cf65c80
  *
  * @apiParam {Object}   comment            Student tutor's comment (required)
+ * @apiParam {ObjectId} comment._id        Comment id (required)
  * @apiParam {String}   comment.content    Comment content (required)
  * @apiParam {Date}     comment.time       Comment time
  *
@@ -542,13 +544,27 @@ export async function updatePaperScore(ctx) {
  */
 export async function updatePaperComment(ctx) {
   try {
-    await Paper.findByIdAndUpdate(ctx.request.fields.id, {
-      $addToSet: {
-        comments: {
-          ...ctx.request.fields.comment,
-        },
-      },
+    const paper = await Paper.findById(ctx.params.id)
+    const comments = paper.toJSON().comments
+    let overflow = comments.length < 3 && true
+    const newComment = {
+      content: ctx.request.fields.comment.content,
+      time: new Date().getTime(),
+      id: comments.length,
+    }
+    comments.some((comment, id) => {
+      if (comment.id === ctx.request.fields.comment.id) {
+        newComment.id = id
+        comments[id] = newComment
+        overflow = false
+        return true
+      }
     })
+    if (overflow) {
+      comments.push(newComment)
+    }
+    paper.comments = comments
+    await paper.save()
   } catch (err) {
     ctx.throw(422, err.message)
   }
@@ -596,7 +612,19 @@ export async function updatePaperComment(ctx) {
 export async function updatePaperBasic(ctx) {
   try {
     const paper = await Paper.findById(ctx.request.fields.id)
-    Object.assign(paper, ctx.request.fields.paper)
+    const {
+      name,
+      studentId,
+      teacherId,
+      desp,
+    } = ctx.request.fields.paper
+    const newPaper = {
+      name: name || paper.name,
+      studentId: studentId || paper.studentId,
+      teacherId: teacherId || paper.teacherId,
+      desp: desp || paper.desp,
+    }
+    Object.assign(paper, newPaper)
     await paper.save()
 
     ctx.body = {

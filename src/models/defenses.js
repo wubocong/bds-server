@@ -6,6 +6,7 @@ const Defense = new mongoose.Schema({
   address: { type: String, required: true },
   time: { type: Date, required: true },
   status: { type: Number, required: true, default: 0 },
+  finished: { type: Number, required: true, default: 0 },
   studentIds: [{ type: ObjectId, unique: true, ref: 'user' }],
   teacherIds: [{ type: ObjectId, unique: true, ref: 'user' }],
   adminIds: [{ type: ObjectId, unique: true, ref: 'user' }],

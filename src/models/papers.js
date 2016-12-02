@@ -18,6 +18,7 @@ const FileInfo = new mongoose.Schema({
 const Comment = new mongoose.Schema({
   content: { type: String },
   time: { type: Date, default: Date.now },
+  id: {type: Number, required: true, default: 0},
 })
 const Paper = new mongoose.Schema({
   type: { type: String, default: 'Paper' },
