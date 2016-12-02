@@ -483,9 +483,11 @@ export async function getDefenseDetail(ctx) {
         const teacher = await User.findById(teacherId, '-type -password -account -role')
         if (teacher) {
           teachers.push(teacher.toJSON())
+          logger.warn('teacher' + teacherId)
         }
       })),
       await Promise.all((defense.studentIds || []).map(async(studentId) => {
+        logger.warn('student' + studentId)
         await Promise.all([User.findById(studentId, '-type -password -role'), Student.findOne({
           studentId,
         }, '-type')])
@@ -503,7 +505,8 @@ export async function getDefenseDetail(ctx) {
             delete response.teacherId
             delete response.paperId
             if (student) {
-              students.push({...response,
+              students.push({
+                ...response,
                 ...user.toJSON(),
                 paper,
                 teacher,
@@ -519,7 +522,8 @@ export async function getDefenseDetail(ctx) {
   delete response.teacherIds
   delete response.studentIds
   ctx.body = {
-    defense: {...response,
+    defense: {
+      ...response,
       teachers,
       students,
     },
