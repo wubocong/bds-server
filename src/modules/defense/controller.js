@@ -483,17 +483,17 @@ export async function getDefenseDetail(ctx) {
         const teacher = await User.findById(teacherId, '-type -password -account -role')
         if (teacher) {
           teachers.push(teacher.toJSON())
-          logger.warn('teacher' + teacherId)
         }
       })),
       await Promise.all((defense.studentIds || []).map(async(studentId) => {
-        logger.warn('student' + studentId)
         await Promise.all([User.findById(studentId, '-type -password -role'), Student.findOne({
           studentId,
         }, '-type')])
           .then(async([user, student]) => {
             let paper
             let teacher
+            logger.error(student)
+
             await Promise.all([
               Paper.findById(student.paperId),
               User.findById(student.teacherId, '-type -password -account -role'),
