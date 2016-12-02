@@ -516,7 +516,7 @@ export async function getDefenseDetail(ctx) {
       })),
     ])
   } catch (err) {
-    ctx.throw(500)
+    ctx.throw(500, err.message)
   }
   const response = defense.toJSON()
   delete response.teacherIds
