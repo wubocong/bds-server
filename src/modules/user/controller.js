@@ -14,24 +14,30 @@ const logger = require('koa-log4').getLogger('index')
  * @apiGroup Users
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X POST -d '{ "user": { "account": "20080202", "role": "admin" } }' localhost:5000/users
+ * curl -H "Content-Type: application/json" -X POST -d '{ "user": { "name": "phy", "account": "20080202",  "role": "admin" } }' localhost:5000/users
  *
- * @apiParam {Object} user          User object (required)
- * @apiParam {String} user.account   User account.
- * @apiParam {String} user.password Password.
+ * @apiParam {Object} user              User object (required)
+ * @apiParam {String} user.name         User name (required)
+ * @apiParam {String} user.account      User account (required)
+ * @apiParam {String} user.role         User role (required)
+ * @apiParam {String} user.password     Password
+ * @apiParam {String} user.gender       User gender
+ * @apiParam {String} user.university   User university
+ * @apiParam {String} user.school       User school
+ * @apiParam {String} user.email        User email
+ * @apiParam {String} user.phone        User phone
+ * @apiParam {String} user.avatar       User avatar
  *
  * @apiSuccess {Object}   user           User object
  * @apiSuccess {ObjectId} user._id       User id
- * @apiSuccess {String}   user.name      User name
- * @apiSuccess {String}   user.account   User account
  * @apiSuccess {String}   user.role      User role
- * @apiSuccess {Boolean}  user.gender    User gender
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
  *       "user": {
  *          "_id": "56bd1da600a526986cf65c80"
+ *          "role": "student"
  *       }
  *     }
  *
@@ -44,7 +50,9 @@ const logger = require('koa-log4').getLogger('index')
  *       "error": "Unprocessable Entity"
  *     }
  */
+
 export async function createUser(ctx) {
+  ctx.request.fields.user.password = ctx.request.fields.user.password || ctx.request.fields.user.account
   const user = new User(ctx.request.fields.user)
   let role
   try {
@@ -94,16 +102,33 @@ export async function createUser(ctx) {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X GET localhost:5000/users
  *
- * @apiSuccess {StatusCode} 200
+ * @apiSuccess {Object[]} users              User objects
+ * @apiSuccess {ObjectId} users._id          User id
+ * @apiSuccess {String}   users.name         User name
+ * @apiSuccess {String}   users.account      User account
+ * @apiSuccess {String}   users.role         User role
+ * @apiSuccess {String}   users.gender       User gender
+ * @apiSuccess {String}   users.university   User university
+ * @apiSuccess {String}   users.school       User school
+ * @apiSuccess {String}   users.email        User email
+ * @apiSuccess {String}   users.phone        User phone
+ * @apiSuccess {String}   users.avatar       User avatar
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "create": true
+ *       "users": [{
+ *          "_id": "56bd1da600a526986cf65c80"
+ *          "name": "John Doe"
+ *          "account": "20080202"
+ *          "role": "admin"
+ *          "gender": true
+ *       }]
  *     }
  *
  * @apiUse TokenError
  */
+
 export async function getUsers(ctx) {
   const users = await User.find({}, '-password')
   ctx.body = {
@@ -121,12 +146,17 @@ export async function getUsers(ctx) {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X GET localhost:5000/users/56bd1da600a526986cf65c80
  *
- * @apiSuccess {Object}   user           User object
- * @apiSuccess {ObjectId} user._id       User id
- * @apiSuccess {String}   user.name      User name
- * @apiSuccess {String}   user.account    User account
- * @apiSuccess {String}   user.role      User role
- * @apiSuccess {Boolean}  user.gender    User gender
+ * @apiSuccess {Object}   user              User object
+ * @apiSuccess {ObjectId} user._id          User id
+ * @apiSuccess {String}   user.name         User name
+ * @apiSuccess {String}   user.account      User account
+ * @apiSuccess {String}   user.role         User role
+ * @apiSuccess {String}   user.gender       User gender
+ * @apiSuccess {String}   user.university   User university
+ * @apiSuccess {String}   user.school       User school
+ * @apiSuccess {String}   user.email        User email
+ * @apiSuccess {String}   user.phone        User phone
+ * @apiSuccess {String}   user.avatar       User avatar
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -142,6 +172,7 @@ export async function getUsers(ctx) {
  *
  * @apiUse TokenError
  */
+
 export async function getUser(ctx, next) {
   const id = ctx.params.id
   try {
@@ -156,7 +187,6 @@ export async function getUser(ctx, next) {
           const paper = await Paper.findById(data.paperId, '-type -studentId -teacherId')
           const defense = await Defense.findById(data.defenseId, '-type -studentId -paperId')
           role = {grade, major, clazz, teacher, paper, defense}
-
           logger.info(role)
           break
         }
@@ -218,18 +248,16 @@ export async function getUser(ctx, next) {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X PUT -d '{ "user": { "name": "Cool new Name", "role": "teacher" } }' localhost:5000/users/56bd1da600a526986cf65c80
  *
- * @apiParam {Object}   user           User object (required)
- * @apiParam {String}   user.name      Name.
- * @apiParam {String}   user.account   User account.
- * @apiParam {String}   user.role      User role.
- * @apiParam {Boolean}  user.gender    User gender.
- *
- * @apiSuccess {Object}   user           User object
- * @apiSuccess {ObjectId} user._id       User id
- * @apiSuccess {String}   user.name      Updated name
- * @apiSuccess {String}   user.account    Updated account
- * @apiSuccess {String}   user.role      Updated role
- * @apiSuccess {Boolean}  user.gender    User gender
+ * @apiParam {Object} user              User object (required)
+ * @apiParam {String} user.name         User name
+ * @apiParam {String} user.account      User account
+ * @apiParam {String} user.role         User role
+ * @apiParam {String} user.gender       User gender
+ * @apiParam {String} user.university   User university
+ * @apiParam {String} user.school       User school
+ * @apiParam {String} user.email        User email
+ * @apiParam {String} user.phone        User phone
+ * @apiParam {String} user.avatar       User avatar
  *
  * @apiSuccess {StatusCode} 200
  *
@@ -250,6 +278,7 @@ export async function getUser(ctx, next) {
  *
  * @apiUse TokenError
  */
+
 export async function updateUser(ctx) {
   const user = ctx.body.user
 
@@ -291,7 +320,7 @@ export async function updateUser(ctx) {
 
 /**
  * @api {delete} /users/:id Delete a user
- * @apiPermission Admin
+ * @apiPermission SuperAdmin
  * @apiVersion 0.3.0
  * @apiName DeleteUser
  * @apiGroup Users
@@ -364,8 +393,6 @@ export async function deleteUser(ctx) {
  *       "update": true
  *     }
  *
- * @apiError Unauthorized Incorrect credentials
- *
  * @apiErrorExample {json} Error-Response:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
@@ -375,6 +402,7 @@ export async function deleteUser(ctx) {
  *
  * @apiUse TokenError
  */
+
 export async function modifyPassword(ctx) {
   try {
     const user = await User.findById(ctx.params.id)
@@ -406,12 +434,17 @@ export async function modifyPassword(ctx) {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X GET localhost:5000/users/me
  *
- * @apiSuccess {Object}   user           User object
- * @apiSuccess {ObjectId} user._id       User id
- * @apiSuccess {String}   user.name      User name
- * @apiSuccess {String}   user.account   User account
- * @apiSuccess {String}   user.role      User role
- * @apiSuccess {Boolean}  user.gender    User gender
+ * @apiSuccess {Object}   user              User object
+ * @apiSuccess {ObjectId} user._id          User id
+ * @apiSuccess {String}   user.name         User name
+ * @apiSuccess {String}   user.account      User account
+ * @apiSuccess {String}   user.role         User role
+ * @apiSuccess {String}   user.gender       User gender
+ * @apiSuccess {String}   user.university   User university
+ * @apiSuccess {String}   user.school       User school
+ * @apiSuccess {String}   user.email        User email
+ * @apiSuccess {String}   user.phone        User phone
+ * @apiSuccess {String}   user.avatar       User avatar
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -427,6 +460,7 @@ export async function modifyPassword(ctx) {
  *
  * @apiUse TokenError
  */
+
 export async function getMe(ctx) {
   if (!ctx.state.user) {
     ctx.throw(401)

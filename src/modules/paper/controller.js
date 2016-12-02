@@ -464,15 +464,6 @@ export async function uploadFile(ctx) {
  *       ["finish": true]
  *     }
  *
- * @apiError Unauthorized Incorrect credentials
- *
- * @apiErrorExample {json} Unauthorized-Error:
- *     HTTP/1.1 401 Unauthorized
- *     {
- *       "status": 401,
- *       "error": "Unauthorized"
- *     }
- *
  * @apiError UnprocessableEntity Missing required parameters
  *
  * @apiErrorExample {json} Error-Response:

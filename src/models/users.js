@@ -8,12 +8,12 @@ const User = new mongoose.Schema({
   name: { type: String, required: true },
   account: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  phone: { type: String, required: true, unique: true },
-  role: { type: String, required: true, default: 'student' },
+  role: { type: String, required: true },
   gender: { type: Boolean, required: true, default: true },
-  university: {type: String, required: true, default: 'scau'},
+  university: { type: String, required: true, default: 'scau' },
   school: { type: String, required: true, default: '软件学院' },
   email: { type: String, unique: true },
+  phone: { type: String, unique: true },
   avatar: { type: String },
 })
 
