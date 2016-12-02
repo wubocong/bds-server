@@ -32,10 +32,6 @@ const logger = require('koa-log4').getLogger('index')
  *     {
  *       "user": {
  *          "_id": "56bd1da600a526986cf65c80"
- *          "name": "John Doe"
- *          "account": "20080202"
- *          "role": "teacher"
- *          "gender": true
  *       }
  *     }
  *
@@ -50,44 +46,41 @@ const logger = require('koa-log4').getLogger('index')
  */
 export async function createUser(ctx) {
   const user = new User(ctx.request.fields.user)
+  let role
   try {
     await user.save()
-  } catch (err) {
-    logger.error(err.message)
-    ctx.throw(422, err.message)
-  }
-  delete ctx.request.fields.user.type
-  try {
+    delete ctx.request.fields.user.type
     switch (user.role) {
       case 'student':
         {
-          const student = new Student({...ctx.request.fields.user, studentId: user._id})
-          await student.save()
+          role = new Student({...ctx.request.fields.user, studentId: user._id})
+          await role.save()
           break
         }
       case 'teacher':
         {
-          const teacher = new Teacher({...ctx.request.fields.user, teacherId: user._id})
-          await teacher.save()
+          role = new Teacher({...ctx.request.fields.user, teacherId: user._id})
+          await role.save()
           break
         }
       case 'admin':
         {
-          const admin = new Admin({...ctx.request.fields.user, adminId: user._id})
-          await admin.save()
+          role = new Admin({...ctx.request.fields.user, adminId: user._id})
+          await role.save()
           break
         }
       default: {
         throw (new Error('illegal request, may be attacked!'))
       }
     }
+
+    ctx.body = {
+      user: { _id: user._id, role: user.role },
+    }
   } catch (err) {
     logger.error(err.message)
     ctx.throw(422, err.message)
-    await user.remove()
-  }
-  ctx.body = {
-    create: true,
+    await Promise.all([user.remove && user.remove(), role.remove && role.remove()])
   }
 }
 
