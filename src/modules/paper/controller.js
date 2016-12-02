@@ -1,6 +1,7 @@
 import Paper from '../../models/papers'
 import Student from '../../models/students'
 import Teacher from '../../models/teachers'
+import Defense from '../../models/defenses'
 const logger = require('koa-log4').getLogger('index')
 
 /**
@@ -460,9 +461,19 @@ export async function uploadFile(ctx) {
  *     HTTP/1.1 200 OK
  *     {
  *       "updatePaperScore": true
+ *       ["finish": true]
  *     }
  *
  * @apiError Unauthorized Incorrect credentials
+ *
+ * @apiErrorExample {json} Unauthorized-Error:
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ *       "status": 401,
+ *       "error": "Unauthorized"
+ *     }
+ *
+ * @apiError UnprocessableEntity Missing required parameters
  *
  * @apiErrorExample {json} Error-Response:
  *     HTTP/1.1 422 Unprocessable Entity
@@ -473,6 +484,7 @@ export async function uploadFile(ctx) {
  *
  * @apiUse TokenError
  */
+
 export async function updatePaperScore(ctx) {
   try {
     delete ctx.request.fields.score.teacherId
@@ -485,7 +497,6 @@ export async function updatePaperScore(ctx) {
       isLeader: ctx.state.user.role === 'teacher' && ctx.state.user.isLeader,
       sum: ctx.request.fields.score.items.reduce((pre, cur) => pre + cur),
     }
-    logger.warn(scores)
     let overflow = scores.length < 3 && true
     scores.some((score, i) => {
       if (score.teacherId === ctx.state.user._id) {
@@ -499,12 +510,20 @@ export async function updatePaperScore(ctx) {
     }
     paper.scores = scores
     await paper.save()
+    const defense = await Defense.findById(paper.defenseId)
+    if (++defense.finished === defense.paperIds.length && defense.status === 1) {
+      defense.status = 2
+    }
+    await defense.save()
+    ctx.body = {
+      updatePaperScore: true,
+    }
+    if (defense.status >= 2) {
+      ctx.body.finish = true
+    }
   } catch (err) {
+    logger.error(err.message)
     ctx.throw(422, err.message)
-  }
-
-  ctx.body = {
-    updatePaperScore: true,
   }
 }
 
@@ -519,7 +538,7 @@ export async function updatePaperScore(ctx) {
  * curl -H "Content-Type: application/json" -X PUT -d '{ "comment": {"content": "phy biu", "time": 1479891536874} }' localhost:5000/papers/comment/56bd1da600a526986cf65c80
  *
  * @apiParam {Object}   comment            Student tutor's comment (required)
- * @apiParam {ObjectId} comment._id        Comment id (required)
+ * @apiParam {ObjectId} comment.id         Comment id (required)
  * @apiParam {String}   comment.content    Comment content (required)
  * @apiParam {Date}     comment.time       Comment time
  *
@@ -533,6 +552,15 @@ export async function updatePaperScore(ctx) {
  *
  * @apiError Unauthorized Incorrect credentials
  *
+ * @apiErrorExample {json} Unauthorized-Error:
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ *       "status": 401,
+ *       "error": "Unauthorized"
+ *     }
+ *
+ * @apiError UnprocessableEntity Missing required parameters
+ *
  * @apiErrorExample {json} Error-Response:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
@@ -542,9 +570,13 @@ export async function updatePaperScore(ctx) {
  *
  * @apiUse TokenError
  */
+
 export async function updatePaperComment(ctx) {
   try {
     const paper = await Paper.findById(ctx.params.id)
+    if (paper.teacherId.toString() !== ctx.state.user._id) {
+      throw new Error(401)
+    }
     const comments = paper.toJSON().comments
     let overflow = comments.length < 3 && true
     const newComment = {
@@ -566,6 +598,9 @@ export async function updatePaperComment(ctx) {
     paper.comments = comments
     await paper.save()
   } catch (err) {
+    if (err.message === 401) {
+      ctx.throw(401, 'Unauthorized')
+    }
     ctx.throw(422, err.message)
   }
 
@@ -600,6 +635,15 @@ export async function updatePaperComment(ctx) {
  *
  * @apiError Unauthorized Incorrect credentials
  *
+ * @apiErrorExample {json} Unauthorized-Error:
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ *       "status": 401,
+ *       "error": "Unauthorized"
+ *     }
+ *
+ * @apiError UnprocessableEntity Missing required parameters
+ *
  * @apiErrorExample {json} Error-Response:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
@@ -609,6 +653,7 @@ export async function updatePaperComment(ctx) {
  *
  * @apiUse TokenError
  */
+
 export async function updatePaperBasic(ctx) {
   try {
     const paper = await Paper.findById(ctx.request.fields.id)
