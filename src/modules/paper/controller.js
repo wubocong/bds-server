@@ -70,6 +70,7 @@ export async function createPaper(ctx) {
     fileSize: 0,
     filePath: '',
   }
+  logger.error(paper)
   try {
     paper = new Paper(paper)
     await paper.save()
@@ -82,9 +83,8 @@ export async function createPaper(ctx) {
     logger.error(err.message)
     ctx.throw(422, err.message)
   }
-  logger.info(paper)
-  let student
-  let teacher
+  // let student
+  // let teacher
   try {
     await Promise.all([
       Student.findOneAndUpdate({
@@ -109,7 +109,7 @@ export async function createPaper(ctx) {
         upsert: true,
       }),
     ]).then((roles) => {
-      [student, teacher] = roles
+      // [student, teacher] = roles
     })
   } catch (err) {
     await Promise.all([paper.remove && paper.remove()])

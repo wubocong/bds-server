@@ -183,16 +183,13 @@ export async function getDefenses(ctx, next) {
  * @apiParam {String}       defense.address      Defense address
  * @apiParam {Date}         defense.time         Defense time
  * @apiParam {Number}       defense.status       Defense status(0-3)
- * @apiParam {ObjectId[]}   defense.studentIds   Defense students' ids
- * @apiParam {ObjectId[]}   defense.teacherIds   Defense teachers' ids
- * @apiParam {ObjectId[]}   defense.adminIds     Defense admins' ids
- * @apiParam {ObjectId[]}   defense.paperIds     Defense papers' ids
  * @apiParam {ObjectId}     defense.leaderId     Id of teachers' leader
+ * @apiParam {ObjectId}     defense.adminId      Defense admin's id
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "update": true
+ *       "updateDefense": true
  *     }
  *
  * @apiError UnprocessableEntity Missing required parameters
@@ -209,12 +206,68 @@ export async function getDefenses(ctx, next) {
 
 export async function updateDefense(ctx) {
   try {
-    const defense = ctx.request.fields.defense
-    await Object.assign((await getDefense(defense._id)), {
-      time: defense.time,
-    }).save()
+    const {name, time, address, status, leaderId, adminId} = ctx.request.fields.defense
+    const filter = {name, time, address, status, leaderId, adminId}
+    const defense = await getDefense(ctx.params.id)
+    Object.keys(filter).forEach((key) => {
+      if (filter[key]) {
+        defense[key] = filter[key]
+      }
+    })
+    defense.save()
     ctx.body = {
-      update: true,
+      updateDefense: true,
+    }
+  } catch (err) {
+    logger.error(err.message)
+    ctx.throw(422, err.message)
+  }
+}
+
+/**
+ * @api {put} /defenses/add/:id Add student to defense
+ * @apiPermission Admin
+ * @apiVersion 0.3.0
+ * @apiName AddStudentToDefense
+ * @apiGroup Defenses
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -X PUT -d '{ "studentIds": [ "56bd1da600a526986cf65c80", "56bd1da600a526986cf65c81" ] }' localhost:5000/defenses/56bd1da600a526986cf65c80
+ *
+ * @apiParam {ObjectId[]}   studentIds       Students' ids (required)
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "addStudentToDefense": true
+ *     }
+ *
+ * @apiError UnprocessableEntity Missing required parameters
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "status": 422,
+ *       "error": "Unprocessable Entity"
+ *     }
+ *
+ * @apiUse TokenError
+ */
+
+export async function addStudentToDefense(ctx) {
+  try {
+    const defense = await getDefense(ctx.params.id)
+    const {studentIds, paperIds} = defense.toJSON()
+    ctx.request.fields.studentIds.forEach(async (studentId, i) => {
+      if (!defense.studentIds.includes(studentId)) {
+        paperIds.push((await Student.findOne({studentId})).paperId)
+        studentIds.push(studentId)
+      }
+    })
+    Object.assign(defense, {studentIds, paperIds})
+    defense.save()
+    ctx.body = {
+      addStudentToDefense: true,
     }
   } catch (err) {
     logger.error(err.message)
@@ -286,7 +339,7 @@ export async function updateDefenses(ctx) {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X DELETE -d '{ "defenseIds": ["56bd1da600a526986cf65c80"] }' localhost:5000/defenses
  *
- * @apiParam {String[]} defenseIds  Defenses' id to be deleted.
+ * @apiParam {ObjectId[]}    defenseIds  Defenses' id to be deleted.
  *
  * @apiSuccess {StatusCode} 200
  *
@@ -363,10 +416,9 @@ export async function deleteDefenses(ctx) {
  */
 
 export async function getMyDefense(ctx) {
-  const id = ctx.params.id
   try {
     const defense = await Defense.find({
-      studentId: id,
+      studentId: ctx.state.user._id,
     })
     ctx.body = {
       defense,

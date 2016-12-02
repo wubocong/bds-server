@@ -6,7 +6,7 @@ export const baseUrl = '/defenses'
 export default [
   {
     method: 'GET',
-    route: '/:id',
+    route: '/me',
     handlers: [
       ensureUser,
       defense.getMyDefense,

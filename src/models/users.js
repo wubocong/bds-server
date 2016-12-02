@@ -14,6 +14,7 @@ const User = new mongoose.Schema({
   school: { type: String, required: true, default: '软件学院' },
   email: { type: String, unique: true },
   phone: { type: String, unique: true },
+  address: { type: String },
   avatar: { type: String },
 })
 
