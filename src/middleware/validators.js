@@ -58,7 +58,6 @@ export async function ensureUser (ctx, next) {
   }
   ctx.state.user = user
   ctx.state.role = role
-  logger.info(ctx.state)
   if (!ctx.state.user) {
     ctx.throw(401)
   }

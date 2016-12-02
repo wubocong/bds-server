@@ -494,6 +494,7 @@ export async function getDefenseDetail(ctx) {
             let teacher
             logger.error(user)
             logger.error(student)
+            logger.error(studentId)
 
             await Promise.all([
               Paper.findById(student.paperId),
