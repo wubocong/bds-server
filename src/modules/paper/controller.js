@@ -42,7 +42,9 @@ const logger = require('koa-log4').getLogger('index')
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "id": "56bd1da600a526986cf65c80"
+ *       "paper": {
+ *         "id": "56bd1da600a526986cf65c80"
+ *       }
  *     }
  *
  * @apiError UnprocessableEntity Missing required parameters
@@ -71,7 +73,9 @@ export async function createPaper(ctx) {
     paper = new Paper(paper)
     await paper.save()
     ctx.body = {
-      id: paper._id,
+      paper: {
+        _id: paper._id,
+      },
     }
   } catch (err) {
     logger.error(err.message)
@@ -108,7 +112,7 @@ export async function createPaper(ctx) {
     })
   } catch (err) {
     await Promise.all([paper.remove && paper.remove()])
-    // await Promise.all([paper.remove && paper.remove(), student.remove && student.remove(), teacher.remove && teacher.remove()])
+      // await Promise.all([paper.remove && paper.remove(), student.remove && student.remove(), teacher.remove && teacher.remove()])
     logger.error(err.message)
     ctx.throw(401, err.message)
   }
