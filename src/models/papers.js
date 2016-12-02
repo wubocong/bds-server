@@ -26,7 +26,7 @@ const Paper = new mongoose.Schema({
   studentId: { type: ObjectId, required: true, ref: 'user' },
   teacherId: { type: ObjectId, required: true, ref: 'user' },
   defenseId: { type: ObjectId, ref: 'defense' },
-  desp: { type: String, required: true, default: '我是猪' },
+  desp: { type: String, required: true, default: '你是猪' },
   file: FileInfo,
   scores: [Score],
   comments: [Comment],

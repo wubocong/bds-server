@@ -7,32 +7,35 @@ import Admin from '../../models/admins'
 const logger = require('koa-log4').getLogger('index')
 
 /**
- * @api {post} /defenses Create defenses
+ * @api {post} /defenses Create a defense
  * @apiPermission Admin
  * @apiVersion 0.3.0
- * @apiName CreateDefenses
+ * @apiName CreateDefense
  * @apiGroup Defenses
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X POST -d '{ "defenses": [{"name":"华南农业大学", "status": 2, "studentIds": ["{{studentId}}"], "teacherIds":["{{teacherId}}"], "adminIds":["{{adminId}}"], "paperIds": ["{{paperId}}"], "address": "7 day inn", "time": "1122"}]' localhost:5000/defenses
+ * curl -H "Content-Type: application/json" -X POST -d '{ "defense": {"name":"华南农业大学", "status": 2, "studentIds": ["{{studentId}}"], "teacherIds":["{{teacherId}}"], "adminIds":["{{adminId}}"], "paperIds": ["{{paperId}}"], "address": "7 day inn", "time": "1122" }' localhost:5000/defenses
  *
- * @apiParam {Object[]}     defenses              Defense objects (required)
- * @apiParam {String}       defenses.name         Defense name (required)
- * @apiParam {String}       defenses.address      Defense address (required)
- * @apiParam {Date}         defenses.time         Defense time (required)
- * @apiParam {Number}       defenses.status       Defense status(0-3) (required)
- * @apiParam {ObjectId[]}   defenses.studentIds   Defense students' ids
- * @apiParam {ObjectId[]}   defenses.teacherIds   Defense teachers' ids
- * @apiParam {ObjectId[]}   defenses.adminIds     Defense admins' ids
- * @apiParam {ObjectId[]}   defenses.paperIds     Defense papers' ids
- * @apiParam {ObjectId}     defenses.leaderId     Id of teachers' leader
+ * @apiParam {Object}       defense              Defense object (required)
+ * @apiParam {String}       defense.name         Defense name (required)
+ * @apiParam {String}       defense.address      Defense address (required)
+ * @apiParam {Date}         defense.time         Defense time (required)
+ * @apiParam {Number}       defense.status       Defense status(0-3) (required)
+ * @apiParam {ObjectId[]}   defense.studentIds   Defense students' ids
+ * @apiParam {ObjectId[]}   defense.teacherIds   Defense teachers' ids
+ * @apiParam {ObjectId[]}   defense.adminIds     Defense admins' ids
+ * @apiParam {ObjectId[]}   defense.paperIds     Defense papers' ids
+ * @apiParam {ObjectId}     defense.leaderId     Id of teachers' leader
  *
- * @apiSuccess {ObjectId[]}   defenseIds           Defenses' ids
+ * @apiSuccess {Object}     defense            Defense Object
+ * @apiSuccess {ObjectId}   defense._id        Defense id
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "defenseIds": ["56bd1da600a526986cf65c80"]
+ *       "defense": {
+ *         "_id": "56bd1da600a526986cf65c80"
+ *       }
  *     }
  *
  * @apiError UnprocessableEntity Missing required parameters
@@ -45,26 +48,54 @@ const logger = require('koa-log4').getLogger('index')
  *     }
  * @apiUse TokenError
  */
-export async function createDefenses(ctx) {
-  const defenseIds = []
+export async function createDefense(ctx) {
+  const defense = ctx.request.fields.defense
   try {
-    await Promise.all(ctx.request.fields.defenses.map(async (defense) => {
-      const newDefense = new Defense(defense)
-      await newDefense.save()
-      defenseIds.push(newDefense._id)
-      logger.info(newDefense)
-      await Promise.all(newDefense.adminIds.map(async (adminId) => {
-        await Admin.findOneAndUpdate({ adminId }, { $addToSet: { defenseIds: newDefense._id } })
-      }))
-      await Promise.all(newDefense.teacherIds.map(async (teacherId) => {
-        await Teacher.findOneAndUpdate({ teacherId }, { $addToSet: { defenseIds: newDefense._id } })
-      }))
-      await Promise.all(newDefense.studentIds.map(async (studentId) => {
-        await Student.findOneAndUpdate({ studentId }, { $set: { defenseId: newDefense._id } })
-      }))
-    }))
+    defense.adminId = defense.adminId || ctx.state.user._id
+    const newDefense = new Defense(defense)
+    await newDefense.save()
+    logger.info(newDefense)
+
+    await Promise.all([
+      Admin.findOneAndUpdate({
+        adminId: newDefense.adminId,
+      }, {
+        $addToSet: {
+          defenseIds: newDefense._id,
+        },
+      }),
+      Promise.all(newDefense.teacherIds.map(async(teacherId) => {
+        await Teacher.findOneAndUpdate({
+          teacherId,
+        }, {
+          $addToSet: {
+            defenseIds: newDefense._id,
+          },
+        })
+      })),
+      Promise.all(newDefense.studentIds.map(async(studentId) => {
+        await Student.findOneAndUpdate({
+          studentId,
+        }, {
+          $set: {
+            defenseId: newDefense._id,
+          },
+        })
+      })),
+      Promise.all(newDefense.paperIds.map(async(paperId) => {
+        await Paper.findOneAndUpdate({
+          paperId,
+        }, {
+          $set: {
+            defenseId: newDefense._id,
+          },
+        })
+      })),
+    ])
     ctx.body = {
-      defenseIds,
+      defense: {
+        _id: newDefense._id,
+      },
     }
   } catch (err) {
     logger.error(err.message)
@@ -141,7 +172,7 @@ export async function getDefenses(ctx, next) {
  * @api {put} /defenses/:id Update a defense
  * @apiPermission Admin
  * @apiVersion 0.3.0
- * @apiName UpdateDefenses
+ * @apiName UpdateDefense
  * @apiGroup Defenses
  *
  * @apiExample Example usage:
@@ -179,7 +210,9 @@ export async function getDefenses(ctx, next) {
 export async function updateDefense(ctx) {
   try {
     const defense = ctx.request.fields.defense
-    await Object.assign((await getDefense(defense._id)), { time: defense.time }).save()
+    await Object.assign((await getDefense(defense._id)), {
+      time: defense.time,
+    }).save()
     ctx.body = {
       update: true,
     }
@@ -231,7 +264,7 @@ export async function updateDefense(ctx) {
 
 export async function updateDefenses(ctx) {
   try {
-    await Promise.all(ctx.request.fields.defenses.map(async (defense) => {
+    await Promise.all(ctx.request.fields.defenses.map(async(defense) => {
       await Object.assign((await getDefense(defense._id)), defense).save()
     }))
     ctx.body = {
@@ -268,7 +301,7 @@ export async function updateDefenses(ctx) {
 
 export async function deleteDefenses(ctx) {
   try {
-    await Promise.all(ctx.request.fields.defenseIds.map(async (id) => {
+    await Promise.all(ctx.request.fields.defenseIds.map(async(id) => {
       await (await getDefense(id)).remove()
     }))
     ctx.body = {
@@ -332,7 +365,9 @@ export async function deleteDefenses(ctx) {
 export async function getMyDefense(ctx) {
   const id = ctx.params.id
   try {
-    const defense = await Defense.find({ studentId: id })
+    const defense = await Defense.find({
+      studentId: id,
+    })
     ctx.body = {
       defense,
     }
@@ -392,27 +427,37 @@ export async function getDefenseDetail(ctx) {
   let students = []
   try {
     await Promise.all([
-      await Promise.all((defense.teacherIds || []).map(async (teacherId) => {
+      await Promise.all((defense.teacherIds || []).map(async(teacherId) => {
         const teacher = await User.findById(teacherId, '-type -password -account -role')
-        if (teacher) { teachers.push(teacher.toJSON()) }
+        if (teacher) {
+          teachers.push(teacher.toJSON())
+        }
       })),
-      await Promise.all((defense.studentIds || []).map(async (studentId) => {
-        await Promise.all([User.findById(studentId, '-type -password -role'), Student.findOne({studentId}, '-type')])
-        .then(async([user, student]) => {
-          let paper
-          let teacher
-          await Promise.all([
-            Paper.findById(student.paperId),
-            User.findById(student.teacherId, '-type -password -account -role'),
-          ]).then((values) => {
-            [paper, teacher] = values
-          })
+      await Promise.all((defense.studentIds || []).map(async(studentId) => {
+        await Promise.all([User.findById(studentId, '-type -password -role'), Student.findOne({
+          studentId,
+        }, '-type')])
+          .then(async([user, student]) => {
+            let paper
+            let teacher
+            await Promise.all([
+              Paper.findById(student.paperId),
+              User.findById(student.teacherId, '-type -password -account -role'),
+            ]).then((values) => {
+              [paper, teacher] = values
+            })
 
-          const response = student.toJSON()
-          delete response.teacherId
-          delete response.paperId
-          if (student) { students.push({...response, ...user.toJSON(), paper, teacher}) }
-        })
+            const response = student.toJSON()
+            delete response.teacherId
+            delete response.paperId
+            if (student) {
+              students.push({...response,
+                ...user.toJSON(),
+                paper,
+                teacher,
+              })
+            }
+          })
       })),
     ])
   } catch (err) {
@@ -422,6 +467,9 @@ export async function getDefenseDetail(ctx) {
   delete response.teacherIds
   delete response.studentIds
   ctx.body = {
-    defense: { ...response, teachers, students },
+    defense: {...response,
+      teachers,
+      students,
+    },
   }
 }

@@ -60,9 +60,10 @@ export async function createPaper(ctx) {
   if (ctx.state.user.role !== 'student') {
     ctx.throw(401)
   }
-  let paper = {...ctx.request.fields.paper,
+  let paper = {
     studentId: ctx.state.user._id,
     teacherId: ctx.state.role.teacherId,
+    ...ctx.request.fields.paper,
     fileSize: 0,
     filePath: '',
   }
@@ -77,29 +78,37 @@ export async function createPaper(ctx) {
     ctx.throw(422, err.message)
   }
   logger.info(paper)
+  let student
+  let teacher
   try {
-    await Student.findOneAndUpdate({
-      studentId: ctx.state.user._id,
-    }, {
-      $set: {
-        paperId: paper._id,
-      },
-    }, {
-      safe: true,
-      upsert: true,
-    })
-    await Teacher.findOneAndUpdate({
-      teacherId: ctx.state.role.teacherId,
-    }, {
-      $addToSet: {
-        paperIds: paper._id,
-        studentIds: ctx.state.user._id,
-      },
-    }, {
-      safe: true,
-      upsert: true,
+    await Promise.all([
+      Student.findOneAndUpdate({
+        studentId: paper.studentId,
+      }, {
+        $set: {
+          paperId: paper._id,
+        },
+      }, {
+        safe: true,
+        upsert: true,
+      }),
+      Teacher.findOneAndUpdate({
+        teacherId: paper.teacherId,
+      }, {
+        $addToSet: {
+          paperIds: paper._id,
+          studentIds: paper.studentId,
+        },
+      }, {
+        safe: true,
+        upsert: true,
+      }),
+    ]).then((roles) => {
+      [student, teacher] = roles
     })
   } catch (err) {
+    await Promise.all([paper.remove && paper.remove()])
+    // await Promise.all([paper.remove && paper.remove(), student.remove && student.remove(), teacher.remove && teacher.remove()])
     logger.error(err.message)
     ctx.throw(401, err.message)
   }

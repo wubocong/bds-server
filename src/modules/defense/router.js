@@ -35,7 +35,7 @@ export default [
     handlers: [
       ensureUser,
       // ensureAdmin,
-      defense.createDefenses,
+      defense.createDefense,
     ],
   },
   {

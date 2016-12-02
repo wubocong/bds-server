@@ -9,7 +9,7 @@ const Defense = new mongoose.Schema({
   finished: { type: Number, required: true, default: 0 },
   studentIds: [{ type: ObjectId, unique: true, ref: 'user' }],
   teacherIds: [{ type: ObjectId, unique: true, ref: 'user' }],
-  adminIds: [{ type: ObjectId, unique: true, ref: 'user' }],
+  adminId: { type: ObjectId, unique: true, ref: 'user' },
   paperIds: [{ type: ObjectId, unique: true, ref: 'paper' }],
   leaderId: { type: ObjectId, ref: 'user' },
 })
