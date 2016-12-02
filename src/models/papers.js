@@ -9,8 +9,10 @@ const Score = new mongoose.Schema({
   isLeader: { type: Boolean, required: true, default: false },
 })
 const FileInfo = new mongoose.Schema({
-  name: { type: String, unique: true },
-  path: { type: String, unique: true },
+  // name: { type: String, unique: true },
+  name: { type: String },
+  // path: { type: String, unique: true },
+  path: { type: String },
   size: { type: Number },
   type: { type: String },
   lastModified: { type: Date, default: Date.now },

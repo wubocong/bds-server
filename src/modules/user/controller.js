@@ -250,8 +250,6 @@ export async function getUser(ctx, next) {
  *
  * @apiParam {Object} user              User object (required)
  * @apiParam {String} user.name         User name
- * @apiParam {String} user.account      User account
- * @apiParam {String} user.role         User role
  * @apiParam {String} user.gender       User gender
  * @apiParam {String} user.university   User university
  * @apiParam {String} user.school       User school
@@ -308,7 +306,12 @@ export async function updateUser(ctx) {
       }
     }
     logger.info(user)
-    await user.update({phone: ctx.request.fields.user.phone || user.phone, email: ctx.request.fields.user.email || user.email})
+    delete ctx.request.fields.user.account
+    delete ctx.request.fields.user.password
+    delete ctx.request.fields.user.type
+    delete ctx.request.fields.user.role
+    Object.assign(user, ctx.request.fields.user)
+    await user.save()
   } catch (err) {
     logger.error(err.message)
     ctx.throw(401, err.message)
