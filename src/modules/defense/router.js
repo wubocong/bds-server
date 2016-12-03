@@ -40,6 +40,15 @@ export default [
   },
   {
     method: 'PUT',
+    route: '/addStudents/:id',
+    handlers: [
+      ensureUser,
+      // ensureAdmin,
+      defense.addStudentsToDefense,
+    ],
+  },
+  {
+    method: 'PUT',
     route: '/',
     handlers: [
       ensureUser,

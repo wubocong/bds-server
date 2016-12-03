@@ -8,7 +8,7 @@ const logger = require('koa-log4').getLogger('index')
 
 /**
  * @api {post} /users Create a new user
- * @apiPermission User
+ * @apiPermission SuperAdmin
  * @apiVersion 0.3.0
  * @apiName CreateUser
  * @apiGroup Users
@@ -49,15 +49,17 @@ const logger = require('koa-log4').getLogger('index')
  *       "status": 422,
  *       "error": "Unprocessable Entity"
  *     }
+ *
+ * @apiUse TokenError
  */
 
 export async function createUser(ctx) {
+  delete ctx.request.fields.user.type
   ctx.request.fields.user.password = ctx.request.fields.user.password || ctx.request.fields.user.account
   const user = new User(ctx.request.fields.user)
   let role
   try {
     await user.save()
-    delete ctx.request.fields.user.type
     switch (user.role) {
       case 'student':
         {
@@ -500,7 +502,9 @@ export async function getMe(ctx) {
  *       }
  *     }
  *
- * @apiUse TokenError
+ * @apiUse NotFound
+ *
+ * @apiUse InternalServerError
  */
 export async function contactAdmin(ctx, next) {
   try {
@@ -511,8 +515,206 @@ export async function contactAdmin(ctx, next) {
   } catch (err) {
     logger.error(err.message)
     if (err === 404 || err.name === 'CastError') {
-      ctx.throw(404)
+      ctx.throw(404, 'Not Found')
     }
-    ctx.throw(500)
+    ctx.throw(500, 'Internal Server Error')
+  }
+}
+
+/**
+ * @api {post} /users/admin Create a new user
+ * @apiPermission User
+ * @apiVersion 0.3.0
+ * @apiName CreateAdmin
+ * @apiGroup Users
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -X POST -d '{ "user": { "name": "phy", "account": "20080202", "password": "phy" } }' localhost:5000/users
+ *
+ * @apiParam {Object} user              User object (required)
+ * @apiParam {String} user.name         User name (required)
+ * @apiParam {String} user.account      User account (required)
+ * @apiParam {String} user.password     Password (required)
+ * @apiParam {String} user.gender       User gender
+ * @apiParam {String} user.university   User university
+ * @apiParam {String} user.school       User school
+ * @apiParam {String} user.email        User email
+ * @apiParam {String} user.phone        User phone
+ * @apiParam {String} user.avatar       User avatar
+ *
+ * @apiSuccess {Object}   user           User object
+ * @apiSuccess {ObjectId} user._id       User id
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "user": {
+ *          "_id": "56bd1da600a526986cf65c80"
+ *       }
+ *     }
+ *
+ * @apiError UnprocessableEntity Missing required parameters
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "status": 422,
+ *       "error": "Unprocessable Entity"
+ *     }
+ *
+ * @apiUse TokenError
+ */
+
+export async function createAdmin(ctx) {
+  delete ctx.request.fields.user.type
+  ctx.request.fields.user.role = 'admin'
+  if (!ctx.request.fields.user.password) {
+    ctx.throw(422, 'Unprocessable Entity')
+  }
+  const user = new User(ctx.request.fields.user)
+  let admin
+  try {
+    await user.save()
+    admin = new Admin({...ctx.request.fields.user, adminId: user._id})
+    await admin.save()
+
+    ctx.body = {
+      user: { _id: user._id, role: user.role },
+    }
+  } catch (err) {
+    logger.error(err.message)
+    ctx.throw(422, err.message)
+    await Promise.all([user.remove && user.remove(), admin.remove && admin.remove()])
+  }
+}
+
+/**
+ * @api {post} /users/teachers Create teachers
+ * @apiPermission Admin
+ * @apiVersion 0.3.0
+ * @apiName CreateTeachers
+ * @apiGroup Users
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -X POST -d '{ "users": [{ "name": "phy", "account": "20080202" }] }' localhost:5000/users/teachers
+ *
+ * @apiParam {Object} user              User object (required)
+ * @apiParam {String} user.name         User name (required)
+ * @apiParam {String} user.account      User account (required)
+ * @apiParam {String} user.password     Password
+ * @apiParam {String} user.gender       User gender
+ * @apiParam {String} user.university   User university
+ * @apiParam {String} user.school       User school
+ * @apiParam {String} user.email        User email
+ * @apiParam {String} user.phone        User phone
+ * @apiParam {String} user.avatar       User avatar
+ *
+ * @apiSuccess {ObjectId[]}   userIds       User ids
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "userIds": ["56bd1da600a526986cf65c80"]
+ *     }
+ *
+ * @apiError UnprocessableEntity Missing required parameters
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "status": 422,
+ *       "error": "Unprocessable Entity"
+ *     }
+ *
+ * @apiUse TokenError
+ */
+
+export async function createTeachers(ctx) {
+  const userIds = []
+  await Promise.all(ctx.request.fields.users.map(async(user) => {
+    delete user.type
+    user.role = 'teacher'
+    user.password = user.password || user.account
+    const newUser = new User(user)
+    let role
+    try {
+      await newUser.save()
+      role = new Teacher({...user, teacherId: newUser._id})
+      await role.save()
+
+      userIds.push(newUser._id)
+    } catch (err) {
+      logger.error(err.message)
+      ctx.throw(422, err.message)
+      await Promise.all([newUser.remove && newUser.remove(), role.remove && role.remove()])
+    }
+  }))
+  ctx.body = {
+    userIds,
+  }
+}
+
+/**
+ * @api {post} /users/students Create students
+ * @apiPermission Admin
+ * @apiVersion 0.3.0
+ * @apiName CreateStudents
+ * @apiGroup Users
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -X POST -d '{ "users": [{ "name": "phy", "account": "20080202" }] }' localhost:5000/users/students
+ *
+ * @apiParam {Object} user              User object (required)
+ * @apiParam {String} user.name         User name (required)
+ * @apiParam {String} user.account      User account (required)
+ * @apiParam {String} user.password     Password
+ * @apiParam {String} user.gender       User gender
+ * @apiParam {String} user.university   User university
+ * @apiParam {String} user.school       User school
+ * @apiParam {String} user.email        User email
+ * @apiParam {String} user.phone        User phone
+ * @apiParam {String} user.avatar       User avatar
+ *
+ * @apiSuccess {ObjectId[]}   userIds       User ids
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "userIds": ["56bd1da600a526986cf65c80"]
+ *     }
+ *
+ * @apiError UnprocessableEntity Missing required parameters
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "status": 422,
+ *       "error": "Unprocessable Entity"
+ *     }
+ *
+ * @apiUse TokenError
+ */
+
+export async function createStudents(ctx) {
+  const userIds = []
+  await Promise.all(ctx.request.fields.users.map(async(user) => {
+    delete user.type
+    user.role = 'student'
+    user.password = user.password || user.account
+    const newUser = new User(user)
+    let role
+    try {
+      await newUser.save()
+      role = new Student({...user, studentId: newUser._id, teacherId: (await User.find({account: user.teacherAccount}))._id})
+      await Promise.all([await role.save(), Teacher.findOneAndUpdate({teacherId: role.teacherId}, {$addToSet: {studentIds: newUser._id}})])
+      userIds.push(newUser._id)
+    } catch (err) {
+      logger.error(err.message)
+      ctx.throw(422, err.message)
+      await Promise.all([newUser.remove && newUser.remove(), role.remove && role.remove()])
+    }
+  }))
+  ctx.body = {
+    userIds,
   }
 }

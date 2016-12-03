@@ -20,6 +20,30 @@ const logger = require('koa-log4').getLogger('index')
  */
 
 /**
+ * @apiDefine NotFound
+ * @apiError Resource Not Found
+ *
+ * @apiErrorExample {json} Not Found:
+ *     HTTP/1.1 404 NotFound
+ *     {
+ *       "status": 404,
+ *       "error": "NotFound"
+ *     }
+ */
+
+/**
+ * @apiDefine InternalServerError
+ * @apiError The Backend Responded with an Error
+ *
+ * @apiErrorExample {json} InternalServer-Error:
+ *     HTTP/1.1 404 InternalServerError
+ *     {
+ *       "status": 404,
+ *       "error": "InternalServerError"
+ *     }
+ */
+
+/**
  * @api {post} /auth Authenticate user
  * @apiVersion 0.3.0
  * @apiName AuthUser

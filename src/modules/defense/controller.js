@@ -20,7 +20,7 @@ const logger = require('koa-log4').getLogger('index')
  * @apiParam {String}       defense.name         Defense name (required)
  * @apiParam {String}       defense.address      Defense address (required)
  * @apiParam {Date}         defense.time         Defense time (required)
- * @apiParam {Number}       defense.status       Defense status(0-3) (required)
+ * @apiParam {Number}       defense.status       Defense status(0-3)
  * @apiParam {ObjectId[]}   defense.studentIds   Defense students' ids
  * @apiParam {ObjectId[]}   defense.teacherIds   Defense teachers' ids
  * @apiParam {ObjectId[]}   defense.adminIds     Defense admins' ids
@@ -225,10 +225,10 @@ export async function updateDefense(ctx) {
 }
 
 /**
- * @api {put} /defenses/add/:id Add student to defense
+ * @api {put} /defenses/addStudents/:id Add students to defense
  * @apiPermission Admin
  * @apiVersion 0.3.0
- * @apiName AddStudentToDefense
+ * @apiName AddStudentsToDefense
  * @apiGroup Defenses
  *
  * @apiExample Example usage:
@@ -239,7 +239,7 @@ export async function updateDefense(ctx) {
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "addStudentToDefense": true
+ *       "addStudentsToDefense": true
  *     }
  *
  * @apiError UnprocessableEntity Missing required parameters
@@ -254,7 +254,7 @@ export async function updateDefense(ctx) {
  * @apiUse TokenError
  */
 
-export async function addStudentToDefense(ctx) {
+export async function addStudentsToDefense(ctx) {
   try {
     const defense = await getDefense(ctx.params.id)
     const {studentIds, paperIds} = defense.toJSON()
@@ -267,7 +267,7 @@ export async function addStudentToDefense(ctx) {
     Object.assign(defense, {studentIds, paperIds})
     defense.save()
     ctx.body = {
-      addStudentToDefense: true,
+      addStudentsToDefense: true,
     }
   } catch (err) {
     logger.error(err.message)

@@ -12,8 +12,9 @@ const User = new mongoose.Schema({
   gender: { type: Boolean, required: true, default: true },
   university: { type: String, required: true, default: 'scau' },
   school: { type: String, required: true, default: '软件学院' },
-  email: { type: String, unique: true },
   phone: { type: String, unique: true },
+  email: { type: String, unique: true },
+  qq: {type: String, unique: true},
   address: { type: String },
   avatar: { type: String },
 })

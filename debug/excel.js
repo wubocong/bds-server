@@ -1,2 +1,3 @@
 const convertExcel = require('excel-as-json').processFile
-convertExcel('./通讯录.xlsx', './demo.json')
+convertExcel('teachersinfo.xlsx', 'teachersinfo.json')
+convertExcel('studentsinfo.xlsx', 'studentsinfo.json')

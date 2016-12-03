@@ -6,16 +6,45 @@ export const baseUrl = '/users'
 export default [
   {
     method: 'POST',
-    route: '/contactAdmin',
+    route: '/teachers',
     handlers: [
-      user.contactAdmin,
+      // ensureUser,
+      // ensureAdmin,
+      user.createTeachers,
+    ],
+  },
+  {
+    method: 'POST',
+    route: '/students',
+    handlers: [
+      // ensureUser,
+      // ensureAdmin,
+      user.createStudents,
+    ],
+  },
+  {
+    method: 'POST',
+    route: '/admin',
+    handlers: [
+      // ensureUser,
+      // ensureAdmin,
+      user.createAdmin,
     ],
   },
   {
     method: 'POST',
     route: '/',
     handlers: [
+      // ensureUser,
+      // ensureAdmin,
       user.createUser,
+    ],
+  },
+  {
+    method: 'POST',
+    route: '/contactAdmin',
+    handlers: [
+      user.contactAdmin,
     ],
   },
   {
