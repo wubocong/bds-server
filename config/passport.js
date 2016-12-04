@@ -1,6 +1,7 @@
 import passport from 'koa-passport'
 import User from '../src/models/users'
 import { Strategy } from 'passport-local'
+const logger = require('koa-log4').getLogger('index')
 
 // hack
 import { lookup } from '../node_modules/passport-local/lib/utils.js'
@@ -38,7 +39,8 @@ passport.deserializeUser(async (id, done) => {
   try {
     const user = await User.findById(id, '-password')
     done(null, user)
-  } catch (err) { logger.error(err.message)
+  } catch (err) {
+    logger.error(err.message)
     done(err)
   }
 })
@@ -57,10 +59,12 @@ passport.use('local', new Strategy({
       if (!isMatch) { return done(null, false) }
 
       done(null, user)
-    } catch (err) { logger.error(err.message)
+    } catch (err) {
+      logger.error(err.message)
       done(err)
     }
-  } catch (err) { logger.error(err.message)
+  } catch (err) {
+    logger.error(err.message)
     return done(err)
   }
 }))

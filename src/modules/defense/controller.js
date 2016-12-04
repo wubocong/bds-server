@@ -492,13 +492,10 @@ export async function getDefenseDetail(ctx) {
           .then(async([user, student]) => {
             let paper
             let teacher
-            logger.error(user)
-            logger.error(student)
-            logger.error(studentId)
 
             await Promise.all([
-              Paper.findById(student.paperId),
-              User.findById(student.teacherId, '-type -password -account -role'),
+              student && Paper.findById(student.paperId),
+              student && User.findById(student.teacherId, '-type -password -account -role'),
             ]).then((values) => {
               [paper, teacher] = values
             })

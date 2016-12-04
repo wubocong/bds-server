@@ -83,3 +83,17 @@ MIT
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU3ZTk0NzU0NzQ3ODQ5MTZkODE4NDBkOCIsImlhdCI6MTQ3NDkwNTk0MH0.fT6Hq-ZQankMaC_kcwrtgNXgshjAO-zjACSlO779w7Q"
 }
 ```
+
+``` js
+db.createUser(
+  {
+    user: "wubocong",
+    pwd: "warrior123",
+    roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]
+  }
+)
+```
+
+```bash
+nohup mongod -f /etc/mongod.conf &
+```
