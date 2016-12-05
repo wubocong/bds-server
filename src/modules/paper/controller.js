@@ -113,7 +113,7 @@ export async function createPaper(ctx) {
     })
   } catch (err) {
     await Promise.all([paper.remove && paper.remove()])
-      // await Promise.all([paper.remove && paper.remove(), student.remove && student.remove(), teacher.remove && teacher.remove()])
+    // await Promise.all([paper.remove && paper.remove(), student.remove && student.remove(), teacher.remove && teacher.remove()])
     logger.error(err.message)
     ctx.throw(401, err.message)
   }
@@ -292,7 +292,7 @@ export async function getPaper(ctx, next) {
  * @apiParam {String}   paper.finalRemark       Final remark after defense
  * @apiParam {Date}     paper.lastModified      Last modified time of paper doc
  *
- * @apiSuccess {StatusCode} 200
+ * @apiSuccess {Boolean}   update     Action status
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -469,13 +469,13 @@ export async function uploadFile(ctx) {
  * @apiParam {Object}   score            A teacher's score (required)
  * @apiParam {Number[]} score.items      Each item of score (required)
  *
- * @apiSuccess {StatusCode} 200
+ * @apiSuccess {Boolean}   updatePaperScore     Action status
+ *
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
  *       "updatePaperScore": true
- *       ["finish": true]
  *     }
  *
  * @apiError UnprocessableEntity Missing required parameters
@@ -495,38 +495,96 @@ export async function updatePaperScore(ctx) {
     delete ctx.request.fields.score.teacherId
 
     const paper = await Paper.findById(ctx.params.id)
-    const scores = paper.toJSON().scores
-    const newScore = {
+    const defense = await Defense.findById(paper.defenseId)
+    const {teacherIds} = defense.toJSON()
+    if (!teacherIds.includes(ctx.state.user._id)) {
+      throw new Error(401)
+    }
+
+    const {scores} = paper.toJSON()
+    if (scores.length === 3) {
+      throw new Error(401)
+    }
+    scores.push({
       teacherId: ctx.state.user._id,
       items: ctx.request.fields.score.items,
-      isLeader: ctx.state.user.role === 'teacher' && ctx.state.user.isLeader,
       sum: ctx.request.fields.score.items.reduce((pre, cur) => pre + cur),
-    }
-    let overflow = scores.length < 3 && true
-    scores.some((score, i) => {
-      if (score.teacherId === ctx.state.user._id) {
-        scores[i] = newScore
-        overflow = false
-        return true
-      }
     })
-    if (overflow) {
-      scores.push(newScore)
-    }
     paper.scores = scores
     await paper.save()
+    ctx.body = {
+      updatePaperScore: true,
+    }
+  } catch (err) {
+    if (err.message === 401) {
+      ctx.throw(401, 'Unauthorized')
+    }
+    logger.error(err.message)
+    ctx.throw(422, err.message)
+  }
+}
+
+/**
+ * @api {put} /papers/final/score/:id Update a paper's final info
+ * @apiPermission Teacher(leader)
+ * @apiVersion 0.3.0
+ * @apiName UpdatePaperFinalScore
+ * @apiGroup Papers
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -X PUT -d '{ "info": {"finalScore": 100, "remark": "FUCKFUCKFUCK"} }' localhost:5000/papers/final/score/56bd1da600a526986cf65c80
+ *
+ * @apiParam {Object}   info             A paper's final score & remark (required)
+ * @apiParam {String}   finalScore       Paper's final score
+ * @apiParam {String}   remark           Paper's remark
+ *
+ * @apiSuccess {Boolean}   updatePaperFinalScore     Action status
+ * @apiSuccess {Boolean}   defenseOver               Return true when the defense is over
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "updatePaperFinalScore": true
+ *       ["defenseOver": true]
+ *     }
+ *
+ * @apiError UnprocessableEntity Missing required parameters
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "status": 422,
+ *       "error": "Unprocessable Entity"
+ *     }
+ *
+ * @apiUse TokenError
+ */
+
+export async function updatePaperFinalScore(ctx) {
+  try {
+    const paper = await Paper.findById(ctx.params.id)
     const defense = await Defense.findById(paper.defenseId)
+    if (defense.toJSON().leaderId !== ctx.state.user._id) {
+      throw new Error(401)
+    }
+    paper.finalScore = ctx.request.fields.finalScore || paper.finalScore
+    paper.finalScore = ctx.request.fields.remark || paper.remark
+    await paper.save()
     if (++defense.finished === defense.paperIds.length && defense.status === 1) {
       defense.status = 2
     }
     await defense.save()
     ctx.body = {
-      updatePaperScore: true,
+      updatePaperFinalScore: true,
     }
     if (defense.status >= 2) {
-      ctx.body.finish = true
+      ctx.body.defenseOver = true
     }
   } catch (err) {
+    if (err.message === 401) {
+      ctx.throw(401, 'Unauthorized')
+      logger.error('Unauthorized')
+    }
     logger.error(err.message)
     ctx.throw(422, err.message)
   }
@@ -547,21 +605,12 @@ export async function updatePaperScore(ctx) {
  * @apiParam {String}   comment.content    Comment content (required)
  * @apiParam {Date}     comment.time       Comment time
  *
- * @apiSuccess {StatusCode} 200
+ * @apiSuccess {Boolean}   updatePaperComment     Action status
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
  *       "updatePaperComment": true
- *     }
- *
- * @apiError Unauthorized Incorrect credentials
- *
- * @apiErrorExample {json} Unauthorized-Error:
- *     HTTP/1.1 401 Unauthorized
- *     {
- *       "status": 401,
- *       "error": "Unauthorized"
  *     }
  *
  * @apiError UnprocessableEntity Missing required parameters
@@ -630,21 +679,12 @@ export async function updatePaperComment(ctx) {
  * @apiParam {String}   paper.teacherId         Id of student's teacher
  * @apiParam {String}   paper.desp              Paper description
  *
- * @apiSuccess {StatusCode} 200
+ * @apiSuccess {Boolean}   updatePaperBasic     Action status
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
  *       "updatePaperBasic": true
- *     }
- *
- * @apiError Unauthorized Incorrect credentials
- *
- * @apiErrorExample {json} Unauthorized-Error:
- *     HTTP/1.1 401 Unauthorized
- *     {
- *       "status": 401,
- *       "error": "Unauthorized"
  *     }
  *
  * @apiError UnprocessableEntity Missing required parameters
@@ -662,12 +702,7 @@ export async function updatePaperComment(ctx) {
 export async function updatePaperBasic(ctx) {
   try {
     const paper = await Paper.findById(ctx.request.fields.id)
-    const {
-      name,
-      studentId,
-      teacherId,
-      desp,
-    } = ctx.request.fields.paper
+    const {name, studentId, teacherId, desp} = ctx.request.fields.paper
     const newPaper = {
       name: name || paper.name,
       studentId: studentId || paper.studentId,

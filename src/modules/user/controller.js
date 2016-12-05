@@ -259,7 +259,7 @@ export async function getUser(ctx, next) {
  * @apiParam {String} user.phone        User phone
  * @apiParam {String} user.avatar       User avatar
  *
- * @apiSuccess {StatusCode} 200
+ * @apiSuccess {Boolean}   update     Action status
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -333,7 +333,7 @@ export async function updateUser(ctx) {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X DELETE localhost:5000/users/56bd1da600a526986cf65c80
  *
- * @apiSuccess {StatusCode} 200
+ * @apiSuccess {Boolean}   delete     Action status
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -390,7 +390,7 @@ export async function deleteUser(ctx) {
  * @apiParam {String} newPassword   User new password.
  * @apiParam {String} role          User role.
  *
- * @apiSuccess {StatusCode} 200
+ * @apiSuccess {Boolean}   update     Action status
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK

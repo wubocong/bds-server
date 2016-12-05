@@ -341,7 +341,7 @@ export async function updateDefenses(ctx) {
  *
  * @apiParam {ObjectId[]}    defenseIds  Defenses' id to be deleted.
  *
- * @apiSuccess {StatusCode} 200
+ * @apiSuccess {Boolean}   delete     Action status
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK

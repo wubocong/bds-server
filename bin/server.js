@@ -4,6 +4,7 @@ import convert from 'koa-convert'
 // import logger from 'koa-logger'
 import mongoose from 'mongoose'
 import session from 'koa-generic-session'
+import MongoStore from 'koa-generic-session-mongo'
 import passport from 'koa-passport'
 import mount from 'koa-mount'
 import serve from 'koa-static'
@@ -31,7 +32,9 @@ app.use(convert(body({
   uploadDir: `${process.cwd()}/upload_files`,
   strict: false,
 })))
-app.use(convert(session()))
+app.use(convert(session({
+  store: new MongoStore(),
+})))
 app.use(errorMiddleware())
 
 app.use(convert(mount('/docs', serve(`${process.cwd()}/docs`))))
