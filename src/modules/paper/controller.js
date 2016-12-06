@@ -532,9 +532,9 @@ export async function updatePaperScore(ctx) {
  * @apiGroup Papers
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X PUT -d '{ "info": {"finalScore": 100, "remark": "FUCKFUCKFUCK"} }' localhost:5000/papers/final/score/56bd1da600a526986cf65c80
+ * curl -H "Content-Type: application/json" -X PUT -d '{ "paper": {"finalScore": 100, "remark": "FUCKFUCKFUCK"} }' localhost:5000/papers/final/score/56bd1da600a526986cf65c80
  *
- * @apiParam {Object}   info             A paper's final score & remark (required)
+ * @apiParam {Object}   paper            Paper object(required)
  * @apiParam {String}   finalScore       Paper's final score
  * @apiParam {String}   remark           Paper's remark
  *
@@ -567,8 +567,8 @@ export async function updatePaperFinalScore(ctx) {
     if (defense.toJSON().leaderId !== ctx.state.user._id) {
       throw new Error(401)
     }
-    paper.finalScore = ctx.request.fields.finalScore || paper.finalScore
-    paper.finalScore = ctx.request.fields.remark || paper.remark
+    paper.finalScore = ctx.request.fields.paper.finalScore || paper.finalScore
+    paper.finalScore = ctx.request.fields.paper.remark || paper.remark
     await paper.save()
     if (++defense.finished === defense.paperIds.length && defense.status === 1) {
       defense.status = 2

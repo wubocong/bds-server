@@ -242,7 +242,7 @@ export async function getUser(ctx, next) {
 
 /**
  * @api {put} /users/:id Update a user
- * @apiPermission Admin
+ * @apiPermission User
  * @apiVersion 0.3.0
  * @apiName UpdateUser
  * @apiGroup Users
@@ -664,16 +664,16 @@ export async function createTeachers(ctx) {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X POST -d '{ "users": [{ "name": "phy", "account": "20080202" }] }' localhost:5000/users/students
  *
- * @apiParam {Object} user              User object (required)
- * @apiParam {String} user.name         User name (required)
- * @apiParam {String} user.account      User account (required)
- * @apiParam {String} user.password     Password
- * @apiParam {String} user.gender       User gender
- * @apiParam {String} user.university   User university
- * @apiParam {String} user.school       User school
- * @apiParam {String} user.email        User email
- * @apiParam {String} user.phone        User phone
- * @apiParam {String} user.avatar       User avatar
+ * @apiParam {Object} users              User objects (required)
+ * @apiParam {String} users.name         User name (required)
+ * @apiParam {String} users.account      User account (required)
+ * @apiParam {String} users.password     Password
+ * @apiParam {String} users.gender       User gender
+ * @apiParam {String} users.university   User university
+ * @apiParam {String} users.school       User school
+ * @apiParam {String} users.email        User email
+ * @apiParam {String} users.phone        User phone
+ * @apiParam {String} users.avatar       User avatar
  *
  * @apiSuccess {ObjectId[]}   userIds       User ids
  *

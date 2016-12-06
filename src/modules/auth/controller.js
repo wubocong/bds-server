@@ -95,13 +95,12 @@ export async function authUser (ctx, next) {
         case 'student':
           {
             const data = await Student.findOne({studentId: user._id}, '-type -studentId')
-            const {grade, major, clazz} = data
-            const teacher = await User.findById(data.teacherId, '-type -password -account -role')
-            const paper = await Paper.findById(data.paperId, '-type -studentId -teacherId')
-            const defense = await Defense.findById(data.defenseId, '-type -studentId -paperId')
-            role = {grade, major, clazz, teacher, paper, defense}
-
-            logger.info(role)
+            const {grade, major, clazz} = data.toJSON()
+            await Promise.all([User.findById(data.teacherId, '-type -password -account -role'), Paper.findById(data.paperId, '-type -studentId -teacherId'), Defense.findById(data.defenseId, '-type -studentId -paperId')])
+            .then(([teacher, paper, defense]) => {
+              role = {grade, major, clazz, teacher, paper, defense}
+              logger.info(role)
+            })
             break
           }
         case 'teacher':
