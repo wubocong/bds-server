@@ -6,7 +6,7 @@ export async function filterData(ctx, next) {
     ctx.request.fields = ctx.request.files = null
     return next()
   }
-  const {defense, defenses, paper, user, users, comment, score, file, account, password, role, oldPassword, newPassword, studentIds, defenseIds} = ctx.request.fields
+  const {defense, defenses, paper, user, users, comment, score, file, account, password, role, oldPassword, newPassword, studentIds, defenseIds, finalScore, remark} = ctx.request.fields
   const url = ctx.url
   const roles = ['teacher', 'student', 'admin']
   if (url.search(/^\/auth/) >= 0) {
@@ -33,9 +33,9 @@ export async function filterData(ctx, next) {
     }
   } else
   if (url.search(/^\/papers/) >= 0) {
-    if ((file && typeof file !== 'object') || (score && typeof score !== 'object') || (paper && typeof paper !== 'object') || (comment && typeof comment !== 'object')) {
+    if ((file && typeof file !== 'object') || (score && typeof score !== 'object') || (paper && typeof paper !== 'object') || (comment && typeof comment !== 'object') || (finalScore && !Number.isInteger(finalScore)) || (remark && typeof remark !== 'string')) {
       ctx.throw(422, 'Unprocessable Entity(filtered)')
-      logger.warn(url + "filter defense's value")
+      logger.warn(url + "filter paper's value")
     }
   }
   return next()

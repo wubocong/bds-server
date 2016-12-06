@@ -34,7 +34,7 @@ const logger = require('koa-log4').getLogger('index')
  * @apiParam {String}   paper.comments.content  Content of comment
  * @apiParam {Date}     paper.comments.time     Create time of comment
  * @apiParam {Number}   paper.finalScore        Final score after defense
- * @apiParam {String}   paper.finalRemark       Final remark after defense
+ * @apiParam {String}   paper.remark            Remark after defense
  * @apiParam {Date}     paper.lastModified      Last modified time of paper doc
  *
  * @apiSuccess {Object}     paper            Paper Object
@@ -70,7 +70,7 @@ export async function createPaper(ctx) {
     fileSize: 0,
     filePath: '',
   }
-  logger.error(ctx.url + ' ' paper)
+  logger.error(ctx.url + ' ' + paper)
   try {
     paper = new Paper(paper)
     await paper.save()
@@ -80,7 +80,7 @@ export async function createPaper(ctx) {
       },
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' err.message)
+    logger.error(ctx.url + ' ' + err.message)
     ctx.throw(422, err.message)
   }
   // let student
@@ -114,7 +114,7 @@ export async function createPaper(ctx) {
   } catch (err) {
     await Promise.all([paper.remove && paper.remove()])
     // await Promise.all([paper.remove && paper.remove(), student.remove && student.remove(), teacher.remove && teacher.remove()])
-    logger.error(ctx.url + ' ' err.message)
+    logger.error(ctx.url + ' ' + err.message)
     ctx.throw(401, err.message)
   }
 }
@@ -150,7 +150,7 @@ export async function createPaper(ctx) {
  * @apiSuccess {String}   papers.comments.content  Content of comment
  * @apiSuccess {Date}     papers.comments.time     Create time of comment
  * @apiSuccess {Number}   papers.finalScore        Final score after defense
- * @apiSuccess {String}   papers.finalRemark       Final remark after defense
+ * @apiSuccess {String}   papers.remark            Remark after defense
  * @apiSuccess {Date}     papers.lastModified      Last modified time of paper doc
  *
  * @apiSuccessExample {json} Success-Response:
@@ -211,7 +211,7 @@ export async function getPapers(ctx) {
  * @apiSuccess {String}   paper.comments.content  Content of comment
  * @apiSuccess {Date}     paper.comments.time     Create time of comment
  * @apiSuccess {Number}   paper.finalScore        Final score after defense
- * @apiSuccess {String}   paper.finalRemark       Final remark after defense
+ * @apiSuccess {String}   paper.remark            Remark after defense
  * @apiSuccess {Date}     paper.lastModified      Last modified time of paper doc
  *
  * @apiSuccessExample {json} Success-Response:
@@ -246,7 +246,7 @@ export async function getPaper(ctx, next) {
       paper,
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' err.message)
+    logger.error(ctx.url + ' ' + err.message)
     if (err === 404 || err.name === 'CastError') {
       ctx.throw(404)
     }
@@ -289,7 +289,7 @@ export async function getPaper(ctx, next) {
  * @apiParam {String}   paper.comments.content  Content of comment
  * @apiParam {Date}     paper.comments.time     Create time of comment
  * @apiParam {Number}   paper.finalScore        Final score after defense
- * @apiParam {String}   paper.finalRemark       Final remark after defense
+ * @apiParam {String}   paper.remark            Remark after defense
  * @apiParam {Date}     paper.lastModified      Last modified time of paper doc
  *
  * @apiSuccess {Boolean}   update     Action status
@@ -354,7 +354,7 @@ export async function updatePaper(ctx) {
  * @apiSuccess {String}   paper.comments.content  Content of comment
  * @apiSuccess {Date}     paper.comments.time     Create time of comment
  * @apiSuccess {Number}   paper.finalScore        Final score after defense
- * @apiSuccess {String}   paper.finalRemark       Final remark after defense
+ * @apiSuccess {String}   paper.remark            Remark after defense
  * @apiSuccess {Date}     paper.lastModified      Last modified time of paper doc
  *
  * @apiSuccessExample {json} Success-Response:
@@ -391,7 +391,7 @@ export async function getMyPaper(ctx) {
       paper,
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' err.message)
+    logger.error(ctx.url + ' ' + err.message)
     if (err === 404 || err.name === 'CastError') {
       ctx.throw(404)
     }
@@ -451,7 +451,7 @@ export async function uploadFile(ctx) {
       file: paper.file,
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' err.message)
+    logger.error(ctx.url + ' ' + err.message)
     ctx.throw(422, err.message)
   }
 }
@@ -494,7 +494,7 @@ export async function updatePaperScore(ctx) {
   try {
     const paper = await Paper.findById(ctx.params.id)
     const defense = await Defense.findById(paper.defenseId)
-    const {teacherIds} = defense.toJSON()
+    const {teacherIds, leaderId} = defense.toJSON()
     if (!teacherIds.includes(ctx.state.user._id)) {
       throw new Error(401)
     }
@@ -517,7 +517,7 @@ export async function updatePaperScore(ctx) {
     if (err.message === 401) {
       ctx.throw(401, 'Unauthorized')
     }
-    logger.error(ctx.url + ' ' err.message)
+    logger.error(ctx.url + ' ' + err.message)
     ctx.throw(422, err.message)
   }
 }
@@ -598,9 +598,9 @@ export async function getPaperFinalInfo(ctx) {
   } catch (err) {
     if (err.message === 401) {
       ctx.throw(401, 'Unauthorized')
-      logger.error(ctx.url + ' ' 'Unauthorized')
+      logger.error(ctx.url + ' ' + 'Unauthorized')
     }
-    logger.error(ctx.url + ' ' err.message)
+    logger.error(ctx.url + ' ' + err.message)
     ctx.throw(422, err.message)
   }
 }
@@ -664,9 +664,9 @@ export async function updatePaperFinalInfo(ctx) {
   } catch (err) {
     if (err.message === 401) {
       ctx.throw(401, 'Unauthorized')
-      logger.error(ctx.url + ' ' 'Unauthorized')
+      logger.error(ctx.url + ' ' + 'Unauthorized')
     }
-    logger.error(ctx.url + ' ' err.message)
+    logger.error(ctx.url + ' ' + err.message)
     ctx.throw(422, err.message)
   }
 }

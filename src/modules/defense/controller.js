@@ -98,7 +98,7 @@ export async function createDefense(ctx) {
       },
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' err.message)
+    logger.error(ctx.url + ' ' + err.message)
     ctx.throw(422, err.message)
   }
 }
@@ -219,7 +219,7 @@ export async function updateDefense(ctx) {
       updateDefense: true,
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' err.message)
+    logger.error(ctx.url + ' ' + err.message)
     ctx.throw(422, err.message)
   }
 }
@@ -270,7 +270,7 @@ export async function addStudentsToDefense(ctx) {
       addStudentsToDefense: true,
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' err.message)
+    logger.error(ctx.url + ' ' + err.message)
     ctx.throw(422, err.message)
   }
 }
@@ -324,7 +324,7 @@ export async function updateDefenses(ctx) {
       update: true,
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' err.message)
+    logger.error(ctx.url + ' ' + err.message)
     ctx.throw(422, err.message)
   }
 }
@@ -361,7 +361,7 @@ export async function deleteDefenses(ctx) {
       delete: true,
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' err.message)
+    logger.error(ctx.url + ' ' + err.message)
     ctx.throw(422, err.message)
   }
 }
@@ -424,7 +424,7 @@ export async function getMyDefense(ctx) {
       defense,
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' err.message)
+    logger.error(ctx.url + ' ' + err.message)
     ctx.throw(401)
   }
 }

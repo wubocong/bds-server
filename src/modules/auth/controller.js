@@ -84,7 +84,7 @@ export async function authUser(ctx, next) {
       ctx.throw(401)
     }
 
-    logger.info(ctx.url + ' ' ' ' + user)
+    logger.info(ctx.url + ' ' + user)
 
     const token = user.generateToken()
 
