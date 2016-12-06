@@ -9,7 +9,7 @@ const logger = require('koa-log4').getLogger('index')
 /**
  * @api {post} /users Create a new user
  * @apiPermission SuperAdmin
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName CreateUser
  * @apiGroup Users
  *
@@ -97,7 +97,7 @@ export async function createUser(ctx) {
 /**
  * @api {get} /users Get all user
  * @apiPermission Admin
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName GetUsers
  * @apiGroup Users
  *
@@ -141,7 +141,7 @@ export async function getUsers(ctx) {
 /**
  * @api {get} /users/:id Get user by id
  * @apiPermission Admin
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName GetUser
  * @apiGroup Users
  *
@@ -201,7 +201,7 @@ export async function getUser(ctx, next) {
 /**
  * @api {get} /users/role/:id Get role by user id
  * @apiPermission Admin
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName GetRole
  * @apiGroup Users
  *
@@ -316,7 +316,7 @@ export async function getRole(ctx, next) {
 /**
  * @api {put} /users/:id Update a user
  * @apiPermission User
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName UpdateUser
  * @apiGroup Users
  *
@@ -399,7 +399,7 @@ export async function updateUser(ctx) {
 /**
  * @api {delete} /users/:id Delete a user
  * @apiPermission SuperAdmin
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName DeleteUser
  * @apiGroup Users
  *
@@ -452,7 +452,7 @@ export async function deleteUser(ctx) {
 /**
  * @api {put} /users/password/:id Modify a user's password
  * @apiPermission Admin
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName ModifyPassword
  * @apiGroup Users
  *
@@ -505,7 +505,7 @@ export async function modifyPassword(ctx) {
 /**
  * @api {get} /users/me Get personal user
  * @apiPermission User personally
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName GetMe
  * @apiGroup Users
  *
@@ -552,7 +552,7 @@ export async function getMe(ctx) {
 /**
  * @api {get} /users/contactAdmin Get admin's email and phone number
  * @apiPermission All
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName ContactAdmin
  * @apiGroup Users
  *
@@ -597,7 +597,7 @@ export async function contactAdmin(ctx, next) {
 /**
  * @api {post} /users/admin Create a new user
  * @apiPermission User
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName CreateAdmin
  * @apiGroup Users
  *
@@ -664,7 +664,7 @@ export async function createAdmin(ctx) {
 /**
  * @api {post} /users/teachers Create teachers
  * @apiPermission Admin
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName CreateTeachers
  * @apiGroup Users
  *
@@ -730,7 +730,7 @@ export async function createTeachers(ctx) {
 /**
  * @api {post} /users/students Create students
  * @apiPermission Admin
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName CreateStudents
  * @apiGroup Users
  *

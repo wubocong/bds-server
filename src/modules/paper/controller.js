@@ -7,7 +7,7 @@ const logger = require('koa-log4').getLogger('index')
 /**
  * @api {post} /papers Create a paper
  * @apiPermission Student
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName CreatePaper
  * @apiGroup Papers
  *
@@ -122,7 +122,7 @@ export async function createPaper(ctx) {
 /**
  * @api {get} /papers Get all paper
  * @apiPermission SuperAdmin
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName GetPapers
  * @apiGroup Papers
  *
@@ -183,7 +183,7 @@ export async function getPapers(ctx) {
 /**
  * @api {get} /papers/:id Get paper by id
  * @apiPermission SuperAdmin
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName GetPaper
  * @apiGroup Papers
  *
@@ -262,7 +262,7 @@ export async function getPaper(ctx, next) {
 /**
  * @api {put} /papers/:id Update a paper
  * @apiPermission Admin
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName UpdatePaper
  * @apiGroup Papers
  *
@@ -326,7 +326,7 @@ export async function updatePaper(ctx) {
 /**
  * @api {get} /papers/me Get personal paper
  * @apiPermission Student
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName GetMyPaper
  * @apiGroup Papers
  *
@@ -403,7 +403,7 @@ export async function getMyPaper(ctx) {
 /**
  * @api {post} /papers/file/56bd1da600a526986cf65c80 Upload a paper's file
  * @apiPermission Student
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName UploadFile
  * @apiGroup Papers
  *
@@ -459,7 +459,7 @@ export async function uploadFile(ctx) {
 /**
  * @api {put} /papers/score/:id Update a paper's score
  * @apiPermission Teacher(judge)
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName UpdatePaperScore
  * @apiGroup Papers
  *
@@ -525,7 +525,7 @@ export async function updatePaperScore(ctx) {
 /**
  * @api {get} /papers/final/:id Get a paper's final info
  * @apiPermission Teacher
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName GetPaperFinalInfo
  * @apiGroup Papers
  *
@@ -608,7 +608,7 @@ export async function getPaperFinalInfo(ctx) {
 /**
  * @api {put} /papers/final/:id Update a paper's final info
  * @apiPermission Teacher(leader)
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName UpdatePaperFinalInfo
  * @apiGroup Papers
  *
@@ -674,7 +674,7 @@ export async function updatePaperFinalInfo(ctx) {
 /**
  * @api {put} /papers/comment/:id Update a paper's comment
  * @apiPermission Teacher(tutor)
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName UpdatePaperComment
  * @apiGroup Papers
  *
@@ -747,7 +747,7 @@ export async function updatePaperComment(ctx) {
 /**
  * @api {put} /papers/basic/:id Update a paper's basic info
  * @apiPermission Admin
- * @apiVersion 0.3.0
+ * @apiVersion 0.4.0-alpha.1
  * @apiName UpdatePaperBasic
  * @apiGroup Papers
  *
