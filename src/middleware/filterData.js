@@ -6,35 +6,36 @@ export async function filterData(ctx, next) {
     ctx.request.fields = ctx.request.files = null
     return next()
   }
-  let {defense, defenses, paper, user, users, comment, score, file, account, password, role, oldPassword, newPassword, studentIds, defenseIds} = ctx.request.fields
+  const {defense, defenses, paper, user, users, comment, score, file, account, password, role, oldPassword, newPassword, studentIds, defenseIds} = ctx.request.fields
+  const url = ctx.url
   const roles = ['teacher', 'student', 'admin']
-  if (ctx.url.search(/^\/auth/) >= 0) {
+  if (url.search(/^\/auth/) >= 0) {
     if (!roles.includes(role) || (typeof account !== 'string') || (typeof password !== 'string')) {
-      ctx.thorw(401, 'Unauthorized(filtered)')
-      logger.warn("filter auth's value")
+      ctx.throw(401, 'Unauthorized(filtered)')
+      logger.warn(url + "filter auth's value")
     }
-  }
-  if (ctx.url.search(/^\/users/) >= 0) {
-    if (ctx.url.search(/modifyPassword/) >= 0) {
+  } else
+  if (url.search(/^\/users/) >= 0) {
+    if (url.search(/modifyPassword/) >= 0) {
       if (user || users || typeof oldPassword !== 'string' || typeof newPassword !== 'string' || !roles.includes(role)) {
-        ctx.thorw(422, 'Unprocessable Entity(filtered)')
-        logger.warn("filter user's value")
+        ctx.throw(422, 'Unprocessable Entity(filtered)')
+        logger.warn(url + "filter user's value")
       }
-    } else if ((user && users) || typeof user !== 'object' || !Array.isArray(users)) {
-      ctx.thorw(422, 'Unprocessable Entity(filtered)')
-      logger.warn("filter user's value")
+    } else if ((user && users) || (user && typeof user !== 'object') || (users && !Array.isArray(users))) {
+      ctx.throw(422, 'Unprocessable Entity(filtered)')
+      logger.warn(url + "filter user's value")
     }
-  }
-  if (ctx.url.search(/^\/defenses/) >= 0) {
-    if (!Array.isArray(defenseIds) || !Array.isArray(studentIds) || !Array.isArray(defenses) || typeof defense !== 'object') {
-      ctx.thorw(422, 'Unprocessable Entity(filtered)')
-      logger.warn("filter defense's value")
+  } else
+  if (url.search(/^\/defenses/) >= 0) {
+    if ((defenseIds && !Array.isArray(defenseIds)) || (studentIds && !Array.isArray(studentIds)) || (defenses && !Array.isArray(defenses)) || (defense && typeof defense !== 'object')) {
+      ctx.throw(422, 'Unprocessable Entity(filtered)')
+      logger.warn(url + "filter defense's value")
     }
-  }
-  if (ctx.url.search(/^\/papers/) >= 0) {
-    if (typeof file !== 'object' || typeof score !== 'object' || typeof paper !== 'object' || typeof comment !== 'object') {
-      ctx.thorw(422, 'Unprocessable Entity(filtered)')
-      logger.warn("filter defense's value")
+  } else
+  if (url.search(/^\/papers/) >= 0) {
+    if ((file && typeof file !== 'object') || (score && typeof score !== 'object') || (paper && typeof paper !== 'object') || (comment && typeof comment !== 'object')) {
+      ctx.throw(422, 'Unprocessable Entity(filtered)')
+      logger.warn(url + "filter defense's value")
     }
   }
   return next()

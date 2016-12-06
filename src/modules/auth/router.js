@@ -1,5 +1,5 @@
 import * as auth from './controller'
-import getRole from '../user/controller'
+import { getRole } from '../user/controller'
 
 export const baseUrl = '/auth'
 

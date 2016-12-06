@@ -78,19 +78,22 @@ const logger = require('koa-log4').getLogger('index')
  *     }
  */
 
-export async function authUser (ctx, next) {
+export async function authUser(ctx, next) {
   return passport.authenticate('local', async (user) => {
     if (!user || (ctx.request.fields.role || 'student') !== user.role) {
       ctx.throw(401)
     }
 
-    logger.info(Object.keys(user))
+    logger.info(ctx.url + ' ' ' ' + user)
 
     const token = user.generateToken()
 
     ctx.body = {
       user,
       token,
+    }
+    if (next) {
+      return next()
     }
   })(ctx, next)
 }

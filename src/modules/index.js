@@ -1,10 +1,10 @@
 import glob from 'glob'
 import Router from 'koa-router'
-import filterData from '../middleware/filterData'
+import { filterData } from '../middleware/filterData'
 const logger = require('koa-log4').getLogger('index')
 
 exports = module.exports = function initModules (app) {
-  glob(`${__dirname}/!(student|teacher|admin)`, { ignore: '**/index.js' }, (err, matches) => {
+  glob(`${__dirname}/*`, { ignore: '**/index.js' }, (err, matches) => {
     if (err) {
       logger.error(err)
       throw err
@@ -25,7 +25,6 @@ exports = module.exports = function initModules (app) {
         } = config
 
         const lastHandler = handlers.pop()
-
         instance[method.toLowerCase()](route, filterData, ...handlers, async ctx => await lastHandler(ctx))
 
         app

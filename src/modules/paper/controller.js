@@ -70,7 +70,7 @@ export async function createPaper(ctx) {
     fileSize: 0,
     filePath: '',
   }
-  logger.error(paper)
+  logger.error(ctx.url + ' ' paper)
   try {
     paper = new Paper(paper)
     await paper.save()
@@ -80,7 +80,7 @@ export async function createPaper(ctx) {
       },
     }
   } catch (err) {
-    logger.error(err.message)
+    logger.error(ctx.url + ' ' err.message)
     ctx.throw(422, err.message)
   }
   // let student
@@ -114,7 +114,7 @@ export async function createPaper(ctx) {
   } catch (err) {
     await Promise.all([paper.remove && paper.remove()])
     // await Promise.all([paper.remove && paper.remove(), student.remove && student.remove(), teacher.remove && teacher.remove()])
-    logger.error(err.message)
+    logger.error(ctx.url + ' ' err.message)
     ctx.throw(401, err.message)
   }
 }
@@ -246,7 +246,7 @@ export async function getPaper(ctx, next) {
       paper,
     }
   } catch (err) {
-    logger.error(err.message)
+    logger.error(ctx.url + ' ' err.message)
     if (err === 404 || err.name === 'CastError') {
       ctx.throw(404)
     }
@@ -391,7 +391,7 @@ export async function getMyPaper(ctx) {
       paper,
     }
   } catch (err) {
-    logger.error(err.message)
+    logger.error(ctx.url + ' ' err.message)
     if (err === 404 || err.name === 'CastError') {
       ctx.throw(404)
     }
@@ -451,7 +451,7 @@ export async function uploadFile(ctx) {
       file: paper.file,
     }
   } catch (err) {
-    logger.error(err.message)
+    logger.error(ctx.url + ' ' err.message)
     ctx.throw(422, err.message)
   }
 }
@@ -517,7 +517,7 @@ export async function updatePaperScore(ctx) {
     if (err.message === 401) {
       ctx.throw(401, 'Unauthorized')
     }
-    logger.error(err.message)
+    logger.error(ctx.url + ' ' err.message)
     ctx.throw(422, err.message)
   }
 }
@@ -598,9 +598,9 @@ export async function getPaperFinalInfo(ctx) {
   } catch (err) {
     if (err.message === 401) {
       ctx.throw(401, 'Unauthorized')
-      logger.error('Unauthorized')
+      logger.error(ctx.url + ' ' 'Unauthorized')
     }
-    logger.error(err.message)
+    logger.error(ctx.url + ' ' err.message)
     ctx.throw(422, err.message)
   }
 }
@@ -664,9 +664,9 @@ export async function updatePaperFinalInfo(ctx) {
   } catch (err) {
     if (err.message === 401) {
       ctx.throw(401, 'Unauthorized')
-      logger.error('Unauthorized')
+      logger.error(ctx.url + ' ' 'Unauthorized')
     }
-    logger.error(err.message)
+    logger.error(ctx.url + ' ' err.message)
     ctx.throw(422, err.message)
   }
 }

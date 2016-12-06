@@ -88,7 +88,7 @@ export async function createUser(ctx) {
       user: { _id: user._id, role: user.role },
     }
   } catch (err) {
-    logger.error(err.message)
+    logger.error(ctx.url + ' ' err.message)
     ctx.throw(422, err.message)
     await Promise.all([user.remove && user.remove(), role.remove && role.remove()])
   }
@@ -189,7 +189,7 @@ export async function getUser(ctx, next) {
       user: {...user.toJSON()},
     }
   } catch (err) {
-    logger.error(err.message)
+    logger.error(ctx.url + ' ' err.message)
     if (err === 404 || err.name === 'CastError') {
       ctx.throw(404)
     }
@@ -257,12 +257,15 @@ export async function getRole(ctx, next) {
           let defenses = []
           let papers = []
           let students = []
+          data.defenseIds = data.defenseIds || []
+          data.paperIds = data.paperIds || []
+          data.studentIds = data.studentIds || []
           await Promise.all([...data.defenseIds.map(async (defenseId) => {
             defenses.push(await Defense.findById(defenseId))
           }), ...data.paperIds.map(async (paperId) => {
             papers.push(await Paper.findById(paperId))
           }), ...data.studentIds.map(async (studentId) => {
-            students.push(await Student.findById(studentId))
+            students.push(await User.findById(studentId, '-password'))
           })])
           delete data.defenseIds
           delete data.paperIds
@@ -302,7 +305,7 @@ export async function getRole(ctx, next) {
       user: {...response, ...role, token: ctx.body.token},
     }
   } catch (err) {
-    logger.error(err.message)
+    logger.error(ctx.url + ' ' err.message)
     if (err === 404 || err.name === 'CastError') {
       ctx.throw(404)
     }
@@ -385,7 +388,7 @@ export async function updateUser(ctx) {
     Object.assign(user, ctx.request.fields.user)
     await user.save()
   } catch (err) {
-    logger.error(err.message)
+    logger.error(ctx.url + ' ' err.message)
     ctx.throw(401, err.message)
   }
   ctx.body = {
@@ -437,7 +440,7 @@ export async function deleteUser(ctx) {
     }
     await user.remove()
   } catch (err) {
-    logger.error(err.message)
+    logger.error(ctx.url + ' ' err.message)
     ctx.throw(401, err.message)
   }
   ctx.status = 200
@@ -494,7 +497,7 @@ export async function modifyPassword(ctx) {
       throw (new Error('illegal request, may be attacked!'))
     }
   } catch (err) {
-    logger.error(err.message)
+    logger.error(ctx.url + ' ' err.message)
     ctx.throw(401, err.message)
   }
 }
@@ -583,7 +586,7 @@ export async function contactAdmin(ctx, next) {
       user: user.toJSON(),
     }
   } catch (err) {
-    logger.error(err.message)
+    logger.error(ctx.url + ' ' err.message)
     if (err === 404 || err.name === 'CastError') {
       ctx.throw(404, 'Not Found')
     }
@@ -652,7 +655,7 @@ export async function createAdmin(ctx) {
       user: { _id: user._id, role: user.role },
     }
   } catch (err) {
-    logger.error(err.message)
+    logger.error(ctx.url + ' ' err.message)
     ctx.throw(422, err.message)
     await Promise.all([user.remove && user.remove(), admin.remove && admin.remove()])
   }
@@ -714,7 +717,7 @@ export async function createTeachers(ctx) {
 
       userIds.push(newUser._id)
     } catch (err) {
-      logger.error(err.message)
+      logger.error(ctx.url + ' ' err.message)
       ctx.throw(422, err.message)
       await Promise.all([newUser.remove && newUser.remove(), role.remove && role.remove()])
     }
@@ -779,7 +782,7 @@ export async function createStudents(ctx) {
       await Promise.all([await role.save(), Teacher.findOneAndUpdate({teacherId: role.teacherId}, {$addToSet: {studentIds: newUser._id}})])
       userIds.push(newUser._id)
     } catch (err) {
-      logger.error(err.message)
+      logger.error(ctx.url + ' ' err.message)
       ctx.throw(422, err.message)
       await Promise.all([newUser.remove && newUser.remove(), role.remove && role.remove()])
     }

@@ -13,8 +13,8 @@ const User = new mongoose.Schema({
   university: { type: String, required: true, default: '华南农业大学' },
   school: { type: String, required: true, default: '软件学院' },
   phone: { type: String, unique: true },
-  email: { type: String, unique: true },
-  qq: {type: String, unique: true},
+  email: { type: String },
+  qq: { type: String },
   address: { type: String },
   avatar: { type: String },
 })
