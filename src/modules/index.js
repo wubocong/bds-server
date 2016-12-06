@@ -1,5 +1,6 @@
 import glob from 'glob'
 import Router from 'koa-router'
+import filterData from '../middleware/filterData'
 const logger = require('koa-log4').getLogger('index')
 
 exports = module.exports = function initModules (app) {
@@ -25,9 +26,7 @@ exports = module.exports = function initModules (app) {
 
         const lastHandler = handlers.pop()
 
-        instance[method.toLowerCase()](route, ...handlers, async function (ctx) {
-          return await lastHandler(ctx)
-        })
+        instance[method.toLowerCase()](route, filterData, ...handlers, async ctx => await lastHandler(ctx))
 
         app
           .use(instance.routes())

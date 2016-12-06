@@ -3,9 +3,19 @@ import mongoose from 'mongoose'
 const ObjectId = require('mongoose').Schema.Types.ObjectId
 
 const Score = new mongoose.Schema({
-  items: [{ type: Number }],
+  items: {
+    topicScore: { type: Number, required: true, default: 0 },
+    pointScore: { type: Number, required: true, default: 0 },
+    designScore: { type: Number, required: true, default: 0 },
+    qualityScore: { type: Number, required: true, default: 0 },
+    resultScore: { type: Number, required: true, default: 0 },
+    descriptionScore: { type: Number, required: true, default: 0 },
+    innovationScore: { type: Number, required: true, default: 0 },
+    defenseScore: { type: Number, required: true, default: 0 },
+    score: { type: Number, required: true, default: 0 },
+  },
   teacherId: { type: ObjectId, ref: 'teacher' },
-  sum: { type: Number },
+  sum: { type: Number, required: true, default: 0 },
   isLeader: { type: Boolean, required: true, default: false },
 })
 const FileInfo = new mongoose.Schema({

@@ -1,10 +1,4 @@
 import passport from 'koa-passport'
-import User from '../../models/users'
-import Student from '../../models/students'
-import Teacher from '../../models/teachers'
-import Admin from '../../models/admins'
-import Paper from '../../models/papers'
-import Defense from '../../models/defenses'
 const logger = require('koa-log4').getLogger('index')
 
 /**
@@ -89,61 +83,13 @@ export async function authUser (ctx, next) {
     if (!user || (ctx.request.fields.role || 'student') !== user.role) {
       ctx.throw(401)
     }
-    let role
-    try {
-      switch (user.role) {
-        case 'student':
-          {
-            const data = await Student.findOne({studentId: user._id}, '-type -studentId')
-            const {grade, major, clazz} = data.toJSON()
-            await Promise.all([User.findById(data.teacherId, '-type -password -account -role'), Paper.findById(data.paperId, '-type -studentId -teacherId'), Defense.findById(data.defenseId, '-type -studentId -paperId')])
-            .then(([teacher, paper, defense]) => {
-              role = {grade, major, clazz, teacher, paper, defense}
-              logger.info(role)
-            })
-            break
-          }
-        case 'teacher':
-          {
-            const data = await Teacher.findOne({teacherId: user._id}, '-type -teacherId')
-            let defenses = []
-            await Promise.all(data.defenseIds.map(async (defenseId) => {
-              defenses.push(await Defense.findById(defenseId))
-            }))
-            role = {...data.toJSON(), defenses}
 
-            logger.info(role)
-            break
-          }
-        case 'admin':
-          {
-            const data = await Admin.findOne({adminId: user._id}, '-type -adminId')
-            let defenses = []
-            await Promise.all(data.defenseIds.map(async (defenseId) => {
-              defenses.push(await Defense.findById(defenseId))
-            }))
-            role = {...data.toJSON(), defenses}
-
-            logger.info(role)
-            break
-          }
-        default: {
-          throw (new Error('illegal request, may be attacked!'))
-        }
-      }
-    } catch (err) {
-      logger.error(err.message)
-      ctx.throw(401, err.message)
-    }
     logger.info(Object.keys(user))
 
     const token = user.generateToken()
 
-    const response = user.toJSON()
-
-    delete response.password
     ctx.body = {
-      user: {...role, ...response},
+      user,
       token,
     }
   })(ctx, next)

@@ -71,6 +71,7 @@ export default [
       ensureUser,
       // ensureAdmin,
       user.getUser,
+      user.getRole,
     ],
   },
   {
@@ -79,6 +80,7 @@ export default [
     handlers: [
       ensureUser,
       user.getUser,
+      user.getRole,
       user.updateUser,
     ],
   },
@@ -89,6 +91,7 @@ export default [
       ensureUser,
       // ensureAdmin,
       user.getUser,
+      user.getRole,
       user.deleteUser,
     ],
   },

@@ -401,16 +401,16 @@ export async function getMyPaper(ctx) {
 }
 
 /**
- * @api {post} /papers/file/56bd1da600a526986cf65c80 Upload paper's file
+ * @api {post} /papers/file/56bd1da600a526986cf65c80 Upload a paper's file
  * @apiPermission Student
  * @apiVersion 0.3.0
  * @apiName UploadFile
  * @apiGroup Papers
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: multipart/form-data" -X POST -d '{ "paper": {"name": "wbc", "size": 1022392, "lastModified": 1480155509491, "type": "image/png"} }' localhost:5000/papers/file/56bd1da600a526986cf65c80
+ * curl -H "Content-Type: multipart/form-data" -X POST -d '{ "file": new File() }' localhost:5000/papers/file/56bd1da600a526986cf65c80
  *
- * @apiParam   {Object}    paper            File object (required)
+ * @apiParam   {File}      file        File object (required)
  *
  * @apiSuccess {Object}    file             File info object
  * @apiSuccess {String}    file.path        File path
@@ -492,8 +492,6 @@ export async function uploadFile(ctx) {
 
 export async function updatePaperScore(ctx) {
   try {
-    delete ctx.request.fields.score.teacherId
-
     const paper = await Paper.findById(ctx.params.id)
     const defense = await Defense.findById(paper.defenseId)
     const {teacherIds} = defense.toJSON()
@@ -508,7 +506,7 @@ export async function updatePaperScore(ctx) {
     scores.push({
       teacherId: ctx.state.user._id,
       items: ctx.request.fields.score.items,
-      sum: ctx.request.fields.score.items.reduce((pre, cur) => pre + cur),
+      sum: ctx.request.fields.score.sum,
     })
     paper.scores = scores
     await paper.save()
@@ -525,10 +523,93 @@ export async function updatePaperScore(ctx) {
 }
 
 /**
- * @api {put} /papers/final/score/:id Update a paper's final info
+ * @api {get} /papers/final/:id Get a paper's final info
+ * @apiPermission Teacher
+ * @apiVersion 0.3.0
+ * @apiName GetPaperFinalInfo
+ * @apiGroup Papers
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -X GET localhost:5000/papers/final/score/56bd1da600a526986cf65c80
+ *
+ * @apiSuccess {String}    remark               Automatic generated remark of a paper
+ * @apiSuccess {Number}    currentScore         Average score
+ * @apiSuccess {Number}    finalScore           Final score
+ * @apiSuccess {Boolean}   waiting              Waiting signal
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "currentScore": 80
+ *       "remark": "this is a pig"
+ *     }
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "finalScore": 80
+ *       "remark": "this is a pig"
+ *     }
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "waiting": true
+ *     }
+ *
+ * @apiError UnprocessableEntity Missing required parameters
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "status": 422,
+ *       "error": "Unprocessable Entity"
+ *     }
+ *
+ * @apiUse TokenError
+ */
+
+export async function getPaperFinalInfo(ctx) {
+  try {
+    const paper = await Paper.findById(ctx.params.id)
+    const defense = await Defense.findById(paper.defenseId)
+    const {teacherIds, leaderId} = defense.toJSON()
+    if (!teacherIds.includes(ctx.state.user._id)) {
+      throw new Error(401)
+    }
+    if (ctx.state.user._id !== leaderId) {
+      if (paper.finalScore !== 0) {
+        ctx.body = {
+          finalScore: paper.finalScore,
+          remark: paper.remark,
+        }
+      }
+    } else {
+      if (paper.scores.length === 3) {
+        paper.remark = 'this is a pig'
+        const currentScore = paper.scores.reduce((pre, cur) => pre + cur)
+        ctx.body = {
+          currentScore,
+          remark: paper.remark,
+        }
+        paper.save()
+      }
+    }
+  } catch (err) {
+    if (err.message === 401) {
+      ctx.throw(401, 'Unauthorized')
+      logger.error('Unauthorized')
+    }
+    logger.error(err.message)
+    ctx.throw(422, err.message)
+  }
+}
+
+/**
+ * @api {put} /papers/final/:id Update a paper's final info
  * @apiPermission Teacher(leader)
  * @apiVersion 0.3.0
- * @apiName UpdatePaperFinalScore
+ * @apiName UpdatePaperFinalInfo
  * @apiGroup Papers
  *
  * @apiExample Example usage:
@@ -544,7 +625,7 @@ export async function updatePaperScore(ctx) {
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "updatePaperFinalScore": true
+ *       "updatePaperFinalInfo": true
  *       ["defenseOver": true]
  *     }
  *
@@ -560,7 +641,7 @@ export async function updatePaperScore(ctx) {
  * @apiUse TokenError
  */
 
-export async function updatePaperFinalScore(ctx) {
+export async function updatePaperFinalInfo(ctx) {
   try {
     const paper = await Paper.findById(ctx.params.id)
     const defense = await Defense.findById(paper.defenseId)
@@ -568,14 +649,14 @@ export async function updatePaperFinalScore(ctx) {
       throw new Error(401)
     }
     paper.finalScore = ctx.request.fields.paper.finalScore || paper.finalScore
-    paper.finalScore = ctx.request.fields.paper.remark || paper.remark
+    paper.remark = ctx.request.fields.paper.remark || paper.remark
     await paper.save()
     if (++defense.finished === defense.paperIds.length && defense.status === 1) {
       defense.status = 2
     }
     await defense.save()
     ctx.body = {
-      updatePaperFinalScore: true,
+      updatePaperFinalInfo: true,
     }
     if (defense.status >= 2) {
       ctx.body.defenseOver = true

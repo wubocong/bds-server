@@ -179,39 +179,108 @@ export async function getUser(ctx, next) {
   const id = ctx.params.id
   try {
     const user = await User.findById(id, '-password')
-    let role
+    if (next) {
+      ctx.body = {
+        user,
+      }
+      return next()
+    }
+    ctx.body = {
+      user: {...user.toJSON()},
+    }
+  } catch (err) {
+    logger.error(err.message)
+    if (err === 404 || err.name === 'CastError') {
+      ctx.throw(404)
+    }
+
+    ctx.throw(500)
+  }
+}
+
+/**
+ * @api {get} /users/role/:id Get role by user id
+ * @apiPermission Admin
+ * @apiVersion 0.3.0
+ * @apiName GetRole
+ * @apiGroup Users
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -X GET localhost:5000/users/role/56bd1da600a526986cf65c80
+ *
+ * @apiSuccess {Object}   user              User object
+ * @apiSuccess {ObjectId} user._id          User id
+ * @apiSuccess {String}   user.name         User name
+ * @apiSuccess {String}   user.account      User account
+ * @apiSuccess {String}   user.role         User role
+ * @apiSuccess {String}   user.gender       User gender
+ * @apiSuccess {String}   user.university   User university
+ * @apiSuccess {String}   user.school       User school
+ * @apiSuccess {String}   user.email        User email
+ * @apiSuccess {String}   user.phone        User phone
+ * @apiSuccess {String}   user.avatar       User avatar
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "user": {
+ *          "_id": "56bd1da600a526986cf65c80"
+ *          "name": "John Doe"
+ *          "account": "20080202"
+ *          "role": "admin"
+ *          "gender": true
+ *       }
+ *     }
+ *
+ * @apiUse TokenError
+ */
+
+export async function getRole(ctx, next) {
+  let role
+  const user = ctx.body.user
+  try {
     switch (user.role) {
       case 'student':
         {
-          const data = await Student.findOne({studentId: user._id}, '-type -studentId')
+          const data = (await Student.findOne({studentId: user._id}, '-type -studentId')).toJSON()
           const {grade, major, clazz} = data
-          const teacher = await User.findById(data.teacherId, '-type -password -account -role')
-          const paper = await Paper.findById(data.paperId, '-type -studentId -teacherId')
-          const defense = await Defense.findById(data.defenseId, '-type -studentId -paperId')
-          role = {grade, major, clazz, teacher, paper, defense}
-          logger.info(role)
+          await Promise.all([User.findById(data.teacherId, '-type -password -account -role'), Paper.findById(data.paperId, '-type -studentId -teacherId'), Defense.findById(data.defenseId, '-type -studentId -paperId')])
+            .then(([teacher, paper, defense]) => {
+              role = {grade, major, clazz, teacher, paper, defense}
+              logger.info(role)
+            })
           break
         }
       case 'teacher':
         {
-          const data = await Teacher.findOne({teacherId: user._id}, '-type -teacherId')
+          const data = (await Teacher.findOne({teacherId: user._id}, '-type -teacherId')).toJSON()
           let defenses = []
-          await Promise.all(data.defenseIds.map(async (defenseId) => {
+          let papers = []
+          let students = []
+          await Promise.all([...data.defenseIds.map(async (defenseId) => {
             defenses.push(await Defense.findById(defenseId))
-          }))
-          role = {...data.toJSON(), defenses}
+          }), ...data.paperIds.map(async (paperId) => {
+            papers.push(await Paper.findById(paperId))
+          }), ...data.studentIds.map(async (studentId) => {
+            students.push(await Student.findById(studentId))
+          })])
+          delete data.defenseIds
+          delete data.paperIds
+          delete data.studentIds
+          role = { ...data, defenses, papers, students }
 
           logger.info(role)
           break
         }
       case 'admin':
         {
-          const data = await Admin.findOne({teacherId: user._id}, '-type -adminId')
+          const data = (await Admin.findOne({teacherId: user._id}, '-type -adminId')).toJSON()
           let defenses = []
           await Promise.all(data.defenseIds.map(async (defenseId) => {
             defenses.push(await Defense.findById(defenseId))
           }))
-          role = {...data.toJSON(), defenses}
+          delete data.defenseIds
+          role = {...data, defenses}
 
           logger.info(role)
           break
@@ -227,15 +296,16 @@ export async function getUser(ctx, next) {
       }
       return next()
     }
+    const response = user.toJSON()
+    delete response.password
     ctx.body = {
-      user: {...user.toJSON(), ...role},
+      user: {...response, ...role, token: ctx.body.token},
     }
   } catch (err) {
     logger.error(err.message)
     if (err === 404 || err.name === 'CastError') {
       ctx.throw(404)
     }
-
     ctx.throw(500)
   }
 }
