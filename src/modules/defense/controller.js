@@ -104,7 +104,11 @@ export async function createDefense(ctx) {
 }
 
 async function getDefense(id) {
-  return await Defense.findById(id)
+  try {
+    return await Defense.findById(id)
+  } catch (err) {
+    throw new Error(err)
+  }
 }
 
 /**
@@ -159,12 +163,20 @@ async function getDefense(id) {
  */
 
 export async function getDefenses(ctx, next) {
-  const defenses = await Defense.find()
-  ctx.body = {
-    defenses,
-  }
-  if (next) {
-    return next()
+  try {
+    const defenses = await Defense.find()
+    ctx.body = {
+      defenses,
+    }
+    if (next) {
+      return next()
+    }
+  } catch (err) {
+    logger.error(ctx.url + ' ' + err.message)
+    if (err.message === '404' || err.name === 'CastError') {
+      ctx.throw(404, 'Not Found')
+    }
+    ctx.throw(500, err.message)
   }
 }
 
@@ -425,7 +437,7 @@ export async function getMyDefense(ctx) {
     }
   } catch (err) {
     logger.error(ctx.url + ' ' + err.message)
-    ctx.throw(401)
+    ctx.throw(401, err.message)
   }
 }
 
@@ -467,17 +479,21 @@ export async function getMyDefense(ctx) {
  *       }
  *     }
  *
+ * @apiUse NotFound
+ *
+ * @apiUse InternalServerError
+ *
  * @apiUse TokenError
  */
 
 export async function getDefenseDetail(ctx) {
-  const defense = await Defense.findById(ctx.params.id, '-adminIds -paperIds')
-  if (!defense) {
-    throw new Error(404)
-  }
-  let teachers = []
-  let students = []
   try {
+    const defense = await Defense.findById(ctx.params.id, '-adminIds -paperIds')
+    if (!defense) {
+      throw new Error(404)
+    }
+    let teachers = []
+    let students = []
     await Promise.all([
       await Promise.all((defense.teacherIds || []).map(async(teacherId) => {
         const teacher = await User.findById(teacherId, '-type -password -account -role')
@@ -514,17 +530,23 @@ export async function getDefenseDetail(ctx) {
           })
       })),
     ])
+
+    const response = defense.toJSON()
+    delete response.teacherIds
+    delete response.studentIds
+    ctx.body = {
+      defense: {
+        ...response,
+        teachers,
+        students,
+      },
+    }
   } catch (err) {
+    logger.error(ctx.url + ' ' + err.message)
+    if (err.message === '404' || err.name === 'CastError') {
+      ctx.throw(404, 'Not Found')
+    }
+
     ctx.throw(500, err.message)
-  }
-  const response = defense.toJSON()
-  delete response.teacherIds
-  delete response.studentIds
-  ctx.body = {
-    defense: {
-      ...response,
-      teachers,
-      students,
-    },
   }
 }

@@ -190,11 +190,11 @@ export async function getUser(ctx, next) {
     }
   } catch (err) {
     logger.error(ctx.url + ' ' + err.message)
-    if (err === 404 || err.name === 'CastError') {
-      ctx.throw(404)
+    if (err.message === '404' || err.name === 'CastError') {
+      ctx.throw(404, 'Not Found')
     }
 
-    ctx.throw(500)
+    ctx.throw(500, err.message)
   }
 }
 
@@ -307,10 +307,10 @@ export async function getRole(ctx, next) {
     }
   } catch (err) {
     logger.error(ctx.url + ' ' + err.message)
-    if (err === 404 || err.name === 'CastError') {
-      ctx.throw(404)
+    if (err.message === '404' || err.name === 'CastError') {
+      ctx.throw(404, 'Not Found')
     }
-    ctx.throw(500)
+    ctx.throw(500, err.message)
   }
 }
 
@@ -546,7 +546,7 @@ export async function getMe(ctx) {
   }
   ctx.status = 200
   ctx.body = {
-    user: ctx.state.user,
+    user: ctx.state.user.toJSON(),
   }
 }
 
@@ -588,7 +588,7 @@ export async function contactAdmin(ctx, next) {
     }
   } catch (err) {
     logger.error(ctx.url + ' ' + err.message)
-    if (err === 404 || err.name === 'CastError') {
+    if (err.message === '404' || err.name === 'CastError') {
       ctx.throw(404, 'Not Found')
     }
     ctx.throw(500, 'Internal Server Error')

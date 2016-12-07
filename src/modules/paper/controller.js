@@ -112,8 +112,13 @@ export async function createPaper(ctx) {
       // [student, teacher] = roles
     })
   } catch (err) {
-    await Promise.all([paper.remove && paper.remove()])
+    try {
+      await Promise.all([paper.remove && paper.remove()])
     // await Promise.all([paper.remove && paper.remove(), student.remove && student.remove(), teacher.remove && teacher.remove()])
+    } catch (err) {
+      ctx.throw(500, err.message)
+      logger.error(ctx.url + ' ' + err.message)
+    }
     logger.error(ctx.url + ' ' + err.message)
     ctx.throw(401, err.message)
   }
@@ -174,9 +179,18 @@ export async function createPaper(ctx) {
  * @apiUse TokenError
  */
 export async function getPapers(ctx) {
-  const papers = await Paper.find()
-  ctx.body = {
-    papers,
+  try {
+    const papers = await Paper.find()
+    ctx.body = {
+      papers,
+    }
+  } catch (err) {
+    logger.error(ctx.url + ' ' + err.message)
+    if (err.message === '404' || err.name === 'CastError') {
+      ctx.throw(404, 'Not Found')
+    }
+
+    ctx.throw(500, err.message)
   }
 }
 
@@ -239,7 +253,7 @@ export async function getPaper(ctx, next) {
   try {
     let paper = await Paper.findById(id)
     if (!paper) {
-      ctx.throw(404)
+      ctx.throw(404, 'Not Found')
     }
 
     ctx.body = {
@@ -247,11 +261,11 @@ export async function getPaper(ctx, next) {
     }
   } catch (err) {
     logger.error(ctx.url + ' ' + err.message)
-    if (err === 404 || err.name === 'CastError') {
-      ctx.throw(404)
+    if (err.message === '404' || err.name === 'CastError') {
+      ctx.throw(404, 'Not Found')
     }
 
-    ctx.throw(500)
+    ctx.throw(500, err.message)
   }
 
   if (next) {
@@ -384,7 +398,7 @@ export async function getMyPaper(ctx) {
       studentId: id,
     })
     if (!paper) {
-      ctx.throw(404)
+      ctx.throw(404, 'Not Found')
     }
 
     ctx.body = {
@@ -392,11 +406,11 @@ export async function getMyPaper(ctx) {
     }
   } catch (err) {
     logger.error(ctx.url + ' ' + err.message)
-    if (err === 404 || err.name === 'CastError') {
-      ctx.throw(404)
+    if (err.message === '404' || err.name === 'CastError') {
+      ctx.throw(404, 'Not Found')
     }
 
-    ctx.throw(500)
+    ctx.throw(500, err.message)
   }
 }
 
@@ -675,11 +689,10 @@ export async function updatePaperFinalInfo(ctx) {
     }
     paper.finalScore = ctx.request.fields.paper.finalScore || paper.finalScore
     paper.remark = ctx.request.fields.paper.remark || paper.remark
-    await paper.save()
     if (++defense.finished === defense.paperIds.length && defense.status === 1) {
       defense.status = 2
     }
-    await defense.save()
+    await Promise.all([paper.save(), defense.save()])
     ctx.body = {
       updatePaperFinalInfo: true,
     }
@@ -760,7 +773,7 @@ export async function updatePaperComment(ctx) {
     paper.comments = comments
     await paper.save()
   } catch (err) {
-    if (err.message === 401) {
+    if (err.message === '401') {
       ctx.throw(401, 'Unauthorized')
     }
     ctx.throw(422, err.message)

@@ -25,8 +25,11 @@ exports = module.exports = function initModules (app) {
         } = config
 
         const lastHandler = handlers.pop()
-        instance[method.toLowerCase()](route, filterData, ...handlers, async ctx => await lastHandler(ctx))
-
+        try {
+          instance[method.toLowerCase()](route, filterData, ...handlers, async ctx => await lastHandler(ctx))
+        } catch (err) {
+          logger.error('modules/index.js ' + err.message)
+        }
         app
           .use(instance.routes())
           .use(instance.allowedMethods())

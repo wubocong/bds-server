@@ -50,8 +50,8 @@ export async function ensureUser (ctx, next) {
     }
   } catch (err) {
     logger.error(ctx.url + ' ' + err.message)
-    if (err === 404 || err.name === 'CastError') {
-      ctx.throw(404, err.message)
+    if (err.message === '404' || err.name === 'CastError') {
+      ctx.throw(404, 'Not Found')
     }
 
     ctx.throw(500, err.message)

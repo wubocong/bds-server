@@ -30,9 +30,9 @@ const logger = require('koa-log4').getLogger('index')
  * @apiError The Backend Responded with an Error
  *
  * @apiErrorExample {json} InternalServer-Error:
- *     HTTP/1.1 404 InternalServerError
+ *     HTTP/1.1 500 InternalServerError
  *     {
- *       "status": 404,
+ *       "status": 500,
  *       "error": "InternalServerError"
  *     }
  */
