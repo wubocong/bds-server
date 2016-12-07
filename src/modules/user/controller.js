@@ -277,7 +277,7 @@ export async function getRole(ctx, next) {
         }
       case 'admin':
         {
-          const data = (await Admin.findOne({teacherId: user._id}, '-type -adminId')).toJSON()
+          const data = (await Admin.findOne({adminId: user._id}, '-type -adminId')).toJSON()
           let defenses = []
           await Promise.all(data.defenseIds.map(async (defenseId) => {
             defenses.push(await Defense.findById(defenseId))
@@ -302,7 +302,8 @@ export async function getRole(ctx, next) {
     const response = user.toJSON()
     delete response.password
     ctx.body = {
-      user: {...response, ...role, token: ctx.body.token},
+      user: {...response, ...role},
+      token: ctx.body.token,
     }
   } catch (err) {
     logger.error(ctx.url + ' ' + err.message)

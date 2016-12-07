@@ -60,6 +60,15 @@ export default [
   },
   {
     method: 'PUT',
+    route: '/score/:id',
+    handlers: [
+      ensureUser,
+      paper.getPaper,
+      paper.updatePaperScore,
+    ],
+  },
+  {
+    method: 'PUT',
     route: '/final/:id',
     handlers: [
       ensureUser,

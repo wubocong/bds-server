@@ -1,7 +1,6 @@
 import Koa from 'koa'
 import body from 'koa-better-body'
 import convert from 'koa-convert'
-// import logger from 'koa-logger'
 import mongoose from 'mongoose'
 import session from 'koa-generic-session'
 import MongoStore from 'koa-generic-session-mongo'
@@ -27,13 +26,15 @@ mongoose.connect(config.database)
 app.use(convert(cors()))
 
 app.use(log4js.koaLogger(log4js.getLogger('http'), { level: 'auto' }))
-// app.use(convert(logger()))
+
 app.use(convert(body({
   uploadDir: `${process.cwd()}/upload_files`,
   strict: false,
 })))
 app.use(convert(session({
-  store: new MongoStore(),
+  store: new MongoStore({
+    ttl: 30 * 60 * 1000,
+  }),
 })))
 app.use(errorMiddleware())
 

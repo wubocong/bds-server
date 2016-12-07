@@ -464,14 +464,22 @@ export async function uploadFile(ctx) {
  * @apiGroup Papers
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X PUT -d '{ "score": {"items": [50, 20, 30]} }' localhost:5000/papers/score/56bd1da600a526986cf65c80
+ * curl -H "Content-Type: application/json" -X PUT -d '{ "score": { "items": { "defenseScore": 80,  "innovationScore": 80,  "descriptionScore": 80,  "resultScore": 80,  "qualityScore": 80,  "designScore": 80,  "pointScore": 80,  "topicScore": 80 } } }' localhost:5000/papers/score/56bd1da600a526986cf65c80
  *
- * @apiParam {Object}   score            A teacher's score (required)
- * @apiParam {Number[]} score.items      Each item of score (required)
+ * @apiParam   {Object}     score                           A teacher's score (required)
+ * @apiParam   {Object[]}   score.items                     Each item of score (required)
+ * @apiSuccess {Number}     score.items.defenseScore        defenseScore
+ * @apiSuccess {Number}     score.items.innovationScore     innovationScore
+ * @apiSuccess {Number}     score.items.descriptionScore    descriptionScore
+ * @apiSuccess {Number}     score.items.resultScore         resultScore
+ * @apiSuccess {Number}     score.items.qualityScore        qualityScore
+ * @apiSuccess {Number}     score.items.designScore         designScore
+ * @apiSuccess {Number}     score.items.pointScore          pointScore
+ * @apiSuccess {Number}     score.items.topicScore          topicScore
  *
  * @apiSuccess {Boolean}   updatePaperScore     Action status
  * @apiSuccess {String}    remark               Automatic generated remark of a paper
- * @apiSuccess {Number}    currentScore         Average score *
+ * @apiSuccess {Number}    currentScore         Average score
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -496,6 +504,7 @@ export async function updatePaperScore(ctx) {
     const paper = ctx.body.paper
     const defense = await Defense.findById(paper.defenseId)
     const {teacherIds, leaderId} = defense.toJSON()
+    logger.error(defense)
     if (!teacherIds.includes(ctx.state.user._id)) {
       throw new Error(401)
     }
