@@ -637,7 +637,12 @@ export async function getPaperFinalInfo(ctx) {
  *     HTTP/1.1 200 OK
  *     {
  *       "updatePaperFinalInfo": true
- *       ["defenseOver": true]
+ *     }
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "defenseOver": true
  *     }
  *
  * @apiError UnprocessableEntity Missing required parameters
@@ -670,7 +675,9 @@ export async function updatePaperFinalInfo(ctx) {
       updatePaperFinalInfo: true,
     }
     if (defense.status >= 2) {
-      ctx.body.defenseOver = true
+      ctx.body = {
+        defenseOver: true,
+      }
     }
   } catch (err) {
     if (err.message === 401) {
