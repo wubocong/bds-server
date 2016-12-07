@@ -685,11 +685,11 @@ export async function updatePaperScore(ctx) {
  * @apiSuccess {String}    remark                          Automatic generated remark of a paper
  * @apiSuccess {Number}    finalScore                      Final score for normal judge, average score for leader
  * @apiSuccess {Object[]}  scores                          Defense scores
- * @apiSuccess {Number[]}  scores.items                    Each item of teacher's scores
  * @apiSuccess {Number}    scores.sum                      Sum of each teacher's scores
  * @apiSuccess {Object}    scores.teacher                  Judge teacher's object
  * @apiSuccess {ObjectId}  scores.teacher._id              Id of the judge teacher
  * @apiSuccess {String}    scores.teacher.name             Name of the judge teacher
+ * @apiSuccess {Number[]}  scores.items                    Each item of teacher's scores
  * @apiSuccess {Number}    scores.items.defenseScore       defenseScore
  * @apiSuccess {Number}    scores.items.innovationScore    innovationScore
  * @apiSuccess {Number}    scores.items.descriptionScore   descriptionScore
