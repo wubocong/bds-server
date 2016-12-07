@@ -15,8 +15,8 @@ const logger = require('koa-log4').getLogger('index')
  *
  * @apiParam {Object}   paper                                  Paper object (required)
  * @apiParam {String}   paper.name                             Paper name (required)
- * @apiParam {String}   paper.studentId                        Id of student (required)
- * @apiParam {String}   paper.teacherId                        Id of student's teacher (required)
+ * @apiParam {ObjectId} paper.studentId                        Id of student (required)
+ * @apiParam {ObjectId} paper.teacherId                        Id of student's teacher (required)
  * @apiParam {String}   paper.desp                             Paper description (required)
  * @apiParam {Object[]} paper.scores                           Defense scores
  * @apiParam {Number[]} paper.scores.items                     Each item of teacher's scores
@@ -28,9 +28,11 @@ const logger = require('koa-log4').getLogger('index')
  * @apiParam {Number}   paper.scores.items.designScore         designScore
  * @apiParam {Number}   paper.scores.items.pointScore          pointScore
  * @apiParam {Number}   paper.scores.items.topicScore          topicScore
- * @apiParam {String}   paper.scores.teacherId                 Teacher's id
+ * @apiParam {Object}   paper.scores.teacher                   Judge teacher's object
+ * @apiParam {ObjectId} paper.scores.teacher._id               Id of the judge teacher
+ * @apiParam {String}   paper.scores.teacher.name              Name of the judge teacher
  * @apiParam {Number}   paper.scores.sum                       Sum of each teacher's scores
- * @apiParam {Boolean}  paper.scores.isLeader                  Sum of each teacher's scores
+ * @apiParam {Boolean}  paper.scores.isLeader                  Whether the teacher is leader
  * @apiParam {Object}   paper.file                             Paper file
  * @apiParam {String}   paper.file.name                        Paper file's name
  * @apiParam {String}   paper.file.path                        Paper file's path
@@ -144,8 +146,8 @@ export async function createPaper(ctx) {
  * @apiSuccess {Object[]} papers                   Paper objects
  * @apiSuccess {ObjectId} papers._id               Paper id
  * @apiSuccess {String}   papers.name              Paper name
- * @apiSuccess {String}   papers.studentId         Id of student
- * @apiSuccess {String}   papers.teacherId         Id of student's teacher
+ * @apiSuccess {ObjectId} papers.studentId         Id of student
+ * @apiSuccess {ObjectId} papers.teacherId         Id of student's teacher
  * @apiSuccess {String}   papers.desp              Paper description
  * @apiSuccess {Object[]} papers.scores            Defense scores
  * @apiSuccess {Number[]} papers.scores.items      Each item of teacher's scores
@@ -157,9 +159,11 @@ export async function createPaper(ctx) {
  * @apiSuccess {Number}   papers.scores.items.designScore        designScore
  * @apiSuccess {Number}   papers.scores.items.pointScore         pointScore
  * @apiSuccess {Number}   papers.scores.items.topicScore         topicScore
- * @apiSuccess {String}   papers.scores.teacherId  Teacher's id
+ * @apiSuccess {Object}   paper.scores.teacher                   Judge teacher's object
+ * @apiSuccess {ObjectId} paper.scores.teacher._id               Id of the judge teacher
+ * @apiSuccess {String}   paper.scores.teacher.name              Name of the judge teacher
  * @apiSuccess {Number}   papers.scores.sum        Sum of each teacher's scores
- * @apiSuccess {Boolean}  papers.scores.isLeader   Sum of each teacher's scores
+ * @apiSuccess {Boolean}  papers.scores.isLeader   Whether the teacher is leader
  * @apiSuccess {Object}   papers.file              Paper file
  * @apiSuccess {String}   papers.file.name         Paper file's name
  * @apiSuccess {String}   papers.file.path         Paper file's path
@@ -222,8 +226,8 @@ export async function getPapers(ctx) {
  * @apiSuccess {Object}   paper                                 Paper object
  * @apiSuccess {ObjectId} paper._id                             Paper id
  * @apiSuccess {String}   paper.name                            Paper name
- * @apiSuccess {String}   paper.studentId                       Id of student
- * @apiSuccess {String}   paper.teacherId                       Id of student's teacher
+ * @apiSuccess {ObjectId} paper.studentId                       Id of student
+ * @apiSuccess {ObjectId} paper.teacherId                       Id of student's teacher
  * @apiSuccess {String}   paper.desp                            Paper description
  * @apiSuccess {Object[]} paper.scores                          Defense scores
  * @apiSuccess {Number[]} paper.scores.items                    Each item of teacher's scores
@@ -235,9 +239,11 @@ export async function getPapers(ctx) {
  * @apiSuccess {Number}   paper.scores.items.designScore        designScore
  * @apiSuccess {Number}   paper.scores.items.pointScore         pointScore
  * @apiSuccess {Number}   paper.scores.items.topicScore         topicScore
- * @apiSuccess {String}   paper.scores.teacherId                Teacher's id
+ * @apiSuccess {Object}   paper.scores.teacher                   Judge teacher's object
+ * @apiSuccess {ObjectId} paper.scores.teacher._id               Id of the judge teacher
+ * @apiSuccess {String}   paper.scores.teacher.name              Name of the judge teacher
  * @apiSuccess {Number}   paper.scores.sum                      Sum of each teacher's scores
- * @apiSuccess {Boolean}  paper.scores.isLeader                 Sum of each teacher's scores
+ * @apiSuccess {Boolean}  paper.scores.isLeader                 Whether the teacher is leader
  * @apiSuccess {Object}   paper.file                            Paper file
  * @apiSuccess {String}   paper.file.name                       Paper file's name
  * @apiSuccess {String}   paper.file.path                       Paper file's path
@@ -308,8 +314,8 @@ export async function getPaper(ctx, next) {
  *
  * @apiParam {Object}   paper                   Paper object
  * @apiParam {String}   paper.name              Paper name
- * @apiParam {String}   paper.studentId         Id of student
- * @apiParam {String}   paper.teacherId         Id of student's teacher
+ * @apiParam {ObjectId} paper.studentId         Id of student
+ * @apiParam {ObjectId} paper.teacherId         Id of student's teacher
  * @apiParam {String}   paper.desp              Paper description
  * @apiParam {Object[]} paper.scores            Defense scores
  * @apiParam {Number[]} paper.scores.items      Each item of teacher's scores
@@ -321,9 +327,11 @@ export async function getPaper(ctx, next) {
  * @apiParam {Number}   paper.scores.items.designScore         designScore
  * @apiParam {Number}   paper.scores.items.pointScore          pointScore
  * @apiParam {Number}   paper.scores.items.topicScore          topicScore
- * @apiParam {String}   paper.scores.teacherId  Teacher's id
+ * @apiParam {Object}   paper.scores.teacher                   Judge teacher's object
+ * @apiParam {ObjectId} paper.scores.teacher._id               Id of the judge teacher
+ * @apiParam {String}   paper.scores.teacher.name              Name of the judge teacher
  * @apiParam {Number}   paper.scores.sum        Sum of each teacher's scores
- * @apiParam {Boolean}  paper.scores.isLeader   Sum of each teacher's scores
+ * @apiParam {Boolean}  paper.scores.isLeader   Whether the teacher is leader
  * @apiParam {Object}   paper.file              Paper file
  * @apiParam {String}   paper.file.name         Paper file's name
  * @apiParam {String}   paper.file.path         Paper file's path
@@ -381,14 +389,16 @@ export async function updatePaper(ctx) {
  * @apiSuccess {Object}   paper                   Paper object
  * @apiSuccess {ObjectId} paper._id               Paper id
  * @apiSuccess {String}   paper.name              Paper name
- * @apiSuccess {String}   paper.studentId         Id of student
- * @apiSuccess {String}   paper.teacherId         Id of student's teacher
+ * @apiSuccess {ObjectId} paper.studentId         Id of student
+ * @apiSuccess {ObjectId} paper.teacherId         Id of student's teacher
  * @apiSuccess {String}   paper.desp              Paper description
  * @apiSuccess {Object[]} paper.scores            Defense scores
  * @apiSuccess {Number[]} paper.scores.items      Each item of teacher's scores
- * @apiSuccess {String}   paper.scores.teacherId  Teacher's id
+ * @apiSuccess {Object}   paper.scores.teacher                   Judge teacher's object
+ * @apiSuccess {ObjectId} paper.scores.teacher._id               Id of the judge teacher
+ * @apiSuccess {String}   paper.scores.teacher.name              Name of the judge teacher
  * @apiSuccess {Number}   paper.scores.sum        Sum of each teacher's scores
- * @apiSuccess {Boolean}  paper.scores.isLeader   Sum of each teacher's scores
+ * @apiSuccess {Boolean}  paper.scores.isLeader   Whether the teacher is leader
  * @apiSuccess {Object}   paper.file              Paper file
  * @apiSuccess {String}   paper.file.name         Paper file's name
  * @apiSuccess {String}   paper.file.path         Paper file's path
@@ -524,10 +534,14 @@ export async function uploadFile(ctx) {
  *
  * @apiSuccess {Boolean}   updatePaperScore     Action status
  *
- * @apiSuccess {String}    remark               Automatic generated remark of a paper
- * @apiSuccess {Number}    finalScore           Final score for normal judge, average score for leader
- * @apiSuccess {Object[]}  scores            Defense scores
- * @apiSuccess {Number[]}  scores.items      Each item of teacher's scores
+ * @apiSuccess {String}    remark                          Automatic generated remark of a paper
+ * @apiSuccess {Number}    finalScore                      Final score for normal judge, average score for leader
+ * @apiSuccess {Object[]}  scores                          Defense scores
+ * @apiSuccess {Number}    sum                             Sum of each teacher's scores
+ * @apiSuccess {Object}    scores.teacher                  Judge teacher's object
+ * @apiSuccess {ObjectId}  scores.teacher._id              Id of the judge teacher
+ * @apiSuccess {String}    scores.teacher.name             Name of the judge teacher
+ * @apiSuccess {Number[]}  scores.items                    Each item of teacher's scores
  * @apiSuccess {Number}    scores.items.defenseScore       defenseScore
  * @apiSuccess {Number}    scores.items.innovationScore    innovationScore
  * @apiSuccess {Number}    scores.items.descriptionScore   descriptionScore
@@ -668,10 +682,14 @@ export async function updatePaperScore(ctx) {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X GET localhost:5000/papers/final/56bd1da600a526986cf65c80
  *
- * @apiSuccess {String}    remark               Automatic generated remark of a paper
- * @apiSuccess {Number}    finalScore           Final score for normal judge, average score for leader
- * @apiSuccess {Object[]}  scores            Defense scores
- * @apiSuccess {Number[]}  scores.items      Each item of teacher's scores
+ * @apiSuccess {String}    remark                          Automatic generated remark of a paper
+ * @apiSuccess {Number}    finalScore                      Final score for normal judge, average score for leader
+ * @apiSuccess {Object[]}  scores                          Defense scores
+ * @apiSuccess {Number[]}  scores.items                    Each item of teacher's scores
+ * @apiSuccess {Number}    scores.sum                      Sum of each teacher's scores
+ * @apiSuccess {Object}    scores.teacher                  Judge teacher's object
+ * @apiSuccess {ObjectId}  scores.teacher._id              Id of the judge teacher
+ * @apiSuccess {String}    scores.teacher.name             Name of the judge teacher
  * @apiSuccess {Number}    scores.items.defenseScore       defenseScore
  * @apiSuccess {Number}    scores.items.innovationScore    innovationScore
  * @apiSuccess {Number}    scores.items.descriptionScore   descriptionScore
