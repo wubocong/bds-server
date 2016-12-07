@@ -380,7 +380,7 @@ export async function updatePaper(ctx) {
 export async function getMyPaper(ctx) {
   const id = ctx.state.user._id
   try {
-    let paper = await Paper.find({
+    const paper = await Paper.find({
       studentId: id,
     })
     if (!paper) {
@@ -492,7 +492,7 @@ export async function uploadFile(ctx) {
 
 export async function updatePaperScore(ctx) {
   try {
-    const paper = await Paper.findById(ctx.params.id)
+    const paper = ctx.body.paper
     const defense = await Defense.findById(paper.defenseId)
     const {teacherIds, leaderId} = defense.toJSON()
     if (!teacherIds.includes(ctx.state.user._id)) {
@@ -530,7 +530,7 @@ export async function updatePaperScore(ctx) {
  * @apiGroup Papers
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X GET localhost:5000/papers/final/score/56bd1da600a526986cf65c80
+ * curl -H "Content-Type: application/json" -X GET localhost:5000/papers/final/56bd1da600a526986cf65c80
  *
  * @apiSuccess {String}    remark               Automatic generated remark of a paper
  * @apiSuccess {Number}    currentScore         Average score
@@ -571,7 +571,7 @@ export async function updatePaperScore(ctx) {
 
 export async function getPaperFinalInfo(ctx) {
   try {
-    const paper = await Paper.findById(ctx.params.id)
+    const paper = ctx.body.paper
     const defense = await Defense.findById(paper.defenseId)
     const {teacherIds, leaderId} = defense.toJSON()
     if (!teacherIds.includes(ctx.state.user._id)) {
@@ -613,7 +613,7 @@ export async function getPaperFinalInfo(ctx) {
  * @apiGroup Papers
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X PUT -d '{ "paper": {"finalScore": 100, "remark": "FUCKFUCKFUCK"} }' localhost:5000/papers/final/score/56bd1da600a526986cf65c80
+ * curl -H "Content-Type: application/json" -X PUT -d '{ "paper": {"finalScore": 100, "remark": "FUCKFUCKFUCK"} }' localhost:5000/papers/final/56bd1da600a526986cf65c80
  *
  * @apiParam {Object}   paper            Paper object(required)
  * @apiParam {String}   finalScore       Paper's final score
@@ -643,7 +643,7 @@ export async function getPaperFinalInfo(ctx) {
 
 export async function updatePaperFinalInfo(ctx) {
   try {
-    const paper = await Paper.findById(ctx.params.id)
+    const paper = ctx.body.paper
     const defense = await Defense.findById(paper.defenseId)
     if (defense.toJSON().leaderId !== ctx.state.user._id) {
       throw new Error(401)
@@ -708,7 +708,7 @@ export async function updatePaperFinalInfo(ctx) {
 
 export async function updatePaperComment(ctx) {
   try {
-    const paper = await Paper.findById(ctx.params.id)
+    const paper = ctx.body.paper
     if (paper.teacherId.toString() !== ctx.state.user._id) {
       throw new Error(401)
     }
@@ -782,7 +782,7 @@ export async function updatePaperComment(ctx) {
 
 export async function updatePaperBasic(ctx) {
   try {
-    const paper = await Paper.findById(ctx.request.fields.id)
+    const paper = ctx.body.paper
     const {name, studentId, teacherId, desp} = ctx.request.fields.paper
     const newPaper = {
       name: name || paper.name,

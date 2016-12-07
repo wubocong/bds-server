@@ -54,16 +54,26 @@ export default [
     handlers: [
       ensureUser,
       // ensureAdmin,
+      paper.getPaper,
       paper.updatePaperBasic,
     ],
   },
   {
     method: 'PUT',
-    route: '/score/:id',
+    route: '/final/:id',
     handlers: [
       ensureUser,
       paper.getPaper,
-      paper.updatePaperScore,
+      paper.updatePaperFinalInfo,
+    ],
+  },
+  {
+    method: 'GET',
+    route: '/final/:id',
+    handlers: [
+      ensureUser,
+      paper.getPaper,
+      paper.getPaperFinalInfo,
     ],
   },
   {
@@ -71,6 +81,7 @@ export default [
     route: '/comment/:id',
     handlers: [
       ensureUser,
+      paper.getPaper,
       paper.updatePaperComment,
     ],
   },
