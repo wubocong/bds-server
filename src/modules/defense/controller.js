@@ -214,7 +214,7 @@ export async function updateDefense(ctx) {
         defense[key] = filter[key]
       }
     })
-    defense.save()
+    await defense.save()
     ctx.body = {
       updateDefense: true,
     }
@@ -265,7 +265,7 @@ export async function addStudentsToDefense(ctx) {
       }
     })
     Object.assign(defense, {studentIds, paperIds})
-    defense.save()
+    await defense.save()
     ctx.body = {
       addStudentsToDefense: true,
     }

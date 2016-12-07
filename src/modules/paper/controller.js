@@ -174,7 +174,7 @@ export async function createPaper(ctx) {
  * @apiUse TokenError
  */
 export async function getPapers(ctx) {
-  const papers = await Paper.find({})
+  const papers = await Paper.find()
   ctx.body = {
     papers,
   }
@@ -470,7 +470,8 @@ export async function uploadFile(ctx) {
  * @apiParam {Number[]} score.items      Each item of score (required)
  *
  * @apiSuccess {Boolean}   updatePaperScore     Action status
- *
+ * @apiSuccess {String}    remark               Automatic generated remark of a paper
+ * @apiSuccess {Number}    currentScore         Average score *
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -509,6 +510,16 @@ export async function updatePaperScore(ctx) {
       sum: ctx.request.fields.score.sum,
     })
     paper.scores = scores
+    if (scores.length === 3 && ctx.state.user._id === leaderId) {
+      paper.remark = 'this is a pig'
+      const currentScore = paper.scores.reduce((pre, cur) => pre + cur.sum, 0)
+      ctx.body = {
+        currentScore,
+        remark: paper.remark,
+      }
+      await paper.save()
+      return
+    }
     await paper.save()
     ctx.body = {
       updatePaperScore: true,
@@ -587,12 +598,12 @@ export async function getPaperFinalInfo(ctx) {
     } else {
       if (paper.scores.length === 3) {
         paper.remark = 'this is a pig'
-        const currentScore = paper.scores.reduce((pre, cur) => pre + cur)
+        const currentScore = paper.scores.reduce((pre, cur) => pre + cur.sum, 0)
         ctx.body = {
           currentScore,
           remark: paper.remark,
         }
-        paper.save()
+        await paper.save()
       }
     }
   } catch (err) {
