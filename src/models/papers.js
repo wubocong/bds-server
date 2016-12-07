@@ -12,11 +12,10 @@ const Score = new mongoose.Schema({
     descriptionScore: { type: Number, required: true, default: 0 },
     innovationScore: { type: Number, required: true, default: 0 },
     defenseScore: { type: Number, required: true, default: 0 },
-    score: { type: Number, required: true, default: 0 },
   },
   teacher: {
     _id: { type: ObjectId, ref: 'teacher' },
-    name: { type: String }
+    name: { type: String },
   },
   sum: { type: Number, required: true, default: 0 },
   isLeader: { type: Boolean, required: true, default: false },

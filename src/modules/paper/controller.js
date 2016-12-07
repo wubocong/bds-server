@@ -627,44 +627,50 @@ export async function uploadFile(ctx) {
 
 export async function updatePaperScore(ctx) {
   try {
-    const paper = ctx.body.paper
-    const defense = await Defense.findById(paper.defenseId)
-    const {teacherIds, leaderId} = defense.toJSON()
-    logger.error(defense)
-    if (!teacherIds.includes(ctx.state.user._id)) {
-      throw new Error(401)
-    }
-
-    const {scores} = paper.toJSON()
+    const {scores, defenseId} = ctx.body.paper
+    const teacherId = ctx.state.user._id.toString()
     if (scores.length === 3) {
       throw new Error(401)
     }
+    scores.forEach((score) => {
+      if (score.teacher._id.toString() == teacherId) {
+        throw new Error(401)
+      }
+    })
+    const defense = await Defense.findById(defenseId)
+    const {teacherIds, leaderId} = defense
+    teacherIds.some((id) => {
+      if (id == teacherId) {
+        throw new Error(401)
+      }
+    })
+    const isLeader = teacherId == leaderId.toString()
     scores.push({
       teacher: {
-        _id: ctx.state.user._id,
+        _id: teacherId,
         name: ctx.state.user.name,
       },
+      isLeader,
       items: ctx.request.fields.score.items,
       sum: ctx.request.fields.score.sum,
     })
-    paper.scores = scores
-    if (scores.length === 3 && ctx.state.user._id === leaderId) {
-      paper.remark = 'this is a pig'
-      const finalScore = paper.scores.reduce((pre, cur) => pre + cur.sum, 0)
+    if (scores.length === 3 && isLeader) {
+      ctx.body.paper.remark = 'this is a pig'
+      const finalScore = scores.reduce((pre, cur) => pre + cur.sum, 0)
       ctx.body = {
         finalScore,
-        remark: paper.remark,
-        scores: paper.scores,
+        remark: ctx.body.paper.remark,
+        scores: scores,
       }
-      await paper.save()
-      return
+      return await ctx.body.paper.save()
     }
-    await paper.save()
+    ctx.body.paper.scores = scores
+    await ctx.body.paper.save()
     ctx.body = {
       updatePaperScore: true,
     }
   } catch (err) {
-    if (err.message === 401) {
+    if (err.message === '401') {
       ctx.throw(401, 'Unauthorized')
     }
     logger.error(ctx.url + ' ' + err.message)
@@ -777,34 +783,44 @@ export async function updatePaperScore(ctx) {
 
 export async function getPaperFinalInfo(ctx) {
   try {
-    const paper = ctx.body.paper
-    const defense = await Defense.findById(paper.defenseId)
-    const {teacherIds, leaderId} = defense.toJSON()
-    if (!teacherIds.includes(ctx.state.user._id)) {
+    const {defenseId, finalScore, remark, scores} = ctx.body.paper
+    const defense = await Defense.findById(defenseId)
+    const {teacherIds, leaderId} = defense
+    const teacherId = ctx.state.user._id.toString()
+    const isLeader = leaderId.toString() == teacherId
+    if (!teacherIds.some(id => id == teacherId)) {
       throw new Error(401)
     }
-    if (ctx.state.user._id !== leaderId) {
-      if (paper.finalScore !== 0) {
+    if (!isLeader) {
+      if (finalScore !== 0) {
         ctx.body = {
-          finalScore: paper.finalScore,
-          remark: paper.remark,
-          scores: paper.scores,
+          finalScore: finalScore,
+          remark: remark,
+          scores: scores,
+        }
+      } else {
+        ctx.body = {
+          waiting: true,
         }
       }
     } else {
-      if (paper.scores.length === 3) {
-        paper.remark = 'this is a pig'
-        const finalScore = paper.scores.reduce((pre, cur) => pre + cur.sum, 0)
+      if (scores.length === 3) {
+        ctx.body.paper.remark = 'this is a pig'
+        await ctx.body.paper.save()
+        const finalScore = scores.reduce((pre, cur) => pre + cur.sum, 0)
         ctx.body = {
           finalScore,
-          remark: paper.remark,
-          scores: paper.scores,
+          remark: remark,
+          scores: scores,
         }
-        await paper.save()
+      } else {
+        ctx.body = {
+          waiting: true,
+        }
       }
     }
   } catch (err) {
-    if (err.message === 401) {
+    if (err.message === '401') {
       ctx.throw(401, 'Unauthorized')
       logger.error(ctx.url + ' ' + 'Unauthorized')
     }
@@ -858,25 +874,32 @@ export async function updatePaperFinalInfo(ctx) {
   try {
     const paper = ctx.body.paper
     const defense = await Defense.findById(paper.defenseId)
-    if (defense.toJSON().leaderId !== ctx.state.user._id) {
+    let {finished, leaderId, paperIds, status} = defense
+    const teacherId = ctx.state.user._id.toString()
+    const isLeader = leaderId.toString() == teacherId
+    if (!isLeader || parseInt(paper.finalScore)) {
       throw new Error(401)
     }
     paper.finalScore = ctx.request.fields.paper.finalScore || paper.finalScore
     paper.remark = ctx.request.fields.paper.remark || paper.remark
-    if (++defense.finished === defense.paperIds.length && defense.status === 1) {
-      defense.status = 2
+    if (++finished === paperIds.length && status === 1) {
+      status = 2
     }
+    Object.assign(defense, {
+      finished,
+      status,
+    })
     await Promise.all([paper.save(), defense.save()])
     ctx.body = {
       updatePaperFinalInfo: true,
     }
-    if (defense.status >= 2) {
+    if (status >= 2) {
       ctx.body = {
         defenseOver: true,
       }
     }
   } catch (err) {
-    if (err.message === 401) {
+    if (err.message === '401') {
       ctx.throw(401, 'Unauthorized')
       logger.error(ctx.url + ' ' + 'Unauthorized')
     }
@@ -923,7 +946,7 @@ export async function updatePaperFinalInfo(ctx) {
 export async function updatePaperComment(ctx) {
   try {
     const paper = ctx.body.paper
-    if (paper.teacherId.toString() !== ctx.state.user._id) {
+    if (paper.teacherId.toString() != ctx.state.user._id) {
       throw new Error(401)
     }
     const comments = paper.toJSON().comments

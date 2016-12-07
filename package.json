@@ -1,6 +1,6 @@
 {
   "name": "bachelor-denfese-server",
-  "version": "0.4.0-beta.2",
+  "version": "0.4.0",
   "description": "Bachelor defense API",
   "main": "index.js",
   "private": true,
@@ -16,7 +16,8 @@
     "mongo:prod": "sudo cross-env nohup mongod -f /etc/mongod.conf &",
     "clean:log": "rm -rf npm-debug.log**",
     "clean:file": "rm -rf upload_files/**",
-    "dump": "mongodump /out D:/web/bds-server/startup/debug"
+    "dump": "cross-env mongodump -o debug",
+    "restore": "cross-env mongorestore --db bds-prod --dir debug/bds-prod"
   },
   "author": "Warrior! <wubocong.xyz@gmail.com>",
   "apidoc": {

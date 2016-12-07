@@ -219,7 +219,14 @@ export async function getDefenses(ctx, next) {
 export async function updateDefense(ctx) {
   try {
     const {name, time, address, status, leaderId, adminId} = ctx.request.fields.defense
-    const filter = {name, time, address, status, leaderId, adminId}
+    const filter = {
+      name,
+      time,
+      address,
+      status,
+      leaderId,
+      adminId,
+    }
     const defense = await getDefense(ctx.params.id)
     Object.keys(filter).forEach((key) => {
       if (filter[key]) {
@@ -271,12 +278,20 @@ export async function addStudentsToDefense(ctx) {
     const defense = await getDefense(ctx.params.id)
     const {studentIds, paperIds} = defense.toJSON()
     ctx.request.fields.studentIds.forEach(async (studentId, i) => {
-      if (!defense.studentIds.includes(studentId)) {
-        paperIds.push((await Student.findOne({studentId})).paperId)
-        studentIds.push(studentId)
-      }
+      defense.studentIds.forEach((id) => {
+        if (id == studentId) {
+          throw new Error(401)
+        }
+      })
+      paperIds.push((await Student.findOne({
+        studentId,
+      })).paperId)
+      studentIds.push(studentId)
     })
-    Object.assign(defense, {studentIds, paperIds})
+    Object.assign(defense, {
+      studentIds,
+      paperIds,
+    })
     await defense.save()
     ctx.body = {
       addStudentsToDefense: true,

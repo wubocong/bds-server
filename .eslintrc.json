@@ -3,7 +3,8 @@
   "extends": "standard",
   "rules": {
     "comma-dangle": ["warn", "always-multiline"],
-    "space-before-function-paren": 0
+    "space-before-function-paren": 0,
+    "eqeqeq": 1
   },
   "env": {
     "node": true,
