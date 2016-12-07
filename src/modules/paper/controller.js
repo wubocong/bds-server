@@ -3,7 +3,6 @@ import Student from '../../models/students'
 import Teacher from '../../models/teachers'
 import Defense from '../../models/defenses'
 const logger = require('koa-log4').getLogger('index')
-
 /**
  * @api {post} /papers Create a paper
  * @apiPermission Student
@@ -12,30 +11,38 @@ const logger = require('koa-log4').getLogger('index')
  * @apiGroup Papers
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X POST -d '{ "paper": { "name": "How to become a millionaire", "studentId": "56bd1da600a526986cf65c80", "teacherId": "56bd1da600a526986cf65c80", "desp": "fuckfuckfuck", "scores": [{"teacherId": "56bd1da600a526986cf65c80", "isLeader": true, "sum": 100, "items": [50, 20, 30]}], "remark": "bad guy", "time": 1479891536874 }]} }' localhost:5000/papers
+ * curl -H "Content-Type: application/json" -X POST -d '{ "paper": { "name": "How to become a millionaire", "studentId": "56bd1da600a526986cf65c80", "teacherId": "56bd1da600a526986cf65c80", "desp": "fuckfuckfuck", "scores": [{"teacherId": "56bd1da600a526986cf65c80", "isLeader": true, "sum": 100, "items": { "defenseScore": 80,  "innovationScore": 80,  "descriptionScore": 80,  "resultScore": 80,  "qualityScore": 80,  "designScore": 80,  "pointScore": 80,  "topicScore": 80 }}], "remark": "bad guy", "time": 1479891536874 }]} }' localhost:5000/papers
  *
- * @apiParam {Object}   paper                   Paper object (required)
- * @apiParam {String}   paper.name              Paper name (required)
- * @apiParam {String}   paper.studentId         Id of student (required)
- * @apiParam {String}   paper.teacherId         Id of student's teacher (required)
- * @apiParam {String}   paper.desp              Paper description (required)
- * @apiParam {Object[]} paper.scores            Defense scores
- * @apiParam {Number[]} paper.scores.items      Each item of teacher's scores
- * @apiParam {String}   paper.scores.teacherId  Teacher's id
- * @apiParam {Number}   paper.scores.sum        Sum of each teacher's scores
- * @apiParam {Boolean}  paper.scores.isLeader   Sum of each teacher's scores
- * @apiParam {Object}   paper.file              Paper file
- * @apiParam {String}   paper.file.name         Paper file's name
- * @apiParam {String}   paper.file.path         Paper file's path
- * @apiParam {Number}   paper.file.size         Paper file's size in bytes
- * @apiParam {Number}   paper.file.type         Paper file's type
- * @apiParam {Date}     paper.file.lastModified Paper file's last modified time
- * @apiParam {Object[]} paper.comments          Daily comments of tutor
- * @apiParam {String}   paper.comments.content  Content of comment
- * @apiParam {Date}     paper.comments.time     Create time of comment
- * @apiParam {Number}   paper.finalScore        Final score after defense
- * @apiParam {String}   paper.remark            Remark after defense
- * @apiParam {Date}     paper.lastModified      Last modified time of paper doc
+ * @apiParam {Object}   paper                                  Paper object (required)
+ * @apiParam {String}   paper.name                             Paper name (required)
+ * @apiParam {String}   paper.studentId                        Id of student (required)
+ * @apiParam {String}   paper.teacherId                        Id of student's teacher (required)
+ * @apiParam {String}   paper.desp                             Paper description (required)
+ * @apiParam {Object[]} paper.scores                           Defense scores
+ * @apiParam {Number[]} paper.scores.items                     Each item of teacher's scores
+ * @apiParam {Number}   paper.scores.items.defenseScore        defenseScore
+ * @apiParam {Number}   paper.scores.items.innovationScore     innovationScore
+ * @apiParam {Number}   paper.scores.items.descriptionScore    descriptionScore
+ * @apiParam {Number}   paper.scores.items.resultScore         resultScore
+ * @apiParam {Number}   paper.scores.items.qualityScore        qualityScore
+ * @apiParam {Number}   paper.scores.items.designScore         designScore
+ * @apiParam {Number}   paper.scores.items.pointScore          pointScore
+ * @apiParam {Number}   paper.scores.items.topicScore          topicScore
+ * @apiParam {String}   paper.scores.teacherId                 Teacher's id
+ * @apiParam {Number}   paper.scores.sum                       Sum of each teacher's scores
+ * @apiParam {Boolean}  paper.scores.isLeader                  Sum of each teacher's scores
+ * @apiParam {Object}   paper.file                             Paper file
+ * @apiParam {String}   paper.file.name                        Paper file's name
+ * @apiParam {String}   paper.file.path                        Paper file's path
+ * @apiParam {Number}   paper.file.size                        Paper file's size in bytes
+ * @apiParam {Number}   paper.file.type                        Paper file's type
+ * @apiParam {Date}     paper.file.lastModified                Paper file's last modified time
+ * @apiParam {Object[]} paper.comments                         Daily comments of tutor
+ * @apiParam {String}   paper.comments.content                 Content of comment
+ * @apiParam {Date}     paper.comments.time                    Create time of comment
+ * @apiParam {Number}   paper.finalScore                       Final score after defense
+ * @apiParam {String}   paper.remark                           Remark after defense
+ * @apiParam {Date}     paper.lastModified                     Last modified time of paper doc
  *
  * @apiSuccess {Object}     paper            Paper Object
  * @apiSuccess {ObjectId}   paper._id        Paper id
@@ -142,6 +149,14 @@ export async function createPaper(ctx) {
  * @apiSuccess {String}   papers.desp              Paper description
  * @apiSuccess {Object[]} papers.scores            Defense scores
  * @apiSuccess {Number[]} papers.scores.items      Each item of teacher's scores
+ * @apiSuccess {Number}   papers.scores.items.defenseScore       defenseScore
+ * @apiSuccess {Number}   papers.scores.items.innovationScore    innovationScore
+ * @apiSuccess {Number}   papers.scores.items.descriptionScore   descriptionScore
+ * @apiSuccess {Number}   papers.scores.items.resultScore        resultScore
+ * @apiSuccess {Number}   papers.scores.items.qualityScore       qualityScore
+ * @apiSuccess {Number}   papers.scores.items.designScore        designScore
+ * @apiSuccess {Number}   papers.scores.items.pointScore         pointScore
+ * @apiSuccess {Number}   papers.scores.items.topicScore         topicScore
  * @apiSuccess {String}   papers.scores.teacherId  Teacher's id
  * @apiSuccess {Number}   papers.scores.sum        Sum of each teacher's scores
  * @apiSuccess {Boolean}  papers.scores.isLeader   Sum of each teacher's scores
@@ -204,29 +219,37 @@ export async function getPapers(ctx) {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X GET localhost:5000/papers/56bd1da600a526986cf65c80
  *
- * @apiSuccess {Object}   paper                   Paper object
- * @apiSuccess {ObjectId} paper._id               Paper id
- * @apiSuccess {String}   paper.name              Paper name
- * @apiSuccess {String}   paper.studentId         Id of student
- * @apiSuccess {String}   paper.teacherId         Id of student's teacher
- * @apiSuccess {String}   paper.desp              Paper description
- * @apiSuccess {Object[]} paper.scores            Defense scores
- * @apiSuccess {Number[]} paper.scores.items      Each item of teacher's scores
- * @apiSuccess {String}   paper.scores.teacherId  Teacher's id
- * @apiSuccess {Number}   paper.scores.sum        Sum of each teacher's scores
- * @apiSuccess {Boolean}  paper.scores.isLeader   Sum of each teacher's scores
- * @apiSuccess {Object}   paper.file              Paper file
- * @apiSuccess {String}   paper.file.name         Paper file's name
- * @apiSuccess {String}   paper.file.path         Paper file's path
- * @apiSuccess {Number}   paper.file.size         Paper file's size in bytes
- * @apiSuccess {Number}   paper.file.type         Paper file's type
- * @apiSuccess {Date}     paper.file.lastModified Paper file's last modified time
- * @apiSuccess {Object[]} paper.comments          Daily comments of tutor
- * @apiSuccess {String}   paper.comments.content  Content of comment
- * @apiSuccess {Date}     paper.comments.time     Create time of comment
- * @apiSuccess {Number}   paper.finalScore        Final score after defense
- * @apiSuccess {String}   paper.remark            Remark after defense
- * @apiSuccess {Date}     paper.lastModified      Last modified time of paper doc
+ * @apiSuccess {Object}   paper                                 Paper object
+ * @apiSuccess {ObjectId} paper._id                             Paper id
+ * @apiSuccess {String}   paper.name                            Paper name
+ * @apiSuccess {String}   paper.studentId                       Id of student
+ * @apiSuccess {String}   paper.teacherId                       Id of student's teacher
+ * @apiSuccess {String}   paper.desp                            Paper description
+ * @apiSuccess {Object[]} paper.scores                          Defense scores
+ * @apiSuccess {Number[]} paper.scores.items                    Each item of teacher's scores
+ * @apiSuccess {Number}   paper.scores.items.defenseScore       defenseScore
+ * @apiSuccess {Number}   paper.scores.items.innovationScore    innovationScore
+ * @apiSuccess {Number}   paper.scores.items.descriptionScore   descriptionScore
+ * @apiSuccess {Number}   paper.scores.items.resultScore        resultScore
+ * @apiSuccess {Number}   paper.scores.items.qualityScore       qualityScore
+ * @apiSuccess {Number}   paper.scores.items.designScore        designScore
+ * @apiSuccess {Number}   paper.scores.items.pointScore         pointScore
+ * @apiSuccess {Number}   paper.scores.items.topicScore         topicScore
+ * @apiSuccess {String}   paper.scores.teacherId                Teacher's id
+ * @apiSuccess {Number}   paper.scores.sum                      Sum of each teacher's scores
+ * @apiSuccess {Boolean}  paper.scores.isLeader                 Sum of each teacher's scores
+ * @apiSuccess {Object}   paper.file                            Paper file
+ * @apiSuccess {String}   paper.file.name                       Paper file's name
+ * @apiSuccess {String}   paper.file.path                       Paper file's path
+ * @apiSuccess {Number}   paper.file.size                       Paper file's size in bytes
+ * @apiSuccess {Number}   paper.file.type                       Paper file's type
+ * @apiSuccess {Date}     paper.file.lastModified               Paper file's last modified time
+ * @apiSuccess {Object[]} paper.comments                        Daily comments of tutor
+ * @apiSuccess {String}   paper.comments.content                Content of comment
+ * @apiSuccess {Date}     paper.comments.time                   Create time of comment
+ * @apiSuccess {Number}   paper.finalScore                      Final score after defense
+ * @apiSuccess {String}   paper.remark                          Remark after defense
+ * @apiSuccess {Date}     paper.lastModified                    Last modified time of paper doc
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -275,13 +298,13 @@ export async function getPaper(ctx, next) {
 
 /**
  * @api {put} /papers/:id Update a paper
- * @apiPermission Admin
+ * @apiPermission SuperAdmin
  * @apiVersion 0.4.0-alpha.1
  * @apiName UpdatePaper
  * @apiGroup Papers
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X PUT -d '{ "paper": { "name": "How to become a millionaire", "studentId": "56bd1da600a526986cf65c80", "teacherId": "56bd1da600a526986cf65c80", "desp": "fuckfuckfuck", "scores": [{"teacherId": "56bd1da600a526986cf65c80", "isLeader": true, "sum": 100, "items": [50, 20, 30]}], "remark": "bad guy", "time": 1479891536874 }]} }' localhost:5000/papers/56bd1da600a526986cf65c80
+ * curl -H "Content-Type: application/json" -X PUT -d '{ "paper": { "name": "How to become a millionaire", "studentId": "56bd1da600a526986cf65c80", "teacherId": "56bd1da600a526986cf65c80", "desp": "fuckfuckfuck", "scores": [{"teacherId": "56bd1da600a526986cf65c80", "isLeader": true, "sum": 100, "items": { "defenseScore": 80,  "innovationScore": 80,  "descriptionScore": 80,  "resultScore": 80,  "qualityScore": 80,  "designScore": 80,  "pointScore": 80,  "topicScore": 80 }}], "remark": "bad guy", "time": 1479891536874 }]} }' localhost:5000/papers/56bd1da600a526986cf65c80
  *
  * @apiParam {Object}   paper                   Paper object
  * @apiParam {String}   paper.name              Paper name
@@ -290,6 +313,14 @@ export async function getPaper(ctx, next) {
  * @apiParam {String}   paper.desp              Paper description
  * @apiParam {Object[]} paper.scores            Defense scores
  * @apiParam {Number[]} paper.scores.items      Each item of teacher's scores
+ * @apiParam {Number}   paper.scores.items.defenseScore        defenseScore
+ * @apiParam {Number}   paper.scores.items.innovationScore     innovationScore
+ * @apiParam {Number}   paper.scores.items.descriptionScore    descriptionScore
+ * @apiParam {Number}   paper.scores.items.resultScore         resultScore
+ * @apiParam {Number}   paper.scores.items.qualityScore        qualityScore
+ * @apiParam {Number}   paper.scores.items.designScore         designScore
+ * @apiParam {Number}   paper.scores.items.pointScore          pointScore
+ * @apiParam {Number}   paper.scores.items.topicScore          topicScore
  * @apiParam {String}   paper.scores.teacherId  Teacher's id
  * @apiParam {Number}   paper.scores.sum        Sum of each teacher's scores
  * @apiParam {Boolean}  paper.scores.isLeader   Sum of each teacher's scores
@@ -482,23 +513,90 @@ export async function uploadFile(ctx) {
  *
  * @apiParam   {Object}     score                           A teacher's score (required)
  * @apiParam   {Object[]}   score.items                     Each item of score (required)
- * @apiSuccess {Number}     score.items.defenseScore        defenseScore
- * @apiSuccess {Number}     score.items.innovationScore     innovationScore
- * @apiSuccess {Number}     score.items.descriptionScore    descriptionScore
- * @apiSuccess {Number}     score.items.resultScore         resultScore
- * @apiSuccess {Number}     score.items.qualityScore        qualityScore
- * @apiSuccess {Number}     score.items.designScore         designScore
- * @apiSuccess {Number}     score.items.pointScore          pointScore
- * @apiSuccess {Number}     score.items.topicScore          topicScore
+ * @apiParam   {Number}     score.items.defenseScore        defenseScore
+ * @apiParam   {Number}     score.items.innovationScore     innovationScore
+ * @apiParam   {Number}     score.items.descriptionScore    descriptionScore
+ * @apiParam   {Number}     score.items.resultScore         resultScore
+ * @apiParam   {Number}     score.items.qualityScore        qualityScore
+ * @apiParam   {Number}     score.items.designScore         designScore
+ * @apiParam   {Number}     score.items.pointScore          pointScore
+ * @apiParam   {Number}     score.items.topicScore          topicScore
  *
  * @apiSuccess {Boolean}   updatePaperScore     Action status
+ *
  * @apiSuccess {String}    remark               Automatic generated remark of a paper
- * @apiSuccess {Number}    currentScore         Average score
+ * @apiSuccess {Number}    finalScore           Final score for normal judge, average score for leader
+ * @apiSuccess {Object[]}  scores            Defense scores
+ * @apiSuccess {Number[]}  scores.items      Each item of teacher's scores
+ * @apiSuccess {Number}    scores.items.defenseScore       defenseScore
+ * @apiSuccess {Number}    scores.items.innovationScore    innovationScore
+ * @apiSuccess {Number}    scores.items.descriptionScore   descriptionScore
+ * @apiSuccess {Number}    scores.items.resultScore        resultScore
+ * @apiSuccess {Number}    scores.items.qualityScore       qualityScore
+ * @apiSuccess {Number}    scores.items.designScore        designScore
+ * @apiSuccess {Number}    scores.items.pointScore         pointScore
+ * @apiSuccess {Number}    scores.items.topicScore         topicScore
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
  *       "updatePaperScore": true
+ *     }
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "finalScore": 80
+ *       "remark": "this is a pig"
+ *       "scores": [{
+ *         "sum": 80
+ *         "teacher": {
+ *           "_id": "56bd1da600a526986cf65c80"
+ *           "name": "7day"
+ *         }
+ *         "items": {
+ *           "defenseScore": 80
+ *           "innovationScore": 80
+ *           "descriptionScore": 80
+ *           "resultScore": 80
+ *           "qualityScore": 80
+ *           "designScore": 80
+ *           "pointScore": 80
+ *           "topicScore": 80
+ *         }
+ *       } {
+ *         "sum": 80
+ *         "teacher": {
+ *           "_id": "56bd1da600a526986cf65c80"
+ *           "name": "7day"
+ *         }
+ *         "items": {
+ *           "defenseScore": 80
+ *           "innovationScore": 80
+ *           "descriptionScore": 80
+ *           "resultScore": 80
+ *           "qualityScore": 80
+ *           "designScore": 80
+ *           "pointScore": 80
+ *           "topicScore": 80
+ *         }
+ *       } {
+ *         "sum": 80
+ *         "teacher": {
+ *           "_id": "56bd1da600a526986cf65c80"
+ *           "name": "7day"
+ *         }
+ *         "items": {
+ *           "defenseScore": 80
+ *           "innovationScore": 80
+ *           "descriptionScore": 80
+ *           "resultScore": 80
+ *           "qualityScore": 80
+ *           "designScore": 80
+ *           "pointScore": 80
+ *           "topicScore": 80
+ *         }
+ *       }]
  *     }
  *
  * @apiError UnprocessableEntity Missing required parameters
@@ -528,17 +626,21 @@ export async function updatePaperScore(ctx) {
       throw new Error(401)
     }
     scores.push({
-      teacherId: ctx.state.user._id,
+      teacher: {
+        _id: ctx.state.user._id,
+        name: ctx.state.user.name,
+      },
       items: ctx.request.fields.score.items,
       sum: ctx.request.fields.score.sum,
     })
     paper.scores = scores
     if (scores.length === 3 && ctx.state.user._id === leaderId) {
       paper.remark = 'this is a pig'
-      const currentScore = paper.scores.reduce((pre, cur) => pre + cur.sum, 0)
+      const finalScore = paper.scores.reduce((pre, cur) => pre + cur.sum, 0)
       ctx.body = {
-        currentScore,
+        finalScore,
         remark: paper.remark,
+        scores: paper.scores,
       }
       await paper.save()
       return
@@ -567,22 +669,74 @@ export async function updatePaperScore(ctx) {
  * curl -H "Content-Type: application/json" -X GET localhost:5000/papers/final/56bd1da600a526986cf65c80
  *
  * @apiSuccess {String}    remark               Automatic generated remark of a paper
- * @apiSuccess {Number}    currentScore         Average score
- * @apiSuccess {Number}    finalScore           Final score
- * @apiSuccess {Boolean}   waiting              Waiting signal
+ * @apiSuccess {Number}    finalScore           Final score for normal judge, average score for leader
+ * @apiSuccess {Object[]}  scores            Defense scores
+ * @apiSuccess {Number[]}  scores.items      Each item of teacher's scores
+ * @apiSuccess {Number}    scores.items.defenseScore       defenseScore
+ * @apiSuccess {Number}    scores.items.innovationScore    innovationScore
+ * @apiSuccess {Number}    scores.items.descriptionScore   descriptionScore
+ * @apiSuccess {Number}    scores.items.resultScore        resultScore
+ * @apiSuccess {Number}    scores.items.qualityScore       qualityScore
+ * @apiSuccess {Number}    scores.items.designScore        designScore
+ * @apiSuccess {Number}    scores.items.pointScore         pointScore
+ * @apiSuccess {Number}    scores.items.topicScore         topicScore
  *
- * @apiSuccessExample {json} Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *       "currentScore": 80
- *       "remark": "this is a pig"
- *     }
+ * @apiSuccess {Boolean}   waiting              Waiting signal
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
  *       "finalScore": 80
  *       "remark": "this is a pig"
+ *       "scores": [{
+ *         "sum": 80
+ *         "teacher": {
+ *           "_id": "56bd1da600a526986cf65c80"
+ *           "name": "7day"
+ *         }
+ *         "items": {
+ *           "defenseScore": 80
+ *           "innovationScore": 80
+ *           "descriptionScore": 80
+ *           "resultScore": 80
+ *           "qualityScore": 80
+ *           "designScore": 80
+ *           "pointScore": 80
+ *           "topicScore": 80
+ *         }
+ *       } {
+ *         "sum": 80
+ *         "teacher": {
+ *           "_id": "56bd1da600a526986cf65c80"
+ *           "name": "7day"
+ *         }
+ *         "items": {
+ *           "defenseScore": 80
+ *           "innovationScore": 80
+ *           "descriptionScore": 80
+ *           "resultScore": 80
+ *           "qualityScore": 80
+ *           "designScore": 80
+ *           "pointScore": 80
+ *           "topicScore": 80
+ *         }
+ *       } {
+ *         "sum": 80
+ *         "teacher": {
+ *           "_id": "56bd1da600a526986cf65c80"
+ *           "name": "7day"
+ *         }
+ *         "items": {
+ *           "defenseScore": 80
+ *           "innovationScore": 80
+ *           "descriptionScore": 80
+ *           "resultScore": 80
+ *           "qualityScore": 80
+ *           "designScore": 80
+ *           "pointScore": 80
+ *           "topicScore": 80
+ *         }
+ *       }]
  *     }
  *
  * @apiSuccessExample {json} Success-Response:
@@ -616,15 +770,17 @@ export async function getPaperFinalInfo(ctx) {
         ctx.body = {
           finalScore: paper.finalScore,
           remark: paper.remark,
+          scores: paper.scores,
         }
       }
     } else {
       if (paper.scores.length === 3) {
         paper.remark = 'this is a pig'
-        const currentScore = paper.scores.reduce((pre, cur) => pre + cur.sum, 0)
+        const finalScore = paper.scores.reduce((pre, cur) => pre + cur.sum, 0)
         ctx.body = {
-          currentScore,
+          finalScore,
           remark: paper.remark,
+          scores: paper.scores,
         }
         await paper.save()
       }
