@@ -18,7 +18,7 @@
     "clean:file": "rm -rf upload_files/** && touch upload_files/.gitkeep",
     "clean:dbdata": "rm -rf dbdata/** && touch dbdata/.gitkeep",
     "dump": "./node_modules/.bin/cross-env mongodump -d bds-dev -o debug --gzip",
-    "restore": "./node_modules/.bin/cross-env mongorestore -d bds-prod --dir debug/bds-prod --gzip"
+    "restore": "./node_modules/.bin/cross-env mongorestore -d bds-prod --dir debug/bds-prod --gzip && mv debug/bds-dev debug/bds-prod --force"
   },
   "author": "Warrior! <wubocong.xyz@gmail.com>",
   "apidoc": {
