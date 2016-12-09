@@ -214,7 +214,7 @@ export async function getPapers(ctx) {
 }
 
 /**
- * @api {get} /papers/:id Get paper by id
+ * @api {get} /papers/:id Get a paper by id
  * @apiPermission SuperAdmin
  * @apiVersion 0.4.4
  * @apiName GetPaper
@@ -303,7 +303,7 @@ export async function getPaper(ctx, next) {
 }
 
 /**
- * @api {put} /papers/:id Update a paper
+ * @api {put} /papers/:id Update a paper by id
  * @apiPermission SuperAdmin
  * @apiVersion 0.4.4
  * @apiName UpdatePaper
@@ -456,7 +456,7 @@ export async function getMyPaper(ctx) {
 }
 
 /**
- * @api {post} /papers/file/56bd1da600a526986cf65c80 Upload a paper's file
+ * @api {post} /papers/file/56bd1da600a526986cf65c80 Upload a paper's file by id
  * @apiPermission Student
  * @apiVersion 0.4.4
  * @apiName UploadFile
@@ -512,7 +512,7 @@ export async function uploadFile(ctx) {
 }
 
 /**
- * @api {put} /papers/score/:id Update a paper's score
+ * @api {put} /papers/score/:id Update a paper's score by id
  * @apiPermission Teacher(judge)
  * @apiVersion 0.4.4
  * @apiName UpdatePaperScore
@@ -679,7 +679,7 @@ export async function updatePaperScore(ctx) {
 }
 
 /**
- * @api {get} /papers/final/:id Get a paper's final info
+ * @api {get} /papers/final/:id Get a paper's final info by id
  * @apiPermission Teacher
  * @apiVersion 0.4.4
  * @apiName GetPaperFinalInfo
@@ -830,7 +830,7 @@ export async function getPaperFinalInfo(ctx) {
 }
 
 /**
- * @api {put} /papers/final/:id Update a paper's final info
+ * @api {put} /papers/final/:id Update a paper's final info by id
  * @apiPermission Teacher(leader)
  * @apiVersion 0.4.4
  * @apiName UpdatePaperFinalInfo
@@ -909,7 +909,7 @@ export async function updatePaperFinalInfo(ctx) {
 }
 
 /**
- * @api {put} /papers/comment/:id Update a paper's comment
+ * @api {put} /papers/comment/:id Update a paper's comment by id
  * @apiPermission Teacher(tutor)
  * @apiVersion 0.4.4
  * @apiName UpdatePaperComment
@@ -982,7 +982,7 @@ export async function updatePaperComment(ctx) {
 }
 
 /**
- * @api {put} /papers/basic/:id Update a paper's basic info
+ * @api {put} /papers/basic/:id Update a paper's basic info by id
  * @apiPermission Admin
  * @apiVersion 0.4.4
  * @apiName UpdatePaperBasic

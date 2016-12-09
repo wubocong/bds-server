@@ -644,7 +644,7 @@ export async function getRole(ctx, next) {
 }
 
 /**
- * @api {put} /users/:id Update a user
+ * @api {put} /users/:id Update a user by id
  * @apiPermission User
  * @apiVersion 0.4.4
  * @apiName UpdateUser
@@ -727,7 +727,7 @@ export async function updateUser(ctx) {
 }
 
 /**
- * @api {delete} /users/:id Delete a user
+ * @api {delete} /users/:id Delete a user by id
  * @apiPermission SuperAdmin
  * @apiVersion 0.4.4
  * @apiName DeleteUser
@@ -780,7 +780,7 @@ export async function deleteUser(ctx) {
 }
 
 /**
- * @api {put} /users/password/:id Modify a user's password
+ * @api {put} /users/password/:id Modify a user's password by id
  * @apiPermission Admin
  * @apiVersion 0.4.4
  * @apiName ModifyPassword

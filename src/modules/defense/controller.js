@@ -181,7 +181,7 @@ export async function getDefenses(ctx, next) {
 }
 
 /**
- * @api {put} /defenses/:id Update a defense
+ * @api {put} /defenses/:id Update a defense by id
  * @apiPermission Admin
  * @apiVersion 0.4.4
  * @apiName UpdateDefense
@@ -394,7 +394,7 @@ export async function deleteDefenses(ctx) {
 }
 
 /**
- * @api {get} /defenses/:id Get a defense
+ * @api {get} /defenses/:id Get a defense by id
  * @apiPermission User
  * @apiVersion 0.4.4
  * @apiName GetDefense
@@ -457,7 +457,7 @@ export async function getMyDefense(ctx) {
 }
 
 /**
- * @api {get} /defenses/detail/:id Get a defense's detailed info
+ * @api {get} /defenses/detail/:id Get a defense's detailed info by id
  * @apiPermission Admin
  * @apiVersion 0.4.4
  * @apiName GetDefenseDetail
