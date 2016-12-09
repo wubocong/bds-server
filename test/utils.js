@@ -12,13 +12,13 @@ export function authUser (agent, callback) {
   agent
     .post('/users')
     .set('Accept', 'application/json')
-    .send({ user: { username: 'test', password: 'pass' } })
+    .send({ account: 'gly', password: 'gly', role: 'admin' })
     .end((err, res) => {
       if (err) { return callback(err) }
 
       callback(null, {
         user: res.body.user,
-        token: res.body.token
+        token: res.body.token,
       })
     })
 }

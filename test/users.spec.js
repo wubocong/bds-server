@@ -55,7 +55,7 @@ describe('Users', () => {
         .get('/users')
         .set({
           Accept: 'application/json',
-          Authorization: '1'
+          Authorization: '1',
         })
         .expect(401, done)
     })
@@ -66,7 +66,7 @@ describe('Users', () => {
         .get('/users')
         .set({
           Accept: 'application/json',
-          Authorization: `Unknown ${token}`
+          Authorization: `Unknown ${token}`,
         })
         .expect(401, done)
     })
@@ -76,7 +76,7 @@ describe('Users', () => {
         .get('/users')
         .set({
           Accept: 'application/json',
-          Authorization: 'Bearer 1'
+          Authorization: 'Bearer 1',
         })
         .expect(401, done)
     })
@@ -87,7 +87,7 @@ describe('Users', () => {
         .get('/users')
         .set({
           Accept: 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         })
         .expect(200, (err, res) => {
           if (err) { return done(err) }
@@ -107,7 +107,7 @@ describe('Users', () => {
         .get('/users/1')
         .set({
           Accept: 'application/json',
-          Authorization: 'Bearer 1'
+          Authorization: 'Bearer 1',
         })
         .expect(401, done)
     })
@@ -118,7 +118,7 @@ describe('Users', () => {
         .get('/users/1')
         .set({
           Accept: 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         })
         .expect(404, done)
     })
@@ -126,14 +126,14 @@ describe('Users', () => {
     it('should fetch user', (done) => {
       const {
         user: { _id },
-        token
+        token,
       } = context
 
       request
         .get(`/users/${_id}`)
         .set({
           Accept: 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         })
         .expect(200, (err, res) => {
           if (err) { return done(err) }
@@ -153,7 +153,7 @@ describe('Users', () => {
         .put('/users/1')
         .set({
           Accept: 'application/json',
-          Authorization: 'Bearer 1'
+          Authorization: 'Bearer 1',
         })
         .expect(401, done)
     })
@@ -164,7 +164,7 @@ describe('Users', () => {
         .put('/users/1')
         .set({
           Accept: 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         })
         .expect(404, done)
     })
@@ -172,14 +172,14 @@ describe('Users', () => {
     it('should update user', (done) => {
       const {
         user: { _id },
-        token
+        token,
       } = context
 
       request
         .put(`/users/${_id}`)
         .set({
           Accept: 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         })
         .send({ user: { username: 'updatedcoolname' } })
         .expect(200, (err, res) => {
@@ -200,7 +200,7 @@ describe('Users', () => {
         .delete('/users/1')
         .set({
           Accept: 'application/json',
-          Authorization: 'Bearer 1'
+          Authorization: 'Bearer 1',
         })
         .expect(401, done)
     })
@@ -211,7 +211,7 @@ describe('Users', () => {
         .delete('/users/1')
         .set({
           Accept: 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         })
         .expect(404, done)
     })
@@ -219,14 +219,14 @@ describe('Users', () => {
     it('should delete user', (done) => {
       const {
         user: { _id },
-        token
+        token,
       } = context
 
       request
         .delete(`/users/${_id}`)
         .set({
           Accept: 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         })
         .expect(200, done)
     })
