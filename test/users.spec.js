@@ -30,12 +30,8 @@ describe('Users', () => {
         .expect(200, (err, res) => {
           if (err) { return done(err) }
 
-          res.body.user.should.have.property('username')
-          res.body.user.username.should.equal('gly1')
-          expect(res.body.user.password).to.not.exist
-
-          context.user = res.body.user
-          context.token = res.body.token
+          res.body.user.should.have.property('_id')
+          res.body.user.should.have.property('role')
 
           done()
         })
@@ -57,12 +53,7 @@ describe('Users', () => {
         .expect(200, (err, res) => {
           if (err) { return done(err) }
 
-          res.body.user.should.have.property('username')
-          res.body.user.username.should.equal('gly1')
-          expect(res.body.user.password).to.not.exist
-
-          context.user = res.body.user
-          context.token = res.body.token
+          res.body.user.should.have.property('_id')
 
           done()
         })
