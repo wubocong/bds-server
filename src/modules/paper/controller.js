@@ -6,7 +6,7 @@ const logger = require('koa-log4').getLogger('index')
 /**
  * @api {post} /papers Create a paper
  * @apiPermission Student
- * @apiVersion 0.4.0
+ * @apiVersion 0.4.4
  * @apiName CreatePaper
  * @apiGroup Papers
  *
@@ -136,7 +136,7 @@ export async function createPaper(ctx) {
 /**
  * @api {get} /papers Get all paper
  * @apiPermission SuperAdmin
- * @apiVersion 0.4.0
+ * @apiVersion 0.4.4
  * @apiName GetPapers
  * @apiGroup Papers
  *
@@ -216,7 +216,7 @@ export async function getPapers(ctx) {
 /**
  * @api {get} /papers/:id Get paper by id
  * @apiPermission SuperAdmin
- * @apiVersion 0.4.0
+ * @apiVersion 0.4.4
  * @apiName GetPaper
  * @apiGroup Papers
  *
@@ -305,7 +305,7 @@ export async function getPaper(ctx, next) {
 /**
  * @api {put} /papers/:id Update a paper
  * @apiPermission SuperAdmin
- * @apiVersion 0.4.0
+ * @apiVersion 0.4.4
  * @apiName UpdatePaper
  * @apiGroup Papers
  *
@@ -379,7 +379,7 @@ export async function updatePaper(ctx) {
 /**
  * @api {get} /papers/me Get personal paper
  * @apiPermission Student
- * @apiVersion 0.4.0
+ * @apiVersion 0.4.4
  * @apiName GetMyPaper
  * @apiGroup Papers
  *
@@ -458,7 +458,7 @@ export async function getMyPaper(ctx) {
 /**
  * @api {post} /papers/file/56bd1da600a526986cf65c80 Upload a paper's file
  * @apiPermission Student
- * @apiVersion 0.4.0
+ * @apiVersion 0.4.4
  * @apiName UploadFile
  * @apiGroup Papers
  *
@@ -514,7 +514,7 @@ export async function uploadFile(ctx) {
 /**
  * @api {put} /papers/score/:id Update a paper's score
  * @apiPermission Teacher(judge)
- * @apiVersion 0.4.0
+ * @apiVersion 0.4.4
  * @apiName UpdatePaperScore
  * @apiGroup Papers
  *
@@ -557,7 +557,7 @@ export async function uploadFile(ctx) {
  *       "updatePaperScore": true
  *     }
  *
- * @apiSuccessExample {json} Success-Response:
+ * @apiSuccessExample {json} Success-Response(leader get when other teachers have finished):
  *     HTTP/1.1 200 OK
  *     {
  *       "finalScore": 80
@@ -681,7 +681,7 @@ export async function updatePaperScore(ctx) {
 /**
  * @api {get} /papers/final/:id Get a paper's final info
  * @apiPermission Teacher
- * @apiVersion 0.4.0
+ * @apiVersion 0.4.4
  * @apiName GetPaperFinalInfo
  * @apiGroup Papers
  *
@@ -707,7 +707,7 @@ export async function updatePaperScore(ctx) {
  *
  * @apiSuccess {Boolean}   waiting              Waiting signal
  *
- * @apiSuccessExample {json} Success-Response:
+ * @apiSuccessExample {json} Final info(normal teacher) Temporary info(leader):
  *     HTTP/1.1 200 OK
  *     {
  *       "finalScore": 80
@@ -763,7 +763,7 @@ export async function updatePaperScore(ctx) {
  *       }]
  *     }
  *
- * @apiSuccessExample {json} Success-Response:
+ * @apiSuccessExample {json} Waiting(final score not given or scores not all given):
  *     HTTP/1.1 200 OK
  *     {
  *       "waiting": true
@@ -832,7 +832,7 @@ export async function getPaperFinalInfo(ctx) {
 /**
  * @api {put} /papers/final/:id Update a paper's final info
  * @apiPermission Teacher(leader)
- * @apiVersion 0.4.0
+ * @apiVersion 0.4.4
  * @apiName UpdatePaperFinalInfo
  * @apiGroup Papers
  *
@@ -852,7 +852,7 @@ export async function getPaperFinalInfo(ctx) {
  *       "updatePaperFinalInfo": true
  *     }
  *
- * @apiSuccessExample {json} Success-Response:
+ * @apiSuccessExample {json} Defense finished:
  *     HTTP/1.1 200 OK
  *     {
  *       "defenseOver": true
@@ -911,7 +911,7 @@ export async function updatePaperFinalInfo(ctx) {
 /**
  * @api {put} /papers/comment/:id Update a paper's comment
  * @apiPermission Teacher(tutor)
- * @apiVersion 0.4.0
+ * @apiVersion 0.4.4
  * @apiName UpdatePaperComment
  * @apiGroup Papers
  *
@@ -984,7 +984,7 @@ export async function updatePaperComment(ctx) {
 /**
  * @api {put} /papers/basic/:id Update a paper's basic info
  * @apiPermission Admin
- * @apiVersion 0.4.0
+ * @apiVersion 0.4.4
  * @apiName UpdatePaperBasic
  * @apiGroup Papers
  *
