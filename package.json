@@ -1,6 +1,6 @@
 {
   "name": "bachelor-denfese-server",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Bachelor defense API",
   "main": "index.js",
   "private": true,
@@ -14,9 +14,9 @@
     "docs": "./node_modules/.bin/apidoc -i src/ -o docs",
     "mongo": "mongod --dbpath ./dbdata",
     "mongo:prod": "./node_modules/.bin/cross-env nohup mongod -f /etc/mongod.conf &",
-    "clean:log": "rm -rf npm-debug.log**",
-    "clean:file": "rm -rf upload_files/** && touch upload_files/.gitkeep",
-    "clean:dbdata": "rm -rf dbdata/** && touch dbdata/.gitkeep",
+    "clean:log": "./node_modules/.bin/cross-env rm -rf npm-debug.log** && rm -rf logs/** && touch logs/.gitkeep",
+    "clean:file": "./node_modules/.bin/cross-env rm -rf upload_files/** && touch upload_files/.gitkeep",
+    "clean:dbdata": "./node_modules/.bin/cross-env rm -rf dbdata/** && touch dbdata/.gitkeep",
     "dump": "./node_modules/.bin/cross-env mongodump -d bds-prod -o debug",
     "restore": "./node_modules/.bin/cross-env mongorestore -d bds-prod --dir debug/bds-prod"
   },

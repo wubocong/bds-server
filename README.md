@@ -75,7 +75,6 @@ MIT
 ```js
 {
   "user": {
-    "__v": 0,
     "username": "wubocong",
     "_id": "57e9475474784916d81840d8",
     "type": "User"
