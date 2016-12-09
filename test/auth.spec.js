@@ -28,7 +28,7 @@ describe('Auth', () => {
         .expect(401, done)
     })
 
-    it('should throw 401 if role is missed', (done) => {
+    it('should throw 401 if role is missing', (done) => {
       request
         .post('/auth')
         .set('Accept', 'application/json')
@@ -76,6 +76,10 @@ describe('Auth', () => {
           res.body.user.should.have.property('name')
           res.body.user.should.have.property('account')
           res.body.user.should.have.property('role')
+          res.body.user.should.have.property('studentId')
+          res.body.user.should.have.property('grade')
+          res.body.user.should.have.property('major')
+          res.body.user.should.have.property('clazz')
           res.body.user.name.should.equal('gly')
           res.body.user.account.should.equal('gly')
           res.body.user.role.should.equal('admin')
@@ -100,6 +104,12 @@ describe('Auth', () => {
           res.body.user.should.have.property('name')
           res.body.user.should.have.property('account')
           res.body.user.should.have.property('role')
+          res.body.user.should.have.property('teacherId')
+          res.body.user.should.have.property('studentIds')
+          res.body.user.should.have.property('defenseIds')
+          res.body.user.should.have.property('paperIds')
+          res.body.user.should.have.property('posTitle')
+          res.body.user.should.have.property('proTitle')
           res.body.user.name.should.equal('ls')
           res.body.user.account.should.equal('ls')
           res.body.user.role.should.equal('teacher')

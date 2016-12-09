@@ -10,7 +10,7 @@ export function cleanDb () {
 
 export function authUser (agent, callback) {
   agent
-    .post('/users')
+    .post('/auth')
     .set('Accept', 'application/json')
     .send({ account: 'gly', password: 'gly', role: 'admin' })
     .end((err, res) => {

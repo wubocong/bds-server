@@ -14,11 +14,11 @@ describe('Users', () => {
   })
 
   describe('POST /users', () => {
-    it('should reject signup when data is incomplete', (done) => {
+    it('should reject user signup when role is incomplete', (done) => {
       request
         .post('/users')
         .set('Accept', 'application/json')
-        .send({ username: 'supercoolname' })
+        .send({ account: 'ls1', name: 'ls1' })
         .expect(422, done)
     })
 
@@ -26,12 +26,39 @@ describe('Users', () => {
       request
         .post('/users')
         .set('Accept', 'application/json')
-        .send({ user: { username: 'supercoolname', password: 'supersecretpassword' } })
+        .send({ account: 'ls1', name: 'ls1', role: 'admin' })
         .expect(200, (err, res) => {
           if (err) { return done(err) }
 
           res.body.user.should.have.property('username')
-          res.body.user.username.should.equal('supercoolname')
+          res.body.user.username.should.equal('gly1')
+          expect(res.body.user.password).to.not.exist
+
+          context.user = res.body.user
+          context.token = res.body.token
+
+          done()
+        })
+    })
+
+    it('should reject admin signup when password is incomplete', (done) => {
+      request
+        .post('/users/admin')
+        .set('Accept', 'application/json')
+        .send({ account: 'gly1', name: 'gly1', role: 'admin' })
+        .expect(422, done)
+    })
+
+    it('should sign up', (done) => {
+      request
+        .post('/users/admin')
+        .set('Accept', 'application/json')
+        .send({ account: 'gly1', name: 'gly1', role: 'admin', password: 'gly1' })
+        .expect(200, (err, res) => {
+          if (err) { return done(err) }
+
+          res.body.user.should.have.property('username')
+          res.body.user.username.should.equal('gly1')
           expect(res.body.user.password).to.not.exist
 
           context.user = res.body.user

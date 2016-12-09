@@ -224,12 +224,161 @@ export async function getUser(ctx, next) {
  *     HTTP/1.1 200 OK
  *     {
  *       "user": {
- *          "_id": "56bd1da600a526986cf65c80"
- *          "name": "John Doe"
- *          "account": "20080202"
- *          "role": "admin"
- *          "gender": true
- *       }
+ *         "_id": "5846d894354af33c8061f2d6",
+ *         "name": "ls1",
+ *         "account": "ls1",
+ *         "phone": "18813752121",
+ *         "email": "wubocong1@163.com",
+ *         "school": "软件学院",
+ *         "university": "华南农业大学",
+ *         "gender": true,
+ *         "role": "teacher",
+ *         "type": "User",
+ *         "proTitle": "",
+ *         "posTitle": "无",
+ *         "defenses": [
+ *           {
+ *             "_id": "5846d84d354af33c8061f2d4",
+ *             "name": "ing",
+ *             "address": "honor palace",
+ *             "time": "1970-01-13T23:43:42.222Z",
+ *             "adminId": "5846d709fd28fc46dc18798c",
+ *             "leaderId": "5846d894354af33c8061f2d5",
+ *             "__v": 0,
+ *             "paperIds": [
+ *               "5846d824354af33c8061f2c7",
+ *               "5846d754e04a610eb81625bb",
+ *               "5846d82a354af33c8061f2cf"
+ *             ],
+ *             "teacherIds": [
+ *               "5846d8a4354af33c8061f2d8",
+ *               "5846d894354af33c8061f2d5",
+ *               "5846d707fd28fc46dc18798e"
+ *             ],
+ *             "studentIds": [
+ *               "5846d8c4354af33c8061f2dd",
+ *               "5846d8b6354af33c8061f2da",
+ *               "5846d709fd28fc46dc187990"
+ *             ],
+ *             "finished": 2,
+ *             "status": 1
+ *           }
+ *         ],
+ *         "papers": [
+ *           {
+ *             "_id": "5846d754e04a610eb81625bb",
+ *             "studentId": "5846d709fd28fc46dc1879da",
+ *             "teacherId": "5846d707fd28fc46dc1879d5",
+ *             "defenseId": "5846d84d354af33c8061f2d4",
+ *             "name": "战斗怒火",
+ *             "file": {
+ *               "name": "pdsig",
+ *               "path": "ussuu",
+ *               "_id": "5846d754e04a610eb81625bd",
+ *               "lastModified": "2016-12-06T15:20:52.498Z"
+ *             },
+ *             "__v": 6,
+ *             "lastModified": "2016-12-06T15:20:52.495Z",
+ *             "remark": "FUCKFUCKFUCK",
+ *             "finalScore": 100,
+ *             "comments": [
+ *               {
+ *                 "content": "哈哈哈",
+ *                 "_id": "5846d754e04a610eb81625bc",
+ *                 "id": 0,
+ *                 "time": "2016-12-06T15:20:52.496Z"
+ *               },
+ *               {
+ *                 "content": "嘿嘿嘿",
+ *                 "_id": "5846d754e04a610eb81625bf",
+ *                 "id": 1,
+ *                 "time": "2016-12-06T15:20:52.496Z"
+ *               },
+ *               {
+ *                 "content": "吼吼吼",
+ *                 "_id": "5846d754e04a610eb81625be",
+ *                 "id": 2,
+ *                 "time": "2016-12-06T15:20:52.496Z"
+ *               }
+ *             ],
+ *             "scores": [
+ *               {
+ *                 "_id": "58481db6756a0c1c3070bde3",
+ *                 "isLeader": false,
+ *                 "sum": 80,
+ *                 "teacher": {
+ *                   "_id": "5846d707fd28fc46dc18798e",
+ *                   "name": "ls"
+ *                 },
+ *                 "items": {
+ *                   "defenseScore": 4,
+ *                   "innovationScore": 4,
+ *                   "descriptionScore": 4,
+ *                   "resultScore": 4,
+ *                   "qualityScore": 4,
+ *                   "designScore": 4,
+ *                   "pointScore": 4,
+ *                   "topicScore": 4
+ *                 }
+ *               },
+ *               {
+ *                 "_id": "584827c69bc8cc5328709f1a",
+ *                 "isLeader": true,
+ *                 "sum": 80,
+ *                 "teacher": {
+ *                   "_id": "5846d894354af33c8061f2d5",
+ *                   "name": "ls1"
+ *                 },
+ *                 "items": {
+ *                   "defenseScore": 4,
+ *                   "innovationScore": 4,
+ *                   "descriptionScore": 4,
+ *                   "resultScore": 4,
+ *                   "qualityScore": 4,
+ *                   "designScore": 4,
+ *                   "pointScore": 4,
+ *                   "topicScore": 4
+ *                 }
+ *               },
+ *               {
+ *                 "_id": "584827f59bc8cc5328709f20",
+ *                 "isLeader": false,
+ *                 "sum": 80,
+ *                 "teacher": {
+ *                   "_id": "5846d8a4354af33c8061f2d8",
+ *                   "name": "ls2"
+ *                 },
+ *                 "items": {
+ *                   "defenseScore": 4,
+ *                   "innovationScore": 4,
+ *                   "descriptionScore": 4,
+ *                   "resultScore": 4,
+ *                   "qualityScore": 4,
+ *                   "designScore": 4,
+ *                   "pointScore": 4,
+ *                   "topicScore": 4
+ *                 }
+ *               }
+ *             ],
+ *             "desp": "fuckfuckfuck",
+ *             "type": "Paper"
+ *           }
+ *         ],
+ *         "students": [{
+ *           "_id": "5846d709fd28fc46dc187990",
+ *           "name": "phy",
+ *           "account": "phy",
+ *           "phone": "18813752125",
+ *           "email": "wubocong123@163.com",
+ *           "__v": 0,
+ *           "school": "软件学院",
+ *           "university": "华南农业大学",
+ *           "gender": true,
+ *           "role": "student",
+ *           "type": "User"
+ *         }]
+ *       },
+ *       "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4NDZkODk0MzU0YWYzM2M4MDYxZjJkNSIsImlhdCI6MTQ4MTI3OTc4MSwiZXhwIjoxNDgxMzE1NzgxfQ.CYLOBb6cshZghZM566Q35G1IoCFfsc1JNRGJVfUsME4"
  *     }
  *
  * @apiUse TokenError
@@ -596,7 +745,7 @@ export async function contactAdmin(ctx, next) {
 }
 
 /**
- * @api {post} /users/admin Create a new user
+ * @api {post} /users/admin Create a new admin
  * @apiPermission User
  * @apiVersion 0.4.0
  * @apiName CreateAdmin
