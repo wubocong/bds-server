@@ -921,14 +921,14 @@ export async function findUser(ctx) {
 }
 
 /**
- * @api {delete} /users/password/reset/:id Reset a user's password by id
+ * @api {delete} /users/password/:id Reset a user's password by id
  * @apiPermission Admin
  * @apiVersion 0.4.5
  * @apiName ResetPassword
  * @apiGroup Users
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X DELETE localhost:5000/users/password/reset/56bd1da600a526986cf65c80
+ * curl -H "Content-Type: application/json" -X DELETE localhost:5000/users/password/56bd1da600a526986cf65c80
  *
  * @apiSuccess {Boolean}   reset     Action status
  *

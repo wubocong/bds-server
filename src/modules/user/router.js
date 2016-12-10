@@ -40,6 +40,15 @@ export default [
   },
   {
     method: 'POST',
+    route: '/find',
+    handlers: [
+      // ensureUser,
+      // ensureAdmin,
+      user.findUser,
+    ],
+  },
+  {
+    method: 'POST',
     route: '/',
     handlers: [
       // ensureUser,
@@ -85,15 +94,6 @@ export default [
   },
   {
     method: 'PUT',
-    route: '/password/reset/:id',
-    handlers: [
-      ensureUser,
-      user.getUser,
-      user.modifyPassword,
-    ],
-  },
-  {
-    method: 'PUT',
     route: '/:id',
     handlers: [
       ensureUser,
@@ -111,6 +111,15 @@ export default [
       user.getUser,
       user.getRole,
       user.deleteUser,
+    ],
+  },
+  {
+    method: 'DELETE',
+    route: '/password/:id',
+    handlers: [
+      ensureUser,
+      user.getUser,
+      user.resetPassword,
     ],
   },
 ]
