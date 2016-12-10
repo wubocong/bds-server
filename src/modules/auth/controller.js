@@ -37,7 +37,6 @@ const logger = require('koa-log4').getLogger('index')
  *     }
  */
 
-
 /**
  * @apiDefine UserDetailInfo
  *
