@@ -1,13 +1,15 @@
 const logger = require('koa-log4').getLogger('index')
 
 export async function filterData(ctx, next) {
-  logger.info(ctx.request.files)
+  // logger.info(ctx.request.files)
+  logger.info(typeof ctx.request.body)
   logger.info(ctx.request.body)
   logger.info(ctx.request.fields)
+  logger.info(ctx.method)
+
   const method = ctx.method.toLowerCase()
   const methods = ['get', 'post', 'put', 'delete']
   if (method === 'put') {
-    typeof ctx.request.body
     ctx.request.fields = ctx.request.fields || ctx.request.body
   }
   if (method === 'get') {
