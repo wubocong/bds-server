@@ -667,7 +667,7 @@ export async function updatePaperScore(ctx) {
   try {
     if (scores.length === 3 && isLeader) {
       ctx.body.paper.remark = 'fake remark'
-      const finalScore = scores.reduce((pre, cur) => pre + cur.sum, 0)
+      const finalScore = scores.reduce((pre, cur) => pre + cur.sum, 0) / 3
       await ctx.body.paper.save()
       ctx.body = {
         finalScore,
