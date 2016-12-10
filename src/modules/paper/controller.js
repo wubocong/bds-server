@@ -828,7 +828,7 @@ export async function getPaperFinalInfo(ctx) {
         ctx.body.paper.remark = 'fake remark'
         await ctx.body.paper.save()
 
-        const finalScore = scores.reduce((pre, cur) => pre + cur.sum, 0)
+        const finalScore = scores.reduce((pre, cur) => pre + cur.sum, 0) / 3
         ctx.body = {
           finalScore,
           remark: remark,
