@@ -637,9 +637,13 @@ export async function updatePaperScore(ctx) {
     if (scores.length === 3) {
       throw new Error('All Scores Given')
     }
-    scores.forEach((score) => {
-      if (score.teacher._id && score.teacher._id.toString() == teacherId) {
-        throw new Error('Repeated Score Forbidden')
+    scores.forEach((score, i) => {
+      if (score.teacher._id) {
+        if (score.teacher._id.toString() == teacherId) {
+          throw new Error('Repeated Score Forbidden')
+        }
+      } else if (i === 1 && scores.length === 1) {
+        scores.shift()
       }
     })
     const {teacherIds, leaderId} = defense
@@ -664,18 +668,19 @@ export async function updatePaperScore(ctx) {
     if (scores.length === 3 && isLeader) {
       ctx.body.paper.remark = 'fake remark'
       const finalScore = scores.reduce((pre, cur) => pre + cur.sum, 0)
+      await ctx.body.paper.save()
       ctx.body = {
         finalScore,
         remark: ctx.body.paper.remark,
         scores: scores,
       }
-      return await ctx.body.paper.save()
-    }
-    ctx.body.paper.scores = scores
-    await ctx.body.paper.save()
+    } else {
+      ctx.body.paper.scores = scores
+      await ctx.body.paper.save()
 
-    ctx.body = {
-      updatePaperScore: true,
+      ctx.body = {
+        updatePaperScore: true,
+      }
     }
   } catch (err) {
     logger.error(err)
@@ -851,9 +856,9 @@ export async function getPaperFinalInfo(ctx) {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X PUT -d '{ "paper": {"finalScore": 100, "remark": "FUCKFUCKFUCK"} }' localhost:5000/papers/final/56bd1da600a526986cf65c80
  *
- * @apiParam {Object}   paper            Paper object(required)
- * @apiParam {String}   finalScore       Paper's final score
- * @apiParam {String}   remark           Paper's remark
+ * @apiParam {Object}   paper               Paper object(required)
+ * @apiParam {String}   paper.finalScore    Paper's final score
+ * @apiParam {String}   paper.remark        Paper's remark
  *
  * @apiSuccess {Boolean}   updatePaperFinalScore     Action status
  * @apiSuccess {Boolean}   defenseOver               Return true when the defense is over
