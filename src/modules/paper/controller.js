@@ -814,9 +814,9 @@ export async function getPaperFinalInfo(ctx) {
     if (!isLeader) {
       if (finalScore !== 0) {
         ctx.body = {
-          finalScore: finalScore,
-          remark: remark,
-          scores: scores,
+          finalScore,
+          remark,
+          scores,
         }
       } else {
         ctx.body = {
@@ -831,8 +831,8 @@ export async function getPaperFinalInfo(ctx) {
         const finalScore = scores.reduce((pre, cur) => pre + cur.sum, 0) / 3
         ctx.body = {
           finalScore,
-          remark: remark,
-          scores: scores,
+          remark,
+          scores,
         }
       } else {
         ctx.body = {
