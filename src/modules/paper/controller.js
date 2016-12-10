@@ -5,7 +5,7 @@ import Defense from '../../models/defenses'
 const logger = require('koa-log4').getLogger('index')
 /**
  * @api {post} /papers Create a paper
- * @apiPermission Student
+ * @apiPermission Admin
  * @apiVersion 0.4.5
  * @apiName CreatePaper
  * @apiGroup Papers
@@ -69,9 +69,6 @@ const logger = require('koa-log4').getLogger('index')
  * @apiUse TokenError
  */
 export async function createPaper(ctx) {
-  if (ctx.state.user.role !== 'student') {
-    ctx.throw(401)
-  }
   let paper = {
     studentId: ctx.state.user._id,
     teacherId: ctx.state.role.teacherId,
@@ -79,7 +76,6 @@ export async function createPaper(ctx) {
     fileSize: 0,
     filePath: '',
   }
-  logger.error(ctx.url + ' ' + paper)
   try {
     paper = new Paper(paper)
     await paper.save()
@@ -89,7 +85,7 @@ export async function createPaper(ctx) {
       },
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     ctx.throw(422, err.message)
   }
   // let student
@@ -121,14 +117,14 @@ export async function createPaper(ctx) {
       // [student, teacher] = roles
     })
   } catch (err) {
+    logger.error(err)
     try {
       await Promise.all([paper.remove && paper.remove()])
     // await Promise.all([paper.remove && paper.remove(), student.remove && student.remove(), teacher.remove && teacher.remove()])
     } catch (err) {
       ctx.throw(500, err.message)
-      logger.error(ctx.url + ' ' + err.message)
+      logger.error(err)
     }
-    logger.error(ctx.url + ' ' + err.message)
     ctx.throw(401, err.message)
   }
 }
@@ -200,11 +196,14 @@ export async function createPaper(ctx) {
 export async function getPapers(ctx) {
   try {
     const papers = await Paper.find()
+    if (!papers) {
+      throw new Error('404')
+    }
     ctx.body = {
       papers,
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     if (err.message === '404' || err.name === 'CastError') {
       ctx.throw(404, 'Not Found')
     }
@@ -282,14 +281,13 @@ export async function getPaper(ctx, next) {
   try {
     let paper = await Paper.findById(id)
     if (!paper) {
-      ctx.throw(404, 'Not Found')
+      throw new Error(404)
     }
-
     ctx.body = {
       paper,
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     if (err.message === '404' || err.name === 'CastError') {
       ctx.throw(404, 'Not Found')
     }
@@ -441,12 +439,11 @@ export async function getMyPaper(ctx) {
     if (!paper) {
       ctx.throw(404, 'Not Found')
     }
-
     ctx.body = {
       paper,
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     if (err.message === '404' || err.name === 'CastError') {
       ctx.throw(404, 'Not Found')
     }
@@ -496,7 +493,7 @@ export async function getMyPaper(ctx) {
 export async function uploadFile(ctx) {
   logger.info(ctx.request.files)
   if (ctx.state.user.role !== 'student') {
-    ctx.throw(401)
+    ctx.throw(401, 'Only Students Allowed')
   }
   let paper = ctx.body.paper
   try {
@@ -506,7 +503,7 @@ export async function uploadFile(ctx) {
       file: paper.file,
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     ctx.throw(422, err.message)
   }
 }
@@ -627,23 +624,29 @@ export async function uploadFile(ctx) {
  */
 
 export async function updatePaperScore(ctx) {
+  let {scores, defenseId} = ctx.body.paper
+  let teacherId = ctx.state.user._id.toString()
+  let isLeader
+  let defense
   try {
-    const {scores, defenseId} = ctx.body.paper
-    const teacherId = ctx.state.user._id.toString()
+    defense = await Defense.findById(defenseId)
+  } catch (err) {
+    ctx.throw(500, "Can't get defense from paper")
+  }
+  try {
     if (scores.length === 3) {
-      throw new Error(401)
+      throw new Error('All Scores Given')
     }
     scores.forEach((score) => {
       if (score.teacher._id.toString() == teacherId) {
-        throw new Error(401)
+        throw new Error('Repeated Score Forbidden')
       }
     })
-    const defense = await Defense.findById(defenseId)
     const {teacherIds, leaderId} = defense
     if (!teacherIds.some(id => id == teacherId)) {
-      throw new Error(401)
+      throw new Error('Authorized Teachers Only')
     }
-    const isLeader = leaderId ? teacherId == leaderId.toString() : false
+    isLeader = leaderId ? teacherId == leaderId.toString() : false
     scores.push({
       teacher: {
         _id: teacherId,
@@ -653,8 +656,13 @@ export async function updatePaperScore(ctx) {
       items: ctx.request.fields.score.items,
       sum: ctx.request.fields.score.sum,
     })
+  } catch (err) {
+    logger.error(err)
+    ctx.throw(401, err.message)
+  }
+  try {
     if (scores.length === 3 && isLeader) {
-      ctx.body.paper.remark = 'this is a pig'
+      ctx.body.paper.remark = 'fake remark'
       const finalScore = scores.reduce((pre, cur) => pre + cur.sum, 0)
       ctx.body = {
         finalScore,
@@ -665,14 +673,12 @@ export async function updatePaperScore(ctx) {
     }
     ctx.body.paper.scores = scores
     await ctx.body.paper.save()
+
     ctx.body = {
       updatePaperScore: true,
     }
   } catch (err) {
-    if (err.message === '401') {
-      ctx.throw(401, 'Unauthorized')
-    }
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     ctx.throw(422, err.message)
   }
 }
@@ -781,15 +787,25 @@ export async function updatePaperScore(ctx) {
  */
 
 export async function getPaperFinalInfo(ctx) {
+  const {defenseId, finalScore, remark, scores} = ctx.body.paper
+  let defense
   try {
-    const {defenseId, finalScore, remark, scores} = ctx.body.paper
-    const defense = await Defense.findById(defenseId)
-    const {teacherIds, leaderId} = defense
-    const teacherId = ctx.state.user._id.toString()
-    const isLeader = leaderId.toString() == teacherId
+    defense = await Defense.findById(defenseId)
+  } catch (err) {
+    ctx.throw(500, "Can't get defense from paper")
+  }
+  const {teacherIds, leaderId} = defense
+  const teacherId = ctx.state.user._id.toString()
+  const isLeader = leaderId.toString() == teacherId
+  try {
     if (!teacherIds.some(id => id == teacherId)) {
-      throw new Error(401)
+      throw new Error('Leader Only')
     }
+  } catch (err) {
+    logger.error(err)
+    ctx.throw(401, err.message)
+  }
+  try {
     if (!isLeader) {
       if (finalScore !== 0) {
         ctx.body = {
@@ -804,8 +820,9 @@ export async function getPaperFinalInfo(ctx) {
       }
     } else {
       if (scores.length === 3) {
-        ctx.body.paper.remark = 'this is a pig'
+        ctx.body.paper.remark = 'fake remark'
         await ctx.body.paper.save()
+
         const finalScore = scores.reduce((pre, cur) => pre + cur.sum, 0)
         ctx.body = {
           finalScore,
@@ -819,11 +836,7 @@ export async function getPaperFinalInfo(ctx) {
       }
     }
   } catch (err) {
-    if (err.message === '401') {
-      ctx.throw(401, 'Unauthorized')
-      logger.error(ctx.url + ' ' + 'Unauthorized')
-    }
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     ctx.throw(422, err.message)
   }
 }
@@ -870,15 +883,20 @@ export async function getPaperFinalInfo(ctx) {
  */
 
 export async function updatePaperFinalInfo(ctx) {
+  const paper = ctx.body.paper
+  const defense = await Defense.findById(paper.defenseId)
+  let {finished, leaderId, paperIds, status} = defense
+  const teacherId = ctx.state.user._id.toString()
+  const isLeader = leaderId.toString() == teacherId
   try {
-    const paper = ctx.body.paper
-    const defense = await Defense.findById(paper.defenseId)
-    let {finished, leaderId, paperIds, status} = defense
-    const teacherId = ctx.state.user._id.toString()
-    const isLeader = leaderId.toString() == teacherId
     if (!isLeader || parseInt(paper.finalScore)) {
-      throw new Error(401)
+      throw new Error('Leader Only')
     }
+  } catch (err) {
+    logger.error(err)
+    ctx.throw(401, err.message)
+  }
+  try {
     paper.finalScore = ctx.request.fields.paper.finalScore || paper.finalScore
     paper.remark = ctx.request.fields.paper.remark || paper.remark
     if (++finished === paperIds.length && status === 1) {
@@ -888,7 +906,9 @@ export async function updatePaperFinalInfo(ctx) {
       finished,
       status,
     })
+
     await Promise.all([paper.save(), defense.save()])
+
     ctx.body = {
       updatePaperFinalInfo: true,
     }
@@ -898,11 +918,7 @@ export async function updatePaperFinalInfo(ctx) {
       }
     }
   } catch (err) {
-    if (err.message === '401') {
-      ctx.throw(401, 'Unauthorized')
-      logger.error(ctx.url + ' ' + 'Unauthorized')
-    }
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     ctx.throw(422, err.message)
   }
 }
@@ -943,11 +959,16 @@ export async function updatePaperFinalInfo(ctx) {
  */
 
 export async function updatePaperComment(ctx) {
+  const paper = ctx.body.paper
   try {
-    const paper = ctx.body.paper
     if (paper.teacherId.toString() != ctx.state.user._id) {
-      throw new Error(401)
+      throw new Error('Tutor Only')
     }
+  } catch (err) {
+    logger.error(err)
+    ctx.throw(401, err.message)
+  }
+  try {
     const comments = paper.toJSON().comments
     let overflow = comments.length < 3 && true
     const newComment = {
@@ -967,11 +988,10 @@ export async function updatePaperComment(ctx) {
       comments.push(newComment)
     }
     paper.comments = comments
+
     await paper.save()
   } catch (err) {
-    if (err.message === '401') {
-      ctx.throw(401, 'Unauthorized')
-    }
+    logger.error(err)
     ctx.throw(422, err.message)
   }
 

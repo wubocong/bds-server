@@ -98,7 +98,7 @@ export async function createDefense(ctx) {
       },
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     ctx.throw(422, err.message)
   }
 }
@@ -172,7 +172,7 @@ export async function getDefenses(ctx, next) {
       return next()
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     if (err.message === '404' || err.name === 'CastError') {
       ctx.throw(404, 'Not Found')
     }
@@ -238,7 +238,7 @@ export async function updateDefense(ctx) {
       updateDefense: true,
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     ctx.throw(422, err.message)
   }
 }
@@ -297,7 +297,7 @@ export async function addStudentsToDefense(ctx) {
       addStudentsToDefense: true,
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     ctx.throw(422, err.message)
   }
 }
@@ -351,7 +351,7 @@ export async function updateDefenses(ctx) {
       update: true,
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     ctx.throw(422, err.message)
   }
 }
@@ -388,7 +388,7 @@ export async function deleteDefenses(ctx) {
       delete: true,
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     ctx.throw(422, err.message)
   }
 }
@@ -451,7 +451,7 @@ export async function getMyDefense(ctx) {
       defense,
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     ctx.throw(401, err.message)
   }
 }
@@ -558,7 +558,7 @@ export async function getDefenseDetail(ctx) {
       },
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     if (err.message === '404' || err.name === 'CastError') {
       ctx.throw(404, 'Not Found')
     }

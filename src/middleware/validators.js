@@ -19,7 +19,7 @@ export async function ensureUser (ctx, next) {
   try {
     decoded = verify(token, config.token)
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     ctx.throw(401, err.message)
   }
 
@@ -49,7 +49,7 @@ export async function ensureUser (ctx, next) {
         break
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     if (err.message === '404' || err.name === 'CastError') {
       ctx.throw(404, 'Not Found')
     }

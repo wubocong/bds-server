@@ -88,7 +88,7 @@ export async function createUser(ctx) {
       user: { _id: user._id, role: user.role },
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     ctx.throw(422, err.message)
     await Promise.all([user.remove && user.remove(), role.remove && role.remove()])
   }
@@ -189,7 +189,7 @@ export async function getUser(ctx, next) {
       user: {...user.toJSON()},
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     if (err.message === '404' || err.name === 'CastError') {
       ctx.throw(404, 'Not Found')
     }
@@ -292,7 +292,7 @@ export async function getRole(ctx, next) {
       token: ctx.body.token,
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     if (err.message === '404' || err.name === 'CastError') {
       ctx.throw(404, 'Not Found')
     }
@@ -376,7 +376,7 @@ export async function updateUser(ctx) {
     Object.assign(user, ctx.request.fields.user)
     await user.save()
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     ctx.throw(401, err.message)
   }
   ctx.body = {
@@ -428,7 +428,7 @@ export async function deleteUser(ctx) {
     }
     await user.remove()
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     ctx.throw(401, err.message)
   }
   ctx.status = 200
@@ -485,7 +485,7 @@ export async function modifyPassword(ctx) {
       throw (new Error('illegal request, may be attacked!'))
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     ctx.throw(401, err.message)
   }
 }
@@ -574,7 +574,7 @@ export async function contactAdmin(ctx, next) {
       user: user.toJSON(),
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     if (err.message === '404' || err.name === 'CastError') {
       ctx.throw(404, 'Not Found')
     }
@@ -643,7 +643,7 @@ export async function createAdmin(ctx) {
       user: { _id: user._id, role: user.role },
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     ctx.throw(422, err.message)
     await Promise.all([user.remove && user.remove(), admin.remove && admin.remove()])
   }
@@ -705,7 +705,7 @@ export async function createTeachers(ctx) {
 
       userIds.push(newUser._id)
     } catch (err) {
-      logger.error(ctx.url + ' ' + err.message)
+      logger.error(err)
       ctx.throw(422, err.message)
       await Promise.all([newUser.remove && newUser.remove(), teacher.remove && teacher.remove()])
     }
@@ -770,7 +770,7 @@ export async function createStudents(ctx) {
       await Promise.all([await student.save(), Teacher.findOneAndUpdate({teacherId: student.teacherId}, {$addToSet: {studentIds: newUser._id}})])
       userIds.push(newUser._id)
     } catch (err) {
-      logger.error(ctx.url + ' ' + err.message)
+      logger.error(err)
       ctx.throw(422, err.message)
       await Promise.all([newUser.remove && newUser.remove(), student.remove && student.remove()])
     }
@@ -918,7 +918,7 @@ export async function findUser(ctx) {
       users,
     }
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     if (err.message === '404' || err.name === 'CastError') {
       ctx.throw(404, 'Not Found')
     }
@@ -960,7 +960,7 @@ export async function resetPassword(ctx) {
     user.password = user.account
     await user.save()
   } catch (err) {
-    logger.error(ctx.url + ' ' + err.message)
+    logger.error(err)
     ctx.throw(500, err.message)
   }
 }
