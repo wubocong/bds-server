@@ -534,6 +534,7 @@ export async function getDefenseDetail(ctx) {
             const response = student.toJSON()
             delete response.teacherId
             delete response.paperId
+            delete response._id
             if (student) {
               students.push({
                 ...response,

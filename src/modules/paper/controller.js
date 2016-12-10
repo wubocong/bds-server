@@ -643,7 +643,7 @@ export async function updatePaperScore(ctx) {
     if (!teacherIds.some(id => id == teacherId)) {
       throw new Error(401)
     }
-    const isLeader = teacherId == leaderId.toString()
+    const isLeader = leaderId ? teacherId == leaderId.toString() : false
     scores.push({
       teacher: {
         _id: teacherId,

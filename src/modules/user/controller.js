@@ -286,6 +286,7 @@ export async function getRole(ctx, next) {
     }
     const response = user.toJSON()
     delete response.password
+    delete role._id
     ctx.body = {
       user: {...response, ...role},
       token: ctx.body.token,
@@ -371,6 +372,7 @@ export async function updateUser(ctx) {
     delete ctx.request.fields.user.password
     delete ctx.request.fields.user.type
     delete ctx.request.fields.user.role
+    delete ctx.request.fields.user._id
     Object.assign(user, ctx.request.fields.user)
     await user.save()
   } catch (err) {
@@ -695,17 +697,17 @@ export async function createTeachers(ctx) {
     user.role = 'teacher'
     user.password = user.password || user.account
     const newUser = new User(user)
-    let role
+    let teacher
     try {
       await newUser.save()
-      role = new Teacher({...user, teacherId: newUser._id})
-      await role.save()
+      teacher = new Teacher({...user, teacherId: newUser._id})
+      await teacher.save()
 
       userIds.push(newUser._id)
     } catch (err) {
       logger.error(ctx.url + ' ' + err.message)
       ctx.throw(422, err.message)
-      await Promise.all([newUser.remove && newUser.remove(), role.remove && role.remove()])
+      await Promise.all([newUser.remove && newUser.remove(), teacher.remove && teacher.remove()])
     }
   }))
   ctx.body = {
@@ -761,16 +763,16 @@ export async function createStudents(ctx) {
     user.role = 'student'
     user.password = user.password || user.account
     const newUser = new User(user)
-    let role
+    let student
     try {
       await newUser.save()
-      role = new Student({...user, studentId: newUser._id, teacherId: (await User.find({account: user.teacherAccount}))._id})
-      await Promise.all([await role.save(), Teacher.findOneAndUpdate({teacherId: role.teacherId}, {$addToSet: {studentIds: newUser._id}})])
+      student = new Student({...user, studentId: newUser._id, teacherId: (await User.find({account: user.teacherAccount}))._id})
+      await Promise.all([await student.save(), Teacher.findOneAndUpdate({teacherId: student.teacherId}, {$addToSet: {studentIds: newUser._id}})])
       userIds.push(newUser._id)
     } catch (err) {
       logger.error(ctx.url + ' ' + err.message)
       ctx.throw(422, err.message)
-      await Promise.all([newUser.remove && newUser.remove(), role.remove && role.remove()])
+      await Promise.all([newUser.remove && newUser.remove(), student.remove && student.remove()])
     }
   }))
   ctx.body = {
@@ -903,9 +905,13 @@ export async function findUser(ctx) {
     const users = (await User.find(condition, '-password')).toJSON()
     await Promise.all(users.map(async(user, i) => {
       if (user.role === 'teacher') {
-        Object.assign(users[i], (await Teacher.find({teacherId: user._id}, '-type -teacherId')).toJSON())
+        const teacher = (await Teacher.find({teacherId: user._id}, '-type -teacherId')).toJSON()
+        delete teacher._id
+        Object.assign(teacher, users[i])
       } else {
-        Object.assign(users[i], (await Student.find({studentId: user._id}, '-type -studentId')).toJSON())
+        const student = (await Student.find({studentId: user._id}, '-type -studentId')).toJSON()
+        delete student._id
+        Object.assign(student, users[i])
       }
     }))
     ctx.body = {
