@@ -638,7 +638,7 @@ export async function updatePaperScore(ctx) {
       throw new Error('All Scores Given')
     }
     scores.forEach((score) => {
-      if (score.teacher && score.teacher._id.toString() == teacherId) {
+      if (score.teacher._id && score.teacher._id.toString() == teacherId) {
         throw new Error('Repeated Score Forbidden')
       }
     })
