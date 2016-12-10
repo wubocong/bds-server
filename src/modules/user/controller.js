@@ -9,7 +9,7 @@ const logger = require('koa-log4').getLogger('index')
 /**
  * @api {post} /users Create a new user
  * @apiPermission SuperAdmin
- * @apiVersion 0.4.5
+ * @apiVersion 0.5.0
  * @apiName CreateUser
  * @apiGroup Users
  *
@@ -97,7 +97,7 @@ export async function createUser(ctx) {
 /**
  * @api {get} /users Get all user
  * @apiPermission Admin
- * @apiVersion 0.4.5
+ * @apiVersion 0.5.0
  * @apiName GetUsers
  * @apiGroup Users
  *
@@ -141,7 +141,7 @@ export async function getUsers(ctx) {
 /**
  * @api {get} /users/:id Get user by id
  * @apiPermission Admin
- * @apiVersion 0.4.5
+ * @apiVersion 0.5.0
  * @apiName GetUser
  * @apiGroup Users
  *
@@ -201,7 +201,7 @@ export async function getUser(ctx, next) {
 /**
  * @api {get} /users/role/:id Get role by user id
  * @apiPermission Admin
- * @apiVersion 0.4.5
+ * @apiVersion 0.5.0
  * @apiName GetRole
  * @apiGroup Users
  *
@@ -303,7 +303,7 @@ export async function getRole(ctx, next) {
 /**
  * @api {put} /users/:id Update a user by id
  * @apiPermission User
- * @apiVersion 0.4.5
+ * @apiVersion 0.5.0
  * @apiName UpdateUser
  * @apiGroup Users
  *
@@ -387,7 +387,7 @@ export async function updateUser(ctx) {
 /**
  * @api {delete} /users/:id Delete a user by id
  * @apiPermission SuperAdmin
- * @apiVersion 0.4.5
+ * @apiVersion 0.5.0
  * @apiName DeleteUser
  * @apiGroup Users
  *
@@ -440,7 +440,7 @@ export async function deleteUser(ctx) {
 /**
  * @api {put} /users/password/:id Modify a user's password by id
  * @apiPermission Admin
- * @apiVersion 0.4.5
+ * @apiVersion 0.5.0
  * @apiName ModifyPassword
  * @apiGroup Users
  *
@@ -493,7 +493,7 @@ export async function modifyPassword(ctx) {
 /**
  * @api {get} /users/me Get personal user
  * @apiPermission User personally
- * @apiVersion 0.4.5
+ * @apiVersion 0.5.0
  * @apiName GetMe
  * @apiGroup Users
  *
@@ -540,7 +540,7 @@ export async function getMe(ctx) {
 /**
  * @api {get} /users/contactAdmin Get admin's email and phone number
  * @apiPermission All
- * @apiVersion 0.4.5
+ * @apiVersion 0.5.0
  * @apiName ContactAdmin
  * @apiGroup Users
  *
@@ -585,7 +585,7 @@ export async function contactAdmin(ctx, next) {
 /**
  * @api {post} /users/admin Create a new admin
  * @apiPermission User
- * @apiVersion 0.4.5
+ * @apiVersion 0.5.0
  * @apiName CreateAdmin
  * @apiGroup Users
  *
@@ -652,7 +652,7 @@ export async function createAdmin(ctx) {
 /**
  * @api {post} /users/teachers Create teachers
  * @apiPermission Admin
- * @apiVersion 0.4.5
+ * @apiVersion 0.5.0
  * @apiName CreateTeachers
  * @apiGroup Users
  *
@@ -718,7 +718,7 @@ export async function createTeachers(ctx) {
 /**
  * @api {post} /users/students Create students
  * @apiPermission Admin
- * @apiVersion 0.4.5
+ * @apiVersion 0.5.0
  * @apiName CreateStudents
  * @apiGroup Users
  *
@@ -783,7 +783,7 @@ export async function createStudents(ctx) {
 /**
  * @api {post} /users/find Find users
  * @apiPermission Admin
- * @apiVersion 0.4.5
+ * @apiVersion 0.5.0
  * @apiName FindUsers
  * @apiGroup Users
  *
@@ -929,7 +929,7 @@ export async function findUser(ctx) {
 /**
  * @api {delete} /users/password/:id Reset a user's password by id
  * @apiPermission Admin
- * @apiVersion 0.4.5
+ * @apiVersion 0.5.0
  * @apiName ResetPassword
  * @apiGroup Users
  *
