@@ -12,7 +12,7 @@ export async function filterData(ctx, next) {
   const methods = ['get', 'post', 'put', 'delete']
   try {
     if (method === 'put') {
-      ctx.request.fields = ctx.request.fields || JSON.stringify(ctx.request.body)
+      ctx.request.fields = ctx.request.fields || JSON.parse(ctx.request.body)
     }
   } catch (err) {
     ctx.throw(422, err.message)
