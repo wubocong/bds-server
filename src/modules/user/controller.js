@@ -9,7 +9,7 @@ const logger = require('koa-log4').getLogger('index')
 /**
  * @api {post} /users Create a new user
  * @apiPermission SuperAdmin
- * @apiVersion 0.4.4
+ * @apiVersion 0.4.5
  * @apiName CreateUser
  * @apiGroup Users
  *
@@ -97,7 +97,7 @@ export async function createUser(ctx) {
 /**
  * @api {get} /users Get all user
  * @apiPermission Admin
- * @apiVersion 0.4.4
+ * @apiVersion 0.4.5
  * @apiName GetUsers
  * @apiGroup Users
  *
@@ -141,7 +141,7 @@ export async function getUsers(ctx) {
 /**
  * @api {get} /users/:id Get user by id
  * @apiPermission Admin
- * @apiVersion 0.4.4
+ * @apiVersion 0.4.5
  * @apiName GetUser
  * @apiGroup Users
  *
@@ -201,7 +201,7 @@ export async function getUser(ctx, next) {
 /**
  * @api {get} /users/role/:id Get role by user id
  * @apiPermission Admin
- * @apiVersion 0.4.4
+ * @apiVersion 0.4.5
  * @apiName GetRole
  * @apiGroup Users
  *
@@ -302,7 +302,7 @@ export async function getRole(ctx, next) {
 /**
  * @api {put} /users/:id Update a user by id
  * @apiPermission User
- * @apiVersion 0.4.4
+ * @apiVersion 0.4.5
  * @apiName UpdateUser
  * @apiGroup Users
  *
@@ -385,7 +385,7 @@ export async function updateUser(ctx) {
 /**
  * @api {delete} /users/:id Delete a user by id
  * @apiPermission SuperAdmin
- * @apiVersion 0.4.4
+ * @apiVersion 0.4.5
  * @apiName DeleteUser
  * @apiGroup Users
  *
@@ -438,7 +438,7 @@ export async function deleteUser(ctx) {
 /**
  * @api {put} /users/password/:id Modify a user's password by id
  * @apiPermission Admin
- * @apiVersion 0.4.4
+ * @apiVersion 0.4.5
  * @apiName ModifyPassword
  * @apiGroup Users
  *
@@ -469,7 +469,7 @@ export async function deleteUser(ctx) {
 
 export async function modifyPassword(ctx) {
   try {
-    const user = await User.findById(ctx.params.id)
+    const user = ctx.body.user
     logger.info(ctx.request.fields)
     if (user.role === ctx.request.fields.role && ctx.params.id === user._id.toString() && (await user.validatePassword(ctx.request.fields.oldPassword))) {
       user.password = ctx.request.fields.newPassword
@@ -491,7 +491,7 @@ export async function modifyPassword(ctx) {
 /**
  * @api {get} /users/me Get personal user
  * @apiPermission User personally
- * @apiVersion 0.4.4
+ * @apiVersion 0.4.5
  * @apiName GetMe
  * @apiGroup Users
  *
@@ -538,7 +538,7 @@ export async function getMe(ctx) {
 /**
  * @api {get} /users/contactAdmin Get admin's email and phone number
  * @apiPermission All
- * @apiVersion 0.4.4
+ * @apiVersion 0.4.5
  * @apiName ContactAdmin
  * @apiGroup Users
  *
@@ -583,7 +583,7 @@ export async function contactAdmin(ctx, next) {
 /**
  * @api {post} /users/admin Create a new admin
  * @apiPermission User
- * @apiVersion 0.4.4
+ * @apiVersion 0.4.5
  * @apiName CreateAdmin
  * @apiGroup Users
  *
@@ -650,7 +650,7 @@ export async function createAdmin(ctx) {
 /**
  * @api {post} /users/teachers Create teachers
  * @apiPermission Admin
- * @apiVersion 0.4.4
+ * @apiVersion 0.4.5
  * @apiName CreateTeachers
  * @apiGroup Users
  *
@@ -716,7 +716,7 @@ export async function createTeachers(ctx) {
 /**
  * @api {post} /users/students Create students
  * @apiPermission Admin
- * @apiVersion 0.4.4
+ * @apiVersion 0.4.5
  * @apiName CreateStudents
  * @apiGroup Users
  *
@@ -781,7 +781,7 @@ export async function createStudents(ctx) {
 /**
  * @api {post} /users/find Find users
  * @apiPermission Admin
- * @apiVersion 0.4.4
+ * @apiVersion 0.4.5
  * @apiName FindUsers
  * @apiGroup Users
  *
@@ -916,6 +916,45 @@ export async function findUser(ctx) {
     if (err.message === '404' || err.name === 'CastError') {
       ctx.throw(404, 'Not Found')
     }
+    ctx.throw(500, err.message)
+  }
+}
+
+/**
+ * @api {delete} /users/password/reset/:id Reset a user's password by id
+ * @apiPermission Admin
+ * @apiVersion 0.4.5
+ * @apiName ResetPassword
+ * @apiGroup Users
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -X DELETE localhost:5000/users/password/reset/56bd1da600a526986cf65c80
+ *
+ * @apiSuccess {Boolean}   reset     Action status
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "reset": true
+ *     }
+ *
+ * @apiUse TokenError
+ *
+ * @apiUse NotFound
+ *
+ * @apiUse InternalServerError
+ */
+
+export async function resetPassword(ctx) {
+  const user = ctx.body.user
+  if (user.role === 'admin' || ctx.state.user.role !== 'admin') {
+    ctx.throw(401, 'Unauthorized')
+  }
+  try {
+    user.password = user.account
+    await user.save()
+  } catch (err) {
+    logger.error(ctx.url + ' ' + err.message)
     ctx.throw(500, err.message)
   }
 }

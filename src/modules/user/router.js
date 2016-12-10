@@ -33,18 +33,18 @@ export default [
   },
   {
     method: 'POST',
+    route: '/contactAdmin',
+    handlers: [
+      user.contactAdmin,
+    ],
+  },
+  {
+    method: 'POST',
     route: '/',
     handlers: [
       // ensureUser,
       // ensureAdmin,
       user.createUser,
-    ],
-  },
-  {
-    method: 'POST',
-    route: '/contactAdmin',
-    handlers: [
-      user.contactAdmin,
     ],
   },
   {
@@ -76,6 +76,24 @@ export default [
   },
   {
     method: 'PUT',
+    route: '/password/:id',
+    handlers: [
+      ensureUser,
+      user.getUser,
+      user.modifyPassword,
+    ],
+  },
+  {
+    method: 'PUT',
+    route: '/password/reset/:id',
+    handlers: [
+      ensureUser,
+      user.getUser,
+      user.modifyPassword,
+    ],
+  },
+  {
+    method: 'PUT',
     route: '/:id',
     handlers: [
       ensureUser,
@@ -93,14 +111,6 @@ export default [
       user.getUser,
       user.getRole,
       user.deleteUser,
-    ],
-  },
-  {
-    method: 'PUT',
-    route: '/password/:id',
-    handlers: [
-      ensureUser,
-      user.modifyPassword,
     ],
   },
 ]
