@@ -10,8 +10,12 @@ export async function filterData(ctx, next) {
 
   const method = ctx.method.toLowerCase()
   const methods = ['get', 'post', 'put', 'delete']
-  if (method === 'put') {
-    ctx.request.fields = ctx.request.fields || ctx.request.body
+  try {
+    if (method === 'put') {
+      ctx.request.fields = ctx.request.fields || JSON.stringify(ctx.request.body)
+    }
+  } catch (err) {
+    ctx.throw(422, err.message)
   }
   if (method === 'get') {
     ctx.request.fields = ctx.request.files = null
