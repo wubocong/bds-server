@@ -1,6 +1,7 @@
 const logger = require('koa-log4').getLogger('index')
 
 export async function filterData(ctx, next) {
+  logger.info(ctx.request)
   ctx.request.body = null
   const methods = ['get', 'post', 'put', 'delete']
   const method = ctx.method.toLowerCase()
@@ -12,6 +13,7 @@ export async function filterData(ctx, next) {
     ctx.request.fields = ctx.request.files = null
     return next()
   }
+
   const {defense, defenses, paper, user, users, comment, score, file, account, password, role, oldPassword, newPassword, studentIds, defenseIds, finalScore, remark} = ctx.request.fields
   const url = ctx.url
   const roles = ['teacher', 'student', 'admin']
