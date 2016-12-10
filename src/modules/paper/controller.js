@@ -522,6 +522,7 @@ export async function uploadFile(ctx) {
  * curl -H "Content-Type: application/json" -X PUT -d '{ "score": { "sum": 80, "items": { "defenseScore": 80,  "innovationScore": 80,  "descriptionScore": 80,  "resultScore": 80,  "qualityScore": 80,  "designScore": 80,  "pointScore": 80,  "topicScore": 80 } } }' localhost:5000/papers/score/56bd1da600a526986cf65c80
  *
  * @apiParam   {Object}     score                           A teacher's score (required)
+ * @apiParam   {Number}     score.sum                       Sum of scores (required)
  * @apiParam   {Object[]}   score.items                     Each item of score (required)
  * @apiParam   {Number}     score.items.defenseScore        defenseScore
  * @apiParam   {Number}     score.items.innovationScore     innovationScore
@@ -531,7 +532,6 @@ export async function uploadFile(ctx) {
  * @apiParam   {Number}     score.items.designScore         designScore
  * @apiParam   {Number}     score.items.pointScore          pointScore
  * @apiParam   {Number}     score.items.topicScore          topicScore
- * @apiParam   {Number}     score.sum                       Sum of scores
  *
  * @apiSuccess {Boolean}   updatePaperScore     Action status
  *
@@ -640,11 +640,9 @@ export async function updatePaperScore(ctx) {
     })
     const defense = await Defense.findById(defenseId)
     const {teacherIds, leaderId} = defense
-    teacherIds.some((id) => {
-      if (id == teacherId) {
-        throw new Error(401)
-      }
-    })
+    if (!teacherIds.some(id => id == teacherId)) {
+      throw new Error(401)
+    }
     const isLeader = teacherId == leaderId.toString()
     scores.push({
       teacher: {
