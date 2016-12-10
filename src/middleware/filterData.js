@@ -4,11 +4,11 @@ export async function filterData(ctx, next) {
   logger.info(ctx.request.files)
   logger.info(ctx.request.body)
   logger.info(ctx.request.fields)
-  if (ctx.method === 'put') {
+  const method = ctx.method.toLowerCase()
+  if (method === 'put') {
     ctx.request.fields = ctx.request.body
   }
   const methods = ['get', 'post', 'put', 'delete']
-  const method = ctx.method.toLowerCase()
   if (!methods.includes(method)) {
     ctx.throw(405, 'Method Not Allowed')
     logger.error(url + 'filter method')
