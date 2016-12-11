@@ -54,7 +54,7 @@ export async function createDefense(ctx) {
     defense.adminId = defense.adminId || ctx.state.user._id
     const newDefense = new Defense(defense)
     await newDefense.save()
-    logger.info(newDefense)
+    // logger.info(newDefense)
 
     await Promise.all([
       Admin.findOneAndUpdate({
@@ -452,7 +452,7 @@ export async function getMyDefense(ctx) {
     }
   } catch (err) {
     logger.error(err)
-    ctx.throw(401, err.message)
+    ctx.throw(406, err.message)
   }
 }
 

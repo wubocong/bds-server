@@ -12,7 +12,7 @@ export async function ensureUser (ctx, next) {
   const token = getToken(ctx)
 
   if (!token) {
-    ctx.throw(401)
+    ctx.throw(401, 'Token Missed')
   }
 
   let decoded
@@ -22,10 +22,11 @@ export async function ensureUser (ctx, next) {
     logger.error(err)
     ctx.throw(401, err.message)
   }
-
-  const user = await User.findById(decoded.id, '-password')
-  if (!user) {
-    ctx.throw(401)
+  let user
+  try {
+    user = await User.findById(decoded.id, '-password')
+  } catch (err) {
+    ctx.throw(500, err.message)
   }
   let role
   try {
@@ -58,15 +59,12 @@ export async function ensureUser (ctx, next) {
   }
   ctx.state.user = user
   ctx.state.role = role
-  if (!ctx.state.user) {
-    ctx.throw(401)
-  }
   return next()
 }
 
 export async function ensureAdmin (ctx, next) {
   if (ctx.state.user.role !== 'admin') {
-    ctx.throw(401)
+    ctx.throw(403, 'Admin Only')
   }
   return next()
 }

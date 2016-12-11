@@ -15,8 +15,6 @@ import {
   errorMiddleware,
 } from '../src/middleware'
 
-log4js.configure(`${process.cwd()}/log4js.json`, { cwd: `${process.cwd()}/logs` })
-const logger = log4js.getLogger('app')
 const app = new Koa()
 app.keys = [config.session]
 
@@ -24,8 +22,6 @@ mongoose.Promise = global.Promise
 mongoose.connect(config.database)
 
 app.use(convert(cors()))
-
-app.use(log4js.koaLogger(log4js.getLogger('http'), { level: 'auto' }))
 
 app.use(convert(body({
   uploadDir: `${process.cwd()}/upload_files`,
@@ -48,6 +44,8 @@ const modules = require('../src/modules')
 modules(app)
 
 // logger
+log4js.configure(`${process.cwd()}/log4js.json`, { cwd: `${process.cwd()}/logs` })
+const logger = log4js.getLogger('app')
 app.use(async (ctx, next) => {
   const start = new Date()
   await next()

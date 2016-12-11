@@ -1,4 +1,11 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-  "eslint.enable": true
+  "eslint.enable": true,
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/dbdata": true,
+    "**/docs": true,
+    "**/debug": true
+  }
 }

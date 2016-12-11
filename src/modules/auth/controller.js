@@ -1,5 +1,5 @@
 import passport from 'koa-passport'
-const logger = require('koa-log4').getLogger('index')
+const logger = require('koa-log4').getLogger('user')
 
 /**
  * @apiDefine TokenError
@@ -424,7 +424,7 @@ export async function authUser(ctx, next) {
       ctx.throw(401)
     }
 
-    logger.info(ctx.url + ' ' + user)
+    logger.info(`${ctx.url} account: ${user.account}, _id: ${user._id}`)
 
     const token = user.generateToken()
 

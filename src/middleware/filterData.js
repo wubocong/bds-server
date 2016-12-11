@@ -31,7 +31,7 @@ export async function filterData(ctx, next) {
   const roles = ['teacher', 'student', 'admin']
   if (url.search(/^\/auth/) >= 0) {
     if (!roles.includes(role) || (typeof account !== 'string') || (typeof password !== 'string')) {
-      ctx.throw(401, 'Unauthorized(filtered)')
+      ctx.throw(406, 'Unauthorized(filtered)')
       logger.error(url + "filter auth's value")
     }
   } else if (url.search(/^\/users/) >= 0) {

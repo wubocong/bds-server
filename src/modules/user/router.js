@@ -109,7 +109,6 @@ export default [
       ensureUser,
       // ensureAdmin,
       user.getUser,
-      user.getRole,
       user.deleteUser,
     ],
   },

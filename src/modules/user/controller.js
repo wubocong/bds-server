@@ -225,7 +225,6 @@ export async function getRole(ctx, next) {
           await Promise.all([User.findById(data.teacherId, '-type -password -account -role'), Paper.findById(data.paperId, '-type -studentId -teacherId'), Defense.findById(data.defenseId, '-type -studentId -paperId')])
             .then(([teacher, paper, defense]) => {
               role = {grade, major, clazz, teacher, paper, defense}
-              logger.info(role)
             })
           break
         }
@@ -244,7 +243,7 @@ export async function getRole(ctx, next) {
             await Promise.all(defense.teacherIds.map(async(teacherId) => {
               defense.teachers.push(await User.findById(teacherId))
             }))
-            logger.info(defense)
+            // logger.info(defense)
             delete defense.teacherIds
             defenses.push(defense)
           })), ...(data.paperIds.map(async (paperId) => {
@@ -257,7 +256,6 @@ export async function getRole(ctx, next) {
           delete data.studentIds
           role = { ...data, defenses, papers, students }
 
-          logger.info(role)
           break
         }
       case 'admin':
@@ -270,13 +268,13 @@ export async function getRole(ctx, next) {
           delete data.defenseIds
           role = {...data, defenses}
 
-          logger.info(role)
           break
         }
       default: {
         throw (new Error('illegal request, may be attacked!'))
       }
     }
+    // logger.info(role)
     if (next) {
       ctx.body = {
         user,
@@ -343,7 +341,7 @@ export async function updateUser(ctx) {
   const user = ctx.body.user
 
   if (!ctx.request.fields.user) {
-    ctx.throw(422)
+    ctx.throw(422, 'User Info Missed')
   }
   try {
     switch (user.role) {
@@ -377,7 +375,7 @@ export async function updateUser(ctx) {
     await user.save()
   } catch (err) {
     logger.error(err)
-    ctx.throw(401, err.message)
+    ctx.throw(500, err.message)
   }
   ctx.body = {
     update: true,
@@ -423,13 +421,13 @@ export async function deleteUser(ctx) {
         break
       }
       default: {
-        throw (new Error('illegal request, may be attacked!'))
+        throw (new Error('Illegal Request, May Be Attack!'))
       }
     }
     await user.remove()
   } catch (err) {
     logger.error(err)
-    ctx.throw(401, err.message)
+    ctx.throw(500, err.message)
   }
   ctx.status = 200
   ctx.body = {
@@ -472,7 +470,6 @@ export async function deleteUser(ctx) {
 export async function modifyPassword(ctx) {
   try {
     const user = ctx.body.user
-    logger.info(ctx.request.fields)
     if (user.role === ctx.request.fields.role && ctx.params.id === user._id.toString() && (await user.validatePassword(ctx.request.fields.oldPassword))) {
       user.password = ctx.request.fields.newPassword
       await user.save()
@@ -486,7 +483,7 @@ export async function modifyPassword(ctx) {
     }
   } catch (err) {
     logger.error(err)
-    ctx.throw(401, err.message)
+    ctx.throw(403, err.message)
   }
 }
 
@@ -528,9 +525,6 @@ export async function modifyPassword(ctx) {
  */
 
 export async function getMe(ctx) {
-  if (!ctx.state.user) {
-    ctx.throw(401)
-  }
   ctx.status = 200
   ctx.body = {
     user: ctx.state.user.toJSON(),
@@ -954,7 +948,7 @@ export async function findUser(ctx) {
 export async function resetPassword(ctx) {
   const user = ctx.body.user
   if (user.role === 'admin' || ctx.state.user.role !== 'admin') {
-    ctx.throw(401, 'Unauthorized')
+    ctx.throw(403, "Don't Do Evil!")
   }
   try {
     user.password = user.account

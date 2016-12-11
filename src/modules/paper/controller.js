@@ -113,9 +113,7 @@ export async function createPaper(ctx) {
         safe: true,
         upsert: true,
       }),
-    ]).then((roles) => {
-      // [student, teacher] = roles
-    })
+    ]).then(([student, teacher]) => {})
   } catch (err) {
     logger.error(err)
     try {
@@ -125,7 +123,7 @@ export async function createPaper(ctx) {
       ctx.throw(500, err.message)
       logger.error(err)
     }
-    ctx.throw(401, err.message)
+    ctx.throw(406, err.message)
   }
 }
 
@@ -436,9 +434,6 @@ export async function getMyPaper(ctx) {
     const paper = await Paper.find({
       studentId: id,
     })
-    if (!paper) {
-      ctx.throw(404, 'Not Found')
-    }
     ctx.body = {
       paper,
     }
@@ -491,9 +486,10 @@ export async function getMyPaper(ctx) {
  * @apiUse TokenError
  */
 export async function uploadFile(ctx) {
+  const logger = require('koa-log4').getLogger('file')
   logger.info(ctx.request.files)
   if (ctx.state.user.role !== 'student') {
-    ctx.throw(401, 'Only Students Allowed')
+    ctx.throw(403, 'Only Students Allowed')
   }
   let paper = ctx.body.paper
   try {
@@ -631,11 +627,11 @@ export async function updatePaperScore(ctx) {
   try {
     defense = await Defense.findById(defenseId)
   } catch (err) {
-    ctx.throw(500, "Can't get defense from paper")
+    ctx.throw(500, err.message)
   }
   try {
     if (scores.length === 3) {
-      throw new Error('All Scores Given')
+      throw new Error('No More Score Given')
     }
     scores.forEach((score, i) => {
       if (score.teacher._id) {
@@ -662,7 +658,7 @@ export async function updatePaperScore(ctx) {
     })
   } catch (err) {
     logger.error(err)
-    ctx.throw(401, err.message)
+    ctx.throw(403, err.message)
   }
   try {
     if (scores.length === 3 && isLeader) {
@@ -684,7 +680,7 @@ export async function updatePaperScore(ctx) {
     }
   } catch (err) {
     logger.error(err)
-    ctx.throw(422, err.message)
+    ctx.throw(500, err.message)
   }
 }
 
@@ -797,7 +793,7 @@ export async function getPaperFinalInfo(ctx) {
   try {
     defense = await Defense.findById(defenseId)
   } catch (err) {
-    ctx.throw(500, "Can't get defense from paper")
+    ctx.throw(500, err.message)
   }
   const {teacherIds, leaderId} = defense
   const teacherId = ctx.state.user._id.toString()
@@ -808,7 +804,7 @@ export async function getPaperFinalInfo(ctx) {
     }
   } catch (err) {
     logger.error(err)
-    ctx.throw(401, err.message)
+    ctx.throw(403, err.message)
   }
   try {
     if (!isLeader) {
@@ -899,7 +895,7 @@ export async function updatePaperFinalInfo(ctx) {
     }
   } catch (err) {
     logger.error(err)
-    ctx.throw(401, err.message)
+    ctx.throw(403, err.message)
   }
   try {
     paper.finalScore = ctx.request.fields.paper.finalScore || paper.finalScore
@@ -967,11 +963,11 @@ export async function updatePaperComment(ctx) {
   const paper = ctx.body.paper
   try {
     if (paper.teacherId.toString() != ctx.state.user._id) {
-      throw new Error('Tutor Only')
+      throw new Error('Tutor Teacher Only')
     }
   } catch (err) {
     logger.error(err)
-    ctx.throw(401, err.message)
+    ctx.throw(403, err.message)
   }
   try {
     const comments = paper.toJSON().comments
