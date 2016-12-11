@@ -1,1 +1,1 @@
-{"options":{},"indexes":[{"v":1,"key":{"_id":1},"name":"_id_","ns":"bds-prod.students"},{"v":1,"unique":true,"key":{"studentId":1},"name":"studentId_1","ns":"bds-prod.students","background":true}]}
+{"options":{},"indexes":[{"v":1,"key":{"_id":1},"name":"_id_","ns":"bds-prod.students"},{"v":1,"unique":true,"key":{"studentId":1},"name":"studentId_1","background":true,"ns":"bds-prod.students"}]}
