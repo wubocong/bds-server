@@ -5,7 +5,7 @@ const logger = require('koa-log4').getLogger('user')
  * @apiDefine TokenError
  * @apiError Unauthorized Invalid JWT token
  *
- * @apiErrorExample {json} Unauthorized-Error:
+ * @apiErrorExample {json} Unauthorized Error:
  *     HTTP/1.1 401 Unauthorized
  *     {
  *       "status": 401,
@@ -14,14 +14,38 @@ const logger = require('koa-log4').getLogger('user')
  */
 
 /**
- * @apiDefine NotFound
- * @apiError Resource Not Found
+ * @apiDefine ForbiddenError
+ * @apiError No Access To Resources
  *
- * @apiErrorExample {json} Not Found:
+ * @apiErrorExample {json} Forbidden Error:
+ *     HTTP/1.1 403 Forbidden
+ *     {
+ *       "status": 403,
+ *       "error": "Forbidden"
+ *     }
+ */
+
+/**
+ * @apiDefine NotFoundError
+ * @apiError Request Resources Not Found
+ *
+ * @apiErrorExample {json} Not Found Error:
  *     HTTP/1.1 404 NotFound
  *     {
  *       "status": 404,
  *       "error": "NotFound"
+ *     }
+ */
+
+/**
+ * @apiDefine NotAcceptableError
+ * @apiError Post Content Not Acceptable
+ *
+ * @apiErrorExample {json} Not Acceptable Error:
+ *     HTTP/1.1 406 NotAcceptable
+ *     {
+ *       "status": 406,
+ *       "error": "Not Acceptable"
  *     }
  */
 
@@ -396,7 +420,7 @@ const logger = require('koa-log4').getLogger('user')
 
 /**
  * @api {post} /auth Authenticate user
- * @apiVersion 0.5.0
+ * @apiVersion 0.6.0
  * @apiName AuthUser
  * @apiGroup Auth
  *
