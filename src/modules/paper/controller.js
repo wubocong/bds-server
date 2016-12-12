@@ -820,7 +820,7 @@ export async function getPaperFinalInfo(ctx) {
         }
       }
     } else {
-      if (scores.length === 3) {
+      if (scores.length === teacherIds.length) {
         ctx.body.paper.remark = 'fake remark'
         await ctx.body.paper.save()
 
