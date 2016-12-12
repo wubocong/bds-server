@@ -113,7 +113,8 @@ export async function createPaper(ctx) {
         safe: true,
         upsert: true,
       }),
-    ]).then(([student, teacher]) => {})
+    ]).then(([student, teacher]) => {
+    })
   } catch (err) {
     logger.error(err)
     try {
@@ -629,8 +630,10 @@ export async function updatePaperScore(ctx) {
   } catch (err) {
     ctx.throw(500, err.message)
   }
+  const {teacherIds, leaderId} = defense
+
   try {
-    if (scores.length === 3) {
+    if (scores.length === teacherIds.length) {
       throw new Error('No More Score Given')
     }
     scores.forEach((score, i) => {
@@ -642,7 +645,6 @@ export async function updatePaperScore(ctx) {
         scores.shift()
       }
     })
-    const {teacherIds, leaderId} = defense
     if (!teacherIds.some(id => id == teacherId)) {
       throw new Error('Authorized Teachers Only')
     }
