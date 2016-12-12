@@ -1,12 +1,12 @@
 {
   "name": "bachelor-denfese-server",
-  "version": "0.6.0-beta.1",
+  "version": "0.6.0-beta.2",
   "description": "Bachelor defense API",
   "main": "index.js",
   "private": true,
   "scripts": {
     "start": "node index.js",
-    "start:prod": "./node_modules/.bin/cross-env NODE_ENV=production ./node_modules/.bin/pm2 start index.js",
+    "start:prod": "./node_modules/.bin/pm2 start index.js",
     "dev": "./node_modules/.bin/nodemon index.js",
     "test": "NODE_ENV=test ./node_modules/.bin/mocha --compilers js:babel-register --require babel-polyfill",
     "lint": "eslint src/**/*.js",
@@ -18,7 +18,8 @@
     "clean:file": "./node_modules/.bin/cross-env rm -rf upload_files/** && touch upload_files/.gitkeep",
     "clean:dbdata": "./node_modules/.bin/cross-env rm -rf dbdata/** && touch dbdata/.gitkeep",
     "dump": "./node_modules/.bin/cross-env mongodump -d bds-prod -o debug",
-    "restore": "./node_modules/.bin/cross-env mongorestore -d bds-prod --dir debug/bds-prod --drop"
+    "restore": "./node_modules/.bin/cross-env mongorestore -d bds-prod --dir debug/bds-prod --drop",
+    "webhook": "./node_modules/.bin/pm2 start debug/webhook.js"
   },
   "author": "Warrior! <wubocong.xyz@gmail.com>",
   "apidoc": {
@@ -67,7 +68,6 @@
     "eslint-config-standard": "^6.2.1",
     "eslint-plugin-promise": "^3.4.0",
     "eslint-plugin-standard": "^2.0.1",
-    "log4js": "^1.0.1",
     "mocha": "^3.2.0",
     "nodemon": "^1.11.0",
     "pm2": "^2.1.6",
