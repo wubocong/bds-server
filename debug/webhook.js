@@ -14,13 +14,24 @@ const server = http.createServer((req, res) => {
       res.end()
     })
   } else if (req.url.search(/webhook\/?$/i) >= 0) {
-    exec('nohup git pull --all && pm2 restart index && pm2 restart webhook &', (err, success) => {
+    exec('nohup git pull --all && pm2 restart index &', (err, success) => {
       if (err) {
         res.writeHead(500)
         res.write('fuck')
       } else {
         res.writeHead(200)
         res.write('hook!')
+      }
+      res.end()
+    })
+  } else if (req.url.search(/webhook\/restart\/?$/i) >= 0) {
+    exec('nohup pm2 gracefulReload webhook &', (err, success) => {
+      if (err) {
+        res.writeHead(500)
+        res.write('fuck')
+      } else {
+        res.writeHead(200)
+        res.write('update!')
       }
       res.end()
     })
