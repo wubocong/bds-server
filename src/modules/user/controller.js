@@ -244,7 +244,10 @@ export async function getRole(ctx, next) {
           let defenses = []
           let papers = []
           let students = []
-          await Promise.all([...(data.defenseIds || data.defenseIds.map(async (defenseId) => {
+          data.defenseIds = data.defenseIds || []
+          data.paperIds = data.paperIds || []
+          data.studentIds = data.studentIds || []
+          await Promise.all([...(data.defenseIds.map(async (defenseId) => {
             const defense = (await Defense.findById(defenseId)).toJSON()
             defense.teachers = []
             await Promise.all(defense.teacherIds.map(async(teacherId) => {
@@ -253,9 +256,9 @@ export async function getRole(ctx, next) {
             // logger.info(defense)
             delete defense.teacherIds
             defenses.push(defense)
-          })), ...(data.paperIds || data.paperIds.map(async (paperId) => {
+          })), ...(data.paperIds.map(async (paperId) => {
             papers.push((await Paper.findById(paperId)).toJSON())
-          })), ...(data.studentIds || data.studentIds.map(async (studentId) => {
+          })), ...(data.studentIds.map(async (studentId) => {
             students.push((await User.findById(studentId, '-password')).toJSON())
           }))])
           delete data.defenseIds
@@ -286,8 +289,8 @@ export async function getRole(ctx, next) {
       }
     default: {
       delete ctx.state.user
-      logger.error('Illegal Operation')
-      ctx.throw(401, 'Illegal Operation')
+      logger.error('Illegal Role Get')
+      ctx.throw(403, 'Illegal Operation')
     }
   }
     // logger.info(role)
@@ -386,7 +389,9 @@ export async function updateUser(ctx) {
       break
     }
     default: {
-      throw (new Error('illegal request, may be attacked!'))
+      delete ctx.state.user
+      logger.error('Illegal User Update')
+      ctx.throw(403, 'Illegal Operation')
     }
   }
   // logger.info(user)
@@ -435,23 +440,34 @@ export async function deleteUser(ctx) {
     case 'student': {
       try {
         await Student.findOneAndRemove({studentId: user._id})
-      } catch (err) { ctx.throw(500, 'Remove Student Error') }
+      } catch (err) {
+        logger.error(err)
+        ctx.throw(500, 'Remove Student Error')
+      }
       break
     }
     case 'teacher': {
       try {
         await Teacher.findOneAndRemove({teacherId: user._id})
-      } catch (err) { ctx.throw(500, 'Remove Teacher Error') }
+      } catch (err) {
+        logger.error(err)
+        ctx.throw(500, 'Remove Teacher Error')
+      }
       break
     }
     case 'admin': {
       try {
         await Admin.findOneAndRemove({adminId: user._id})
-      } catch (err) { ctx.throw(500, 'Remove Admin Error') }
+      } catch (err) {
+        logger.error(err)
+        ctx.throw(500, 'Remove Admin Error')
+      }
       break
     }
     default: {
-      throw (new Error('Illegal Request, May Be Attack!'))
+      delete ctx.state.user
+      logger.error('Illegal User Delete')
+      ctx.throw(403, 'Illegal Operation')
     }
   }
   try {
@@ -501,7 +517,7 @@ export async function deleteUser(ctx) {
 export async function modifyPassword(ctx) {
   const user = ctx.body.user
   if (user.role !== ctx.request.fields.role || ctx.params.id !== user._id.toString() || !(await user.validatePassword(ctx.request.fields.oldPassword))) {
-    logger.error('Forbid Modify Password')
+    logger.error('Illegal Password Modify')
     ctx.throw(403, 'Illegal Operation')
   }
   user.password = ctx.request.fields.newPassword
@@ -932,7 +948,7 @@ export async function createStudents(ctx) {
 export async function findUser(ctx) {
   const {condition} = ctx.request.fields
   if (condition.role !== 'teacher' && condition.role !== 'student') {
-    logger.error('Role Forbidden')
+    logger.error('Find User Role Forbidden')
     ctx.throw(403, 'Role Forbidden')
   }
   let users
@@ -1000,7 +1016,7 @@ export async function findUser(ctx) {
 export async function resetPassword(ctx) {
   const user = ctx.body.user
   if (user.role === 'admin' || ctx.state.user.role !== 'admin') {
-    logger.error('Illegal Operation')
+    logger.error('Illegal Password Reset')
     ctx.throw(403, 'Illegal Operation')
   }
   try {
