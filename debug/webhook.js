@@ -2,7 +2,7 @@ const http = require('http')
 const exec = require('child_process').exec
 
 const server = http.createServer((req, res) => {
-  if (req.url.search(/reset\/?$/i)) {
+  if (req.url.search(/reset\/?$/i) > 0) {
     exec('npm run restore', (err, success) => {
       if (err) {
         res.writeHead(500)
