@@ -1,7 +1,7 @@
 {
   "name": "bachelor-denfese-server",
-  "version": "0.6.0-beta.2",
-  "description": "Bachelor defense API",
+  "version": "0.6.0-beta.3",
+  "description": "Bachelor Defense Server",
   "main": "index.js",
   "private": true,
   "scripts": {

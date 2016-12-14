@@ -132,9 +132,14 @@ export async function createUser(ctx) {
  */
 
 export async function getUsers(ctx) {
-  const users = await User.find({}, '-password')
-  ctx.body = {
-    users,
+  try {
+    const users = await User.find({}, '-password')
+    ctx.body = {
+      users,
+    }
+  } catch (err) {
+    logger.error(err)
+    ctx.throw(500, err.message)
   }
 }
 
@@ -216,28 +221,30 @@ export async function getUser(ctx, next) {
 export async function getRole(ctx, next) {
   let role
   const user = ctx.body.user
-  try {
-    switch (user.role) {
-      case 'student':
-        {
+  switch (user.role) {
+    case 'student':
+      {
+        try {
           const data = (await Student.findOne({studentId: user._id}, '-type -studentId')).toJSON()
-          const {grade, major, clazz} = data
-          await Promise.all([User.findById(data.teacherId, '-type -password -account -role'), Paper.findById(data.paperId, '-type -studentId -teacherId'), Defense.findById(data.defenseId, '-type -studentId -paperId')])
+          await Promise.all([data.teacherId && User.findById(data.teacherId, '-type -password -account -role'), data.paperId && Paper.findById(data.paperId, '-type -studentId -teacherId'), data.defenseId && Defense.findById(data.defenseId, '-type -studentId -paperId')])
             .then(([teacher, paper, defense]) => {
+              const {grade, major, clazz} = data
               role = {grade, major, clazz, teacher, paper, defense}
             })
-          break
+        } catch (err) {
+          logger.error(err)
+          ctx.throw(500, 'Get Student Info Error')
         }
-      case 'teacher':
-        {
+        break
+      }
+    case 'teacher':
+      {
+        try {
           const data = (await Teacher.findOne({teacherId: user._id}, '-type -teacherId')).toJSON()
           let defenses = []
           let papers = []
           let students = []
-          data.defenseIds = data.defenseIds || []
-          data.paperIds = data.paperIds || []
-          data.studentIds = data.studentIds || []
-          await Promise.all([...(data.defenseIds.map(async (defenseId) => {
+          await Promise.all([...(data.defenseIds || data.defenseIds.map(async (defenseId) => {
             const defense = (await Defense.findById(defenseId)).toJSON()
             defense.teachers = []
             await Promise.all(defense.teacherIds.map(async(teacherId) => {
@@ -246,20 +253,24 @@ export async function getRole(ctx, next) {
             // logger.info(defense)
             delete defense.teacherIds
             defenses.push(defense)
-          })), ...(data.paperIds.map(async (paperId) => {
-            papers.push(await Paper.findById(paperId))
-          })), ...(data.studentIds.map(async (studentId) => {
-            students.push(await User.findById(studentId, '-password'))
+          })), ...(data.paperIds || data.paperIds.map(async (paperId) => {
+            papers.push((await Paper.findById(paperId)).toJSON())
+          })), ...(data.studentIds || data.studentIds.map(async (studentId) => {
+            students.push((await User.findById(studentId, '-password')).toJSON())
           }))])
           delete data.defenseIds
           delete data.paperIds
           delete data.studentIds
           role = { ...data, defenses, papers, students }
-
-          break
+        } catch (err) {
+          logger.error(err)
+          ctx.throw(500, 'Get Teacher Info Error')
         }
-      case 'admin':
-        {
+        break
+      }
+    case 'admin':
+      {
+        try {
           const data = (await Admin.findOne({adminId: user._id}, '-type -adminId')).toJSON()
           let defenses = []
           await Promise.all(data.defenseIds.map(async (defenseId) => {
@@ -267,34 +278,32 @@ export async function getRole(ctx, next) {
           }))
           delete data.defenseIds
           role = {...data, defenses}
-
-          break
+        } catch (err) {
+          logger.error(err)
+          ctx.throw(500, 'Get Admin Info Error')
         }
-      default: {
-        throw (new Error('illegal request, may be attacked!'))
+        break
       }
+    default: {
+      delete ctx.state.user
+      logger.error('Illegal Operation')
+      ctx.throw(401, 'Illegal Operation')
     }
+  }
     // logger.info(role)
-    if (next) {
-      ctx.body = {
-        user,
-        role,
-      }
-      return next()
-    }
-    const response = user.toJSON()
-    delete response.password
-    delete role._id
+  if (next) {
     ctx.body = {
-      user: {...response, ...role},
-      token: ctx.body.token,
+      user,
+      role,
     }
-  } catch (err) {
-    logger.error(err)
-    if (err.message === '404' || err.name === 'CastError') {
-      ctx.throw(404, 'Not Found')
-    }
-    ctx.throw(500, err.message)
+    return next()
+  }
+  const response = user.toJSON()
+  delete response.password
+  delete role._id
+  ctx.body = {
+    user: {...response, ...role},
+    token: ctx.body.token,
   }
 }
 
@@ -341,37 +350,53 @@ export async function updateUser(ctx) {
   const user = ctx.body.user
 
   if (!ctx.request.fields.user) {
+    logger.error('User Info Missed')
     ctx.throw(422, 'User Info Missed')
   }
-  try {
-    switch (user.role) {
-      case 'student': {
+  switch (user.role) {
+    case 'student': {
+      try {
         await Student.findOneAndUpdate({studentId: user._id}, {$set: {teacherId: ctx.request.fields.teacherId, paperId: ctx.request.fields.paperId, defenseId: ctx.request.fields.defenseId}}, {safe: true, upsert: true})
-        break
+      } catch (err) {
+        logger.error(err)
+        ctx.throw(500, 'Update Student Error')
       }
-      case 'teacher': {
+      break
+    }
+    case 'teacher': {
+      try {
         if (ctx.request.fields.user.studentIds) {
           await Teacher.findOneAndUpdate({teacherId: user._id}, {$pushAll: {studentIds: ctx.request.fields.user.studentIds}})
         }
-        break
+      } catch (err) {
+        logger.error(err)
+        ctx.throw(500, 'Update Teacher Error')
       }
-      case 'admin': {
+      break
+    }
+    case 'admin': {
+      try {
         if (ctx.request.fields.user.studentIds) {
           await Admin.findOneAndUpdate({adminId: user._id}, {$pushAll: {defenseIds: ctx.request.fields.user.defenseIds}})
         }
-        break
+      } catch (err) {
+        logger.error(err)
+        ctx.throw(500, 'Update Admin Error')
       }
-      default: {
-        throw (new Error('illegal request, may be attacked!'))
-      }
+      break
     }
-    logger.info(user)
-    delete ctx.request.fields.user.account
-    delete ctx.request.fields.user.password
-    delete ctx.request.fields.user.type
-    delete ctx.request.fields.user.role
-    delete ctx.request.fields.user._id
-    Object.assign(user, ctx.request.fields.user)
+    default: {
+      throw (new Error('illegal request, may be attacked!'))
+    }
+  }
+  // logger.info(user)
+  delete ctx.request.fields.user.account
+  delete ctx.request.fields.user.password
+  delete ctx.request.fields.user.type
+  delete ctx.request.fields.user.role
+  delete ctx.request.fields.user._id
+  Object.assign(user, ctx.request.fields.user)
+  try {
     await user.save()
   } catch (err) {
     logger.error(err)
@@ -406,24 +431,30 @@ export async function updateUser(ctx) {
 export async function deleteUser(ctx) {
   const user = ctx.body.user
 
-  try {
-    switch (user.role) {
-      case 'student': {
+  switch (user.role) {
+    case 'student': {
+      try {
         await Student.findOneAndRemove({studentId: user._id})
-        break
-      }
-      case 'teacher': {
-        await Teacher.findOneAndRemove({teacherId: user._id})
-        break
-      }
-      case 'admin': {
-        await Admin.findOneAndRemove({adminId: user._id})
-        break
-      }
-      default: {
-        throw (new Error('Illegal Request, May Be Attack!'))
-      }
+      } catch (err) { ctx.throw(500, 'Remove Student Error') }
+      break
     }
+    case 'teacher': {
+      try {
+        await Teacher.findOneAndRemove({teacherId: user._id})
+      } catch (err) { ctx.throw(500, 'Remove Teacher Error') }
+      break
+    }
+    case 'admin': {
+      try {
+        await Admin.findOneAndRemove({adminId: user._id})
+      } catch (err) { ctx.throw(500, 'Remove Admin Error') }
+      break
+    }
+    default: {
+      throw (new Error('Illegal Request, May Be Attack!'))
+    }
+  }
+  try {
     await user.remove()
   } catch (err) {
     logger.error(err)
@@ -468,22 +499,21 @@ export async function deleteUser(ctx) {
  */
 
 export async function modifyPassword(ctx) {
+  const user = ctx.body.user
+  if (user.role !== ctx.request.fields.role || ctx.params.id !== user._id.toString() || !(await user.validatePassword(ctx.request.fields.oldPassword))) {
+    logger.error('Forbid Modify Password')
+    ctx.throw(403, 'Illegal Operation')
+  }
+  user.password = ctx.request.fields.newPassword
   try {
-    const user = ctx.body.user
-    if (user.role === ctx.request.fields.role && ctx.params.id === user._id.toString() && (await user.validatePassword(ctx.request.fields.oldPassword))) {
-      user.password = ctx.request.fields.newPassword
-      await user.save()
-
-      ctx.status = 200
-      ctx.body = {
-        update: true,
-      }
-    } else {
-      throw (new Error('illegal request, may be attacked!'))
-    }
+    await user.save()
   } catch (err) {
     logger.error(err)
-    ctx.throw(403, err.message)
+    ctx.throw(500, err.message)
+  }
+  ctx.status = 200
+  ctx.body = {
+    update: true,
   }
 }
 
@@ -614,7 +644,7 @@ export async function contactAdmin(ctx, next) {
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
  *       "status": 422,
- *       "error": "Unprocessable Entity"
+ *       "error": "Need Admin Password"
  *     }
  *
  * @apiUse TokenError
@@ -624,7 +654,8 @@ export async function createAdmin(ctx) {
   delete ctx.request.fields.user.type
   ctx.request.fields.user.role = 'admin'
   if (!ctx.request.fields.user.password) {
-    ctx.throw(422, 'Unprocessable Entity')
+    logger.error('Need Admin Password')
+    ctx.throw(422, 'Need Admin Password')
   }
   const user = new User(ctx.request.fields.user)
   let admin
@@ -638,8 +669,8 @@ export async function createAdmin(ctx) {
     }
   } catch (err) {
     logger.error(err)
-    ctx.throw(422, err.message)
     await Promise.all([user.remove && user.remove(), admin.remove && admin.remove()])
+    ctx.throw(500, err.message)
   }
 }
 
@@ -685,6 +716,10 @@ export async function createAdmin(ctx) {
  */
 
 export async function createTeachers(ctx) {
+  if (!ctx.request.fields.users) {
+    logger.error('Create Teachers Without Content')
+    ctx.throw(422, 'Create Teachers Without Content')
+  }
   const userIds = []
   await Promise.all(ctx.request.fields.users.map(async(user) => {
     delete user.type
@@ -700,8 +735,8 @@ export async function createTeachers(ctx) {
       userIds.push(newUser._id)
     } catch (err) {
       logger.error(err)
-      ctx.throw(422, err.message)
       await Promise.all([newUser.remove && newUser.remove(), teacher.remove && teacher.remove()])
+      ctx.throw(500, err.message)
     }
   }))
   ctx.body = {
@@ -751,6 +786,10 @@ export async function createTeachers(ctx) {
  */
 
 export async function createStudents(ctx) {
+  if (!ctx.request.fields.users) {
+    logger.error('Create Students Without Content')
+    ctx.throw(422, 'Create Students Without Content')
+  }
   const userIds = []
   await Promise.all(ctx.request.fields.users.map(async(user) => {
     delete user.type
@@ -765,7 +804,7 @@ export async function createStudents(ctx) {
       userIds.push(newUser._id)
     } catch (err) {
       logger.error(err)
-      ctx.throw(422, err.message)
+      ctx.throw(500, err.message)
       await Promise.all([newUser.remove && newUser.remove(), student.remove && student.remove()])
     }
   }))
@@ -891,26 +930,14 @@ export async function createStudents(ctx) {
  */
 
 export async function findUser(ctx) {
+  const {condition} = ctx.request.fields
+  if (condition.role !== 'teacher' && condition.role !== 'student') {
+    logger.error('Role Forbidden')
+    ctx.throw(403, 'Role Forbidden')
+  }
+  let users
   try {
-    const {condition} = ctx.request.fields
-    if (condition.role !== 'teacher' && condition.role !== 'student') {
-      ctx.throw(422, 'Unprocessable Entity')
-    }
-    const users = (await User.find(condition, '-password')).toJSON()
-    await Promise.all(users.map(async(user, i) => {
-      if (user.role === 'teacher') {
-        const teacher = (await Teacher.find({teacherId: user._id}, '-type -teacherId')).toJSON()
-        delete teacher._id
-        Object.assign(teacher, users[i])
-      } else {
-        const student = (await Student.find({studentId: user._id}, '-type -studentId')).toJSON()
-        delete student._id
-        Object.assign(student, users[i])
-      }
-    }))
-    ctx.body = {
-      users,
-    }
+    users = (await User.find(condition, '-password')).toJSON()
   } catch (err) {
     logger.error(err)
     if (err.message === '404' || err.name === 'CastError') {
@@ -918,6 +945,31 @@ export async function findUser(ctx) {
     }
     ctx.throw(500, err.message)
   }
+  await Promise.all(users.map(async(user, i) => {
+    if (user.role === 'teacher') {
+      try {
+        const teacher = (await Teacher.find({teacherId: user._id}, '-type -teacherId')).toJSON()
+        delete teacher._id
+        return Object.assign(teacher, users[i])
+      } catch (err) {
+        logger.error(err)
+        ctx.throw(500, err.message)
+      }
+    } else {
+      try {
+        const student = (await Student.find({studentId: user._id}, '-type -studentId')).toJSON()
+        delete student._id
+        return Object.assign(student, users[i])
+      } catch (err) {
+        logger.error(err)
+        ctx.throw(500, err.message)
+      }
+    }
+  })).then((users) => {
+    ctx.body = {
+      users,
+    }
+  })
 }
 
 /**
@@ -948,7 +1000,8 @@ export async function findUser(ctx) {
 export async function resetPassword(ctx) {
   const user = ctx.body.user
   if (user.role === 'admin' || ctx.state.user.role !== 'admin') {
-    ctx.throw(403, "Don't Do Evil!")
+    logger.error('Illegal Operation')
+    ctx.throw(403, 'Illegal Operation')
   }
   try {
     user.password = user.account
