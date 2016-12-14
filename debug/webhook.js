@@ -2,8 +2,8 @@ const http = require('http')
 const exec = require('child_process').exec
 
 const server = http.createServer((req, res) => {
-  if (req.url.search(/reset\/?$/i) > 0) {
-    exec('npm run restore', (err, success) => {
+  if (req.url.search(/reset\/?$/i) >= 0) {
+    exec('nohup npm run restore &', (err, success) => {
       if (err) {
         res.writeHead(500)
         res.write('fuck')
@@ -13,8 +13,8 @@ const server = http.createServer((req, res) => {
       }
       res.end()
     })
-  } else if (req.url.search(/webhook\/?$/i) > 0) {
-    exec('git pull --all && pm2 restart index && pm2 restart webhook', (err, success) => {
+  } else if (req.url.search(/webhook\/?$/i) >= 0) {
+    exec('nohup git pull --all && pm2 restart index && pm2 restart webhook &', (err, success) => {
       if (err) {
         res.writeHead(500)
         res.write('fuck')
