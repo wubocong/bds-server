@@ -1,9 +1,11 @@
 {
   "name": "bachelor-denfese-server",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Bachelor Defense Server",
   "main": "index.js",
-  "private": true,
+  "repository": {
+    "url": "https://github.com/wubocong/bds-server"
+  },
   "scripts": {
     "start": "node index.js",
     "start:prod": "./node_modules/.bin/pm2 start index.js",
